@@ -463,7 +463,7 @@ function secretEvent(done){
 function doCommand(id){
 if(gameBusy||!S||S.ended)return;
 if(S.sick&&id!=="rest"){toast("🤒 寝込んでいる…今週は「休養する」で体を休めよう");sysNotify("🤒 寝込んでいるため行動できません。「休養する」を選んでください",1);return}
-window.scrollTo({top:0,behavior:"smooth"}); /* v2 fix: コマンドを押したら全端末で画面の一番上（ステージ）へ戻る */
+const __stg=$("game-stage");if(__stg)__stg.scrollIntoView({behavior:"smooth",block:"start"});else window.scrollTo({top:0,behavior:"smooth"}); /* v2 fix: コマンドを押したらステージ（画像）が画面の先頭に来るよう戻る。日付の行までは戻さない */
 if(id==="date"){openDate();return}
 if(id==="gift"){openGift();return}
 if(id==="contact"){openContact();return}

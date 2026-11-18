@@ -88,7 +88,7 @@ button:not(.btn):not(.cmd):not(.mem):active{transform:translateY(2px) scale(.98)
 .side-col>*{flex:1;min-width:0}
 .params-card{padding:14px}
 @media(max-width:920px){.game-grid{grid-template-columns:1fr 250px}}
-@media(max-width:700px){.game-grid{grid-template-columns:1fr;grid-template-areas:"stage" "note" "cmd" "sys" "status"}.stage-col{display:contents}#screen-game .stage{grid-area:stage}#screen-game .sysbox{grid-area:note}#screen-game .sys-under{grid-area:sys}#screen-game .cmd-grid{position:static}.side-col{flex-direction:column}} /* v2 fix: スマホではボタン類をコマンドと好感度の間へ（PC配置は不変） */
+@media(max-width:700px){.game-grid{grid-template-columns:1fr;grid-template-areas:"stage" "note" "cmd" "status" "sys"}.stage-col{display:contents}#screen-game .stage{grid-area:stage}#screen-game .sysbox{grid-area:note}#screen-game .sys-under{grid-area:sys}#screen-game .cmd-grid{position:static}.side-col{flex-direction:column}} /* v2 fix: スマホではボタン類をコマンドと好感度の間へ（PC配置は不変） */
 .bar{height:12px;border-radius:99px;background:var(--pink-l);overflow:hidden}
 .bar i{display:block;height:100%;border-radius:99px;background:var(--pink);transition:width .5s}
 .bar.blue i{background:#4a86c5}.bar.green i{background:var(--green)}.bar.gold i{background:var(--gold)}.bar.red i{background:var(--red)}.bar.purple i{background:#8b6cc9}.bar.teal i{background:#2a9d8f}.bar.brown i{background:#a9713f}
