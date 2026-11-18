@@ -81,7 +81,7 @@ button:not(.btn):not(.cmd):not(.mem):active{transform:translateY(2px) scale(.98)
 .date-chip .season{color:#ffd9a8}
 .top-actions{display:flex;gap:6px;flex-wrap:wrap}
 .game-grid{display:grid;grid-template-columns:1fr 300px;grid-template-areas:"stage cmd" "status status";gap:12px;align-items:start;position:relative;z-index:2}
-.cmd.sysbtn{background:#eaf3fb;border-color:#b9d2ea;box-shadow:none} /* v2 fix: システムボタンはコマンドと同型。区別用に薄青だけ付ける */
+.sys-under{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-start;margin-top:10px} /* v2 fix: システムボタンはシステム通知の下に左寄せで配置 */
 .stage-col{grid-area:stage;min-width:0}
 #screen-game .cmd-grid{grid-area:cmd;position:sticky;top:10px;margin-top:0;grid-template-columns:repeat(2,1fr)}
 .side-col{grid-area:status;display:flex;flex-direction:row;gap:12px;min-width:0}
