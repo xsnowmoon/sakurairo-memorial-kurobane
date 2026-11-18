@@ -83,7 +83,7 @@ button:not(.btn):not(.cmd):not(.mem):active{transform:translateY(2px) scale(.98)
 .game-grid{display:grid;grid-template-columns:1fr 300px;grid-template-areas:"stage cmd" "status status";gap:12px;align-items:start;position:relative;z-index:2}
 .cmd-col{grid-area:cmd;position:sticky;top:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .sys-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;align-content:start}
-.sys-actions .btn{border-radius:14px;padding:12px 6px 10px;font-size:14px;font-weight:900;min-height:74px;background:#eaf3fb;border:2px solid #b9d2ea;color:var(--navy);box-shadow:none;display:flex;align-items:center;justify-content:center;text-align:center}
+.sys-actions .sysbtn{background:#eaf3fb;border-color:#b9d2ea;box-shadow:none} /* v2 fix: コマンドボタンと同型（.cmd流用）。区別用に薄青だけ付ける */
 .stage-col{grid-area:stage;min-width:0}
 #screen-game .cmd-grid{margin-top:0;grid-template-columns:repeat(2,1fr)}
 .side-col{grid-area:status;display:flex;flex-direction:row;gap:12px;min-width:0}
