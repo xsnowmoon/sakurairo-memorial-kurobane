@@ -280,12 +280,12 @@ function __v2Ending(e){
  const top=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];
  const U=(id,img)=>{unlockMem(id);if(img&&!S.flags.badImg)S.flags.badImg=img};
  HEROINES.forEach(h=>{const n=h.id;
-   if(top&&top.id===n&&(e.type==="almost"||e.type==="rival"))U("mem_bad_"+n+"01","badend/bad-"+n+"01.webp");
+   if(top&&top.id===n&&(e.type==="almost"||e.type==="rival"))U("mem_bad_"+n+"01","assets/bad-"+n+"01.webp");
    if(((S.hurt&&S.hurt[n])||0)>=50)U("mem_bad_"+n+"02");
    if(!S.met[n])U("mem_bad_"+n+"03");
-   if((S.aff[n]||0)>=40&&(e.type==="friend"||e.type==="life"))U("mem_bad_"+n+"04",(e.type==="friend"&&e.h&&e.h.id===n)?("badend/bad-"+n+"04.webp"):"");
+   if((S.aff[n]||0)>=40&&(e.type==="friend"||e.type==="life"))U("mem_bad_"+n+"04",(e.type==="friend"&&e.h&&e.h.id===n)?("assets/bad-"+n+"04.webp"):"");
  });
- if(e.type==="life"){U("mem_bad_player01","badend/bad-player01.webp");if(e.life==="none")U("mem_bad_player02","badend/bad-player02.webp")}
- if(e.type==="almost")U("mem_bad_player03","badend/bad-player03.webp");
- if(e.type==="rival")U("mem_bad_player04","badend/bad-player04.webp");
+ if(e.type==="life"){U("mem_bad_player01","assets/bad-player01.webp");if(e.life==="none")U("mem_bad_player02","assets/bad-player02.webp")}
+ if(e.type==="almost")U("mem_bad_player03","assets/bad-player03.webp");
+ if(e.type==="rival")U("mem_bad_player04","assets/bad-player04.webp");
 }
