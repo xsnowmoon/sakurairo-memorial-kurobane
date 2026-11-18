@@ -295,6 +295,16 @@ $("novel-next").onclick=()=>{beep(520,.07);novelIdx++;renderNovel()};
 $("novel-stage").addEventListener("click",e=>{if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("novel-choices").classList.contains("hidden"))return;novelIdx++;renderNovel()});
 $("novel-skip").onclick=()=>finishNovel();
 document.querySelectorAll(".btn-translate").forEach(b=>b.onclick=()=>{translateMode=!translateMode;document.querySelectorAll(".btn-translate").forEach(x=>x.textContent="🌐 翻訳モード: "+(translateMode?"ON":"OFF"));toast(translateMode?"🌐 翻訳モードON：文章を一括表示します":"翻訳モードOFF：タイプライター表示に戻しました")});
+/* v2 fix: システムボタンはコマンドグリッドの中に一緒に描く（別ブロックにしない） */
+function SYS_BTNS_HTML(){return '<button class="cmd sysbtn" data-sys="save">💾 セーブ</button><button class="cmd sysbtn" data-sys="load">📂 ロード</button><button class="cmd sysbtn" data-sys="album">📖 アルバム</button><button class="cmd sysbtn" data-sys="sound">'+(soundOn?"🔊 音ON":"🔇 音OFF")+'</button><button class="cmd sysbtn btn-translate" data-sys="translate">🌐 翻訳モード: '+(translateMode?"ON":"OFF")+'</button><button class="cmd sysbtn" data-sys="title">🏠 タイトル</button>'}
+function sysAction(a,el){
+ if(a==="save")openModal("save");
+ else if(a==="load")openModal("load");
+ else if(a==="album"){albumReturn="game";openAlbum()}
+ else if(a==="title")show("screen-title");
+ else if(a==="sound"){soundOn=!soundOn;el.textContent=soundOn?"🔊 音ON":"🔇 音OFF";if(!soundOn){if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}adminStopMp3()}else{beep(660,.1);const cur=bgmName;bgmName=null;setBGM(cur||"daily")}}
+ else if(a==="translate"){translateMode=!translateMode;document.querySelectorAll(".btn-translate").forEach(x=>x.textContent="🌐 翻訳モード: "+(translateMode?"ON":"OFF"));toast(translateMode?"🌐 翻訳モードON：文章を一括表示します":"翻訳モードOFF：タイプライター表示に戻しました")}
+}
 $("novel-title").onclick=()=>{novelDone=null;novelQueue=[];__adminCurNo=null;const b=$("story-no-badge");if(b)b.classList.add("hidden");gameBusy=false;show("screen-title");toast("タイトルに戻りました。「さっきの画面にもどる」で再開できます")};
 $("btn-resume").onclick=()=>{if(!S)return;beep(660,.08);if(S.ended){show("screen-ending")}else{show("screen-game");render()}};
 
@@ -352,8 +362,9 @@ const hurt=(S.hurt&&S.hurt[h.id])||0;const storyN=(S.story&&S.story[h.id])||0;
 return '<div class="heart-row"><img src="'+h.img+'" alt="'+h.name+'"><div><div class="nm">'+h.name+'</div><div class="st">'+h.role+"<br>"+affState(S.aff[h.id])+"<br>💬 呼び方：「"+pCall(h.id)+"」"+(storyN>0?"<br>📖 物語 第"+storyN+"章まで":"")+"<br>信頼 "+relOf(h.id).trust+"／親密 "+relOf(h.id).close+(relOf(h.id).jealous>=25?"／💢嫉妬 "+relOf(h.id).jealous:"")+"<br>📋 プロフィール開放 Lv"+profStageOf(h.id)+"/5"+'<br><button class="btn small" data-profile="'+h.id+'" style="min-height:32px;padding:3px 10px;font-size:11px;margin-top:3px">📋 プロフィール</button></div></div><div class="hearts">'+hearts(S.aff[h.id])+(bomb?'<span class="bomb">💣 さみしがっている…</span>':"")+(hurt>=30?'<span class="bomb">💔 傷心度 '+hurt+"</span>":"")+"</div></div>"}).join("");
 document.querySelectorAll("[data-profile]").forEach(b=>b.onclick=()=>openProfile(b.dataset.profile));
 $("log-box").innerHTML=S.logs.length?S.logs.map(l=>"<div>"+esc(l)+"</div>").join(""):"<div>まだ何もない。</div>";
-$("cmd-grid").innerHTML=COMMANDS.map(c=>'<button class="cmd'+(c.id==="date"?" date":"")+'" data-cmd="'+c.id+'"><span class="ic">'+c.icon+'</span>'+c.name+'<span class="fx">'+c.fx+'</span></button>').join("");
+$("cmd-grid").innerHTML=COMMANDS.map(c=>'<button class="cmd'+(c.id==="date"?" date":"")+'" data-cmd="'+c.id+'"><span class="ic">'+c.icon+'</span>'+c.name+'<span class="fx">'+c.fx+'</span></button>').join("")+SYS_BTNS_HTML();
 document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>doCommand(b.dataset.cmd));
+document.querySelectorAll("[data-sys]").forEach(b=>b.onclick=()=>sysAction(b.dataset.sys,b));
 checkAddrUnlocks();
 renderSys();
 }
@@ -1357,8 +1368,8 @@ chime();show("screen-ending");
 $("btn-ending-title").onclick=()=>show("screen-title");
 $("btn-ending-replay").onclick=()=>{S=null;show("screen-name")};
 $("btn-ending-album").onclick=()=>{albumReturn="ending";openAlbum()};
-$("btn-to-title").onclick=()=>show("screen-title");
-$("btn-sound").onclick=e=>{soundOn=!soundOn;e.target.textContent=soundOn?"🔊 音ON":"🔇 音OFF";
+if($("btn-to-title"))$("btn-to-title").onclick=()=>show("screen-title");
+if($("btn-sound"))$("btn-sound").onclick=e=>{soundOn=!soundOn;e.target.textContent=soundOn?"🔊 音ON":"🔇 音OFF";
 if(!soundOn){if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}adminStopMp3()}
 else{beep(660,.1);const cur=bgmName;bgmName=null;setBGM(cur||"daily")}};
 
@@ -1586,8 +1597,8 @@ $("file-load").addEventListener("change",e=>{
  r.onload=()=>{try{const d=JSON.parse(r.result);if(d.app!=="sakura-memorial"||!d.state)throw 0;loadState(d.state)}catch(err){toast("読み込めないファイルでした")}};
  r.readAsText(f);e.target.value="";
 });
-$("btn-save-open").onclick=()=>openModal("save");
-$("btn-load-open").onclick=()=>openModal("load");
+if($("btn-save-open"))$("btn-save-open").onclick=()=>openModal("save");
+if($("btn-load-open"))$("btn-load-open").onclick=()=>openModal("load");
 $("btn-continue").onclick=()=>{albumReturn="title";openModal("load")};
 $("modal-close").onclick=()=>$("modal-save").classList.add("hidden");
 $("modal-save").addEventListener("click",e=>{if(e.target.id==="modal-save")$("modal-save").classList.add("hidden")});
@@ -1706,7 +1717,7 @@ function bootLoading(){
 }
 if(!window.__SAKURA_BOOT){window.__SAKURA_BOOT=true;bootLoading()}
 $("btn-album-title").onclick=()=>{albumReturn="title";openAlbum()};
-$("btn-album-game").onclick=()=>{albumReturn="game";openAlbum()};
+if($("btn-album-game"))$("btn-album-game").onclick=()=>{albumReturn="game";openAlbum()};
 $("btn-album-back").onclick=()=>{
  if(albumReturn==="game"&&S&&!S.ended)show("screen-game");
  else if(albumReturn==="ending"&&S&&S.ended)show("screen-ending");
