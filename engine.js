@@ -1651,7 +1651,7 @@ function startOpening(){
  if(slides.length){A.src=slides[0];
   if(slides.length>1){opTimer=setInterval(()=>{opIdx=(opIdx+1)%slides.length;const showEl=opFront==="a"?B:A,hideEl=opFront==="a"?A:B;showEl.src=slides[opIdx];showEl.classList.remove("hidden-op");hideEl.classList.add("hidden-op");opFront=opFront==="a"?"b":"a"},4200)}
  }else{A.removeAttribute("src");B.removeAttribute("src")}
- const url=adminBgmUrl("opening")||adminBgmUrl("title")||"bgm/bgm01.mp3";
+ const url=(window.__MUSIC_BLOB_URL&&(adminBgmUrl("opening")||adminBgmUrl("title")||"bgm/bgm01.mp3")===window.__MUSIC_SRC_URL)?window.__MUSIC_BLOB_URL:(adminBgmUrl("opening")||adminBgmUrl("title")||"bgm/bgm01.mp3"); /* v2 fix: 全量DL済みの音楽があればそれを使う */
  if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
  bgmName="opening";
  try{bgmAudio.loop=false;bgmAudio.src=url;bgmAudio.dataset.track="opening";
@@ -1663,19 +1663,46 @@ function startOpening(){
 $("btn-op-title").onclick=()=>{beep(660,.08);goTitle()};
 $("btn-to-title2").onclick=()=>{beep(660,.08);goTitle()};
 $("btn-opening").onclick=()=>{beep(784,.1);startOpening()};
+if($("btn-opening-title"))$("btn-opening-title").onclick=()=>{beep(784,.1);startOpening()};
 function bootLoading(){
  const base=["assets/sakura.webp","assets/akari.webp","assets/yuki.webp","assets/rin.webp"];
  const variants=["assets/sakura-smile.webp","assets/sakura-shy.webp","assets/sakura-date.webp","assets/sakura-yukata.webp","assets/sakura-gyouji.webp","assets/sakura-club.webp","assets/sakura-winter.webp","assets/sakura-ski.webp","assets/sakura-sick.webp","assets/sakura-planet.webp","assets/sakura-grad.webp","assets/sakura-ending.webp","assets/akari-smile.webp","assets/akari-shy.webp","assets/akari-date.webp","assets/akari-yukata.webp","assets/akari-gyouji.webp","assets/akari-club.webp","assets/akari-winter.webp","assets/akari-ski.webp","assets/akari-grad.webp","assets/akari-ending.webp","assets/yuki-smile.webp","assets/yuki-shy.webp","assets/yuki-date.webp","assets/yuki-yukata.webp","assets/yuki-gyouji.webp","assets/yuki-club.webp","assets/yuki-winter.webp","assets/yuki-grad.webp","assets/yuki-ending.webp","assets/rin-smile.webp","assets/rin-shy.webp","assets/rin-date.webp","assets/rin-yukata.webp","assets/rin-gyouji.webp","assets/rin-club.webp","assets/rin-winter.webp","assets/rin-grad.webp","assets/rin-ending.webp","assets/sakura-gym.webp","assets/akari-gym.webp","assets/yuki-gym.webp","assets/rin-gym.webp","assets/akari-planet.webp","assets/yuki-planet.webp","assets/rin-planet.webp","assets/yuki-ski.webp","assets/sakura-sea.webp","assets/akari-sick.webp","assets/akari-sea.webp","assets/yuki-sick.webp","assets/yuki-sea.webp","assets/rin-ski.webp","assets/rin-sick.webp","assets/rin-sea.webp"];
  const withTimeout=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(()=>r(null),ms))]);
  const imgTask=src=>withTimeout(new Promise(res=>{const im=new Image();im.onload=()=>res(src);im.onerror=()=>res(null);im.src=src}),9000);
- const opTasks=[];for(let i=1;i<=OP_MAX;i++)opTasks.push(imgTask("assets/op"+String(i).padStart(2,"0")+".webp"));
- const bgmUrls=new Set(["bgm/bgm01.mp3"]);Object.keys(ADMIN.bgm||{}).forEach(k=>{const u=(ADMIN.bgm[k]||"").trim();if(u)bgmUrls.add(u)});
- const bgmTasks=Array.from(bgmUrls).map(u=>withTimeout(new Promise(res=>{const a=new Audio();a.preload="auto";a.oncanplaythrough=()=>res(u);a.onerror=()=>res(null);a.src=u}),7000));
- const all=[...base.map(imgTask),...variants.map(imgTask),...opTasks,...bgmTasks];
- let done=0;const upd=()=>{const pct=Math.round(done/all.length*100);const f=$("load-bar-fill"),t=$("load-pct");if(f)f.style.width=pct+"%";if(t)t.textContent=pct+"%（"+done+" / "+all.length+"）"};
- upd();all.forEach(pr=>pr.then(()=>{done++;upd()}));
+ const opSrcs=[];for(let i=1;i<=OP_MAX;i++)opSrcs.push("assets/op"+String(i).padStart(2,"0")+".webp");
+ const opTasks=opSrcs.map(imgTask);
+ const baseTasks=base.map(imgTask);
+ /* v2 fix: オープニング音楽を最優先で「全量」ダウンロードし、終わるまで選択画面を出さない。
+    残りの画像は選択画面の後ろで読み込む（第2段階）。 */
+ const musicUrl=(typeof adminBgmUrl==="function"&&(adminBgmUrl("opening")||adminBgmUrl("title")))||"bgm/bgm01.mp3";
+ const phase1Units=1+opSrcs.length+base.length;
+ let doneUnits=0,musicFrac=0;
+ const upd=()=>{const cur=Math.min(phase1Units,doneUnits+musicFrac);const pct=Math.min(100,Math.round(cur/phase1Units*100));const f=$("load-bar-fill"),t=$("load-pct");if(f)f.style.width=pct+"%";if(t)t.textContent=pct+"%（音楽＋基本画像 "+Math.floor(cur)+" / "+phase1Units+"）"};
+ const musicTask=(async()=>{
+  try{
+   const r=await fetch(musicUrl);
+   if(!r.ok)throw new Error("http "+r.status);
+   const total=parseInt(r.headers.get("Content-Length")||"0",10);
+   const reader=r.body.getReader();const chunks=[];let got=0;
+   for(;;){const d=await reader.read();if(d.done)break;chunks.push(d.value);got+=d.value.length;if(total>0){musicFrac=Math.min(1,got/total);upd()}}
+   const blob=new Blob(chunks,{type:"audio/mpeg"});
+   window.__MUSIC_SRC_URL=musicUrl;window.__MUSIC_BLOB_URL=URL.createObjectURL(blob);
+  }catch(e){
+   /* file:// 等 fetch できない環境では Audio の先読み完了を待つ（最大60秒） */
+   await withTimeout(new Promise(res=>{const a=new Audio();a.preload="auto";a.oncanplaythrough=()=>res(1);a.onerror=()=>res(0);a.src=musicUrl}),60000);
+  }
+  musicFrac=1;upd();
+ })();
+ [...opTasks,...baseTasks].forEach(pr=>pr.then(()=>{doneUnits++;upd()}));
+ upd();
  Promise.all(opTasks).then(r=>{opImages=r.filter(Boolean)});
- Promise.all(all).then(()=>{const n=$("load-now");if(n)n.textContent="ローディング完了";const c=$("load-choice");if(c)c.classList.remove("hidden")});
+ Promise.all([musicTask,...opTasks,...baseTasks]).then(()=>{
+  const n=$("load-now");if(n)n.textContent="ローディング完了（残りの画像は裏で読み込みます）";
+  const c=$("load-choice");if(c)c.classList.remove("hidden");
+  variants.forEach(src=>{const im=new Image();im.src=src});
+  const bgmUrls=new Set();Object.keys(ADMIN.bgm||{}).forEach(k=>{const u=(ADMIN.bgm[k]||"").trim();if(u&&u!==musicUrl)bgmUrls.add(u)});
+  bgmUrls.forEach(u=>{const a=new Audio();a.preload="auto";a.src=u});
+ });
 }
 if(!window.__SAKURA_BOOT){window.__SAKURA_BOOT=true;bootLoading()}
 $("btn-album-title").onclick=()=>{albumReturn="title";openAlbum()};

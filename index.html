@@ -62,11 +62,12 @@
     </div>
     <div class="menu">
       <button class="btn primary" id="btn-new">🌸 はじめから</button>
-      <button class="btn" id="btn-continue">📂 つづきから（ロード）</button>
       <button class="btn hidden" id="btn-resume">⏩ さっきの画面にもどる</button>
       <button class="btn" id="btn-album-title">📖 回想アルバム</button>
+      <button class="btn" id="btn-continue">💾 セーブデーターロード</button>
       <button class="btn" id="btn-howto">❓ あそびかた</button>
       <button class="btn" id="btn-intro-open" style="text-align:center">🌸 ゲーム紹介</button>
+      <button class="btn" id="btn-opening-title">🎬 オープニングを見る</button>
       <button class="btn gold" id="btn-bgm-recommend">🎵 推奨BGMに変更（オリジナル曲）</button>
       <button class="btn" id="btn-bgm-default">↩️ BGMを元に戻す（標準）</button>
     </div>
@@ -361,14 +362,6 @@
 <main class="wrap hidden" id="screen-game">
   <div class="topbar">
     <div class="date-chip" id="date-chip">1年 4月 第1週 <span class="season">🌸 春</span></div>
-    <div class="top-actions">
-      <button class="btn small" id="btn-save-open">💾 セーブ</button>
-      <button class="btn small" id="btn-load-open">📂 ロード</button>
-      <button class="btn small" id="btn-album-game">📖 アルバム</button>
-      <button class="btn small" id="btn-sound">🔊 音ON</button>
-      <button class="btn small btn-translate">🌐 翻訳モード: OFF</button>
-      <button class="btn small" id="btn-to-title">🏠 タイトル</button>
-    </div>
   </div>
   <div class="game-grid">
     <section class="stage-col">
@@ -387,6 +380,14 @@
       <div class="sysbox hidden" id="sys-box" aria-label="システム通知"><h4>🔔 システム通知</h4><div id="sys-list"></div></div>
     </section>
     <div class="cmd-grid" id="cmd-grid"></div>
+    <div class="sys-actions" id="sys-actions" aria-label="システム操作">
+      <button class="btn" id="btn-save-open">💾 セーブ</button>
+      <button class="btn" id="btn-load-open">📂 ロード</button>
+      <button class="btn" id="btn-album-game">📖 アルバム</button>
+      <button class="btn" id="btn-sound">🔊 音ON</button>
+      <button class="btn btn-translate">🌐 翻訳モード: OFF</button>
+      <button class="btn" id="btn-to-title">🏠 タイトル</button>
+    </div>
     <div class="side-col">
     <section class="card params-card" aria-label="パラメータ一覧">
       <h3 class="section-title" style="font-size:16px;margin-bottom:4px">📊 <span id="player-name-label">主人公</span></h3>
