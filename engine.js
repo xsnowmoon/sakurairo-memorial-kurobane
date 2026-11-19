@@ -20,14 +20,17 @@ let slots=[null,null,null];
 let albumUnlocked=new Set();
 let META={clears:0,endings:new Set(),ach:new Set()};
 /* ================= PERSISTENCE (localStorage) ================= */
-const LS_KEYS={slots:"sakura-memorial-slots-v1",meta:"sakura-memorial-meta-v1",admin:"sakura-memorial-admin-v1",album:"sakura-memorial-album-v1"};
+const LS_KEYS={slots:"sakura-memorial-slots-v1",meta:"sakura-memorial-meta-v1",admin:"sakura-memorial-admin-v1",album:"sakura-memorial-album-v1",bgmHeard:"sakura-memorial-bgmheard-v1"};
+let bgmHeardSet=new Set();
+function persistBgmHeard(){lsSet(LS_KEYS.bgmHeard,Array.from(bgmHeardSet))}
+function markBgmHeard(k){if(k&&BGM_TRACKS&&BGM_TRACKS[k]&&!bgmHeardSet.has(k)){bgmHeardSet.add(k);persistBgmHeard()}}
 function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
 function persistSlots(){return lsSet(LS_KEYS.slots,slots)}
 function persistMeta(){lsSet(LS_KEYS.meta,{clears:META.clears,endings:Array.from(META.endings),ach:Array.from(META.ach)})}
 function persistAlbum(){lsSet(LS_KEYS.album,Array.from(albumUnlocked))}
 function persistAdmin(){if(typeof ADMIN!=="undefined")lsSet(LS_KEYS.admin,ADMIN)}
-function restorePersisted(){const sl=lsGet(LS_KEYS.slots);if(Array.isArray(sl))slots=[sl[0]||null,sl[1]||null,sl[2]||null];const mt=lsGet(LS_KEYS.meta);if(mt&&typeof mt==="object"){META.clears=typeof mt.clears==="number"?mt.clears:0;META.endings=new Set(Array.isArray(mt.endings)?mt.endings:[]);META.ach=new Set(Array.isArray(mt.ach)?mt.ach:[])}const al=lsGet(LS_KEYS.album);if(Array.isArray(al))albumUnlocked=new Set(al);const ad=lsGet(LS_KEYS.admin);if(ad&&typeof ad==="object"&&typeof ADMIN!=="undefined")ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[]}}
+function restorePersisted(){const sl=lsGet(LS_KEYS.slots);if(Array.isArray(sl))slots=[sl[0]||null,sl[1]||null,sl[2]||null];const mt=lsGet(LS_KEYS.meta);if(mt&&typeof mt==="object"){META.clears=typeof mt.clears==="number"?mt.clears:0;META.endings=new Set(Array.isArray(mt.endings)?mt.endings:[]);META.ach=new Set(Array.isArray(mt.ach)?mt.ach:[])}const al=lsGet(LS_KEYS.album);if(Array.isArray(al))albumUnlocked=new Set(al);const bh=lsGet(LS_KEYS.bgmHeard);if(Array.isArray(bh))bgmHeardSet=new Set(bh);const ad=lsGet(LS_KEYS.admin);if(ad&&typeof ad==="object"&&typeof ADMIN!=="undefined")ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[]}}
 const ENDING_LABELS={love:"恋愛成就エンド",almost:"もう少しだった春",solo:"それぞれの春",rival:"ライバルエンド",friend:"親友エンド",life_work:"人生型：仕事成功型",life_hobby:"人生型：趣味没頭型",life_friends:"人生型：友人関係充実型",life_free:"人生型：独身自由人型",life_none:"人生型：何も成し遂げられなかった型"};
 let albumReturn="title";
 let soundOn=true, actx=null;
@@ -319,6 +322,7 @@ function setBGM(name){
  if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
  if(!soundOn||!name)return;
  if(bgmBlocked)return;
+ markBgmHeard(name);
  if(adminBgmUrl(name)){adminPlayMp3(name);return}
  adminStopMp3();bgmAudio.dataset.track="";
  try{
@@ -1766,7 +1770,7 @@ restorePersisted();migrateBgmPaths();
 
 /* ================= ALBUM ================= */
 function openAlbum(){
- show("screen-album");renderAlbum();
+ show("screen-album");renderAlbum();renderBgmAlbum();
 }
 function renderAlbum(){
  const total=ALL_MEMORIES.length,got=ALL_MEMORIES.filter(m=>albumUnlocked.has(m.id)).length;
@@ -1824,7 +1828,7 @@ function startOpening(){
  }else{A.removeAttribute("src");B.removeAttribute("src")}
  const url=(window.__MUSIC_BLOB_URL&&(adminBgmUrl("opening")||adminBgmUrl("title")||"bgm/bgm01.mp3")===window.__MUSIC_SRC_URL)?window.__MUSIC_BLOB_URL:(adminBgmUrl("opening")||adminBgmUrl("title")||"bgm/bgm01.mp3"); /* v2 fix: 全量DL済みの音楽があればそれを使う */
  if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
- bgmName="opening";
+ bgmName="opening";markBgmHeard("opening");
  try{bgmAudio.loop=false;bgmAudio.src=url;bgmAudio.dataset.track="opening";
   bgmAudio.onended=()=>{if(openingActive)goTitle()};
   bgmAudio.onerror=()=>{if(openingActive&&!opImages.length)goTitle()};
@@ -1839,7 +1843,19 @@ async function hardRefresh(){try{if(window.caches){const ks=await caches.keys();
 if($("btn-refresh"))$("btn-refresh").onclick=()=>{hardRefresh()};
 const BGM_ALBUM_LIST=[["opening","オープニング","プロローグ","assets/op01.webp"],["title","タイトル","タイトル画面","assets/op10.webp"],["daily","通常（原曲）","本編の通常週（季節で下の4曲に変化）","assets/op16.webp"],["daily_spring","通常・春","春（3〜5月）のメイン画面","assets/sakura-smile.webp"],["daily_summer","通常・夏","夏（6〜8月）のメイン画面","assets/akari-sea.webp"],["daily_autumn","通常・秋","秋（9〜11月）のメイン画面","assets/op08.webp"],["daily_winter","通常・冬","冬（12〜2月）のメイン画面","assets/rin-winter.webp"],["event","イベント","行事などのイベント全般","assets/op22.webp"],["choice","選択肢・ドキドキ","選択肢・やきもち・秘密の場面","assets/rin.webp"],["date","デート","デート・お部屋デート","assets/sakura-date.webp"],["sad","悲しい場面","病気・別れの場面","assets/yuki-sick.webp"],["ending","エンディング","卒業・告白の場面","assets/sakura-ending.webp"],["hokkori","ほっこり","ほっこりイベント","assets/akari-smile.webp"],["local","黒羽の出来事","地域イベント","assets/basho-yakata.webp"],["kuhi","句碑めぐり","芭蕉の句碑めぐり","assets/kuhi01.webp"],["story","個別ストーリー","ヒロインの物語（章）","assets/yuki.webp"],["matsuri","夏祭り","夏祭り・花火大会・線香花火","assets/sakura-yukata.webp"],["sports","スポーツ行事","体育祭・球技大会・マラソン","assets/akari-gym.webp"],["culture","文化祭","文化祭と準備・片付け","assets/rin-gyouji.webp"],["sea","海・夏","海の一日","assets/sakura-sea.webp"],["snow","雪・冬","スキー合宿・雪の日","assets/akari-ski.webp"],["sakura","桜","伝説の桜の下で","assets/sakura-shy.webp"],["rain","梅雨・雨","梅雨の図書室","assets/yuki-smile.webp"],["tanabata","七夕","七夕","assets/rin-planet.webp"],["xmas","クリスマス","クリスマス","assets/sakura-winter.webp"],["illumination","イルミネーション","冬のイルミネーション","assets/rin-date.webp"],["newyear","初詣・正月","初詣・合格お守り","assets/yuki-yukata.webp"],["valentine","バレンタイン","バレンタイン・ホワイトデー・チョコ作り","assets/rin-shy.webp"],["halloween","ハロウィン","ハロウィン","assets/op20.webp"],["trip","修学旅行","修学旅行とその準備","assets/op18.webp"],["concert","コンサート","秋の音楽室コンサート","assets/rin-club.webp"],["exam","テスト・受験","期末テスト・勉強会","assets/sakura-gyouji.webp"],["birthday","誕生日","ヒロインの誕生日","assets/akari-date.webp"],["night","夜","夏休みの夜の電話・水族館の夜・プラネタリウム","assets/akari-planet.webp"],["pool","プール","水泳大会・プール","assets/akari-club.webp"],["summer","夏休み","夏休みの計画","assets/op06.webp"],["rooftop","屋上","屋上の伝説・卒業前日の屋上","assets/rin-grad.webp"],["sick","看病","看病の場面","assets/rin-sick.webp"],["phone","電話・メール","電話・メールの場面","assets/akari.webp"],["memory","回想","回想アルバムを開いている時","assets/op21.webp"]];
 function bgmStopAll(){if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}bgmName=null;try{adminStopMp3()}catch(e){}}
-(function(){const list=$("album-bgm-list");if(list){list.innerHTML=BGM_ALBUM_LIST.map(function(t){return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #f3b8cc;border-radius:10px;padding:8px;margin:6px 0"><img src="'+t[3]+'" loading="lazy" onerror="this.style.visibility=\'hidden\'" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none"><button class="btn small" data-bgm-play="'+t[0]+'">▶</button><div><div style="font-weight:700">'+t[1]+'</div><div style="font-size:12px;color:var(--muted)">'+t[2]+'</div></div></div>'}).join("");list.querySelectorAll("[data-bgm-play]").forEach(function(b){b.onclick=function(){setBGM(b.getAttribute("data-bgm-play"))}})}})();
+function renderBgmAlbum(){
+ const list=$("album-bgm-list");if(!list)return;
+ const cnt=$("album-bgm-count");if(cnt)cnt.textContent="（解放 "+BGM_ALBUM_LIST.filter(function(t){return bgmHeardSet.has(t[0])}).length+" / "+BGM_ALBUM_LIST.length+"）";
+ list.innerHTML=BGM_ALBUM_LIST.map(function(t){
+  const heard=bgmHeardSet.has(t[0]);
+  const img='<img src="'+t[3]+'" loading="lazy" onerror="this.style.visibility=\'hidden\'" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none'+(heard?'':' ;filter:grayscale(1);opacity:.45')+'">';
+  const btn=heard?'<button class="btn small" data-bgm-play="'+t[0]+'">▶</button>':'<button class="btn small" disabled style="opacity:.55">🔒</button>';
+  const note=heard?t[2]:'🔒 ゲームの中で流れると解放されます';
+  return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #f3b8cc;border-radius:10px;padding:8px;margin:6px 0">'+img+btn+'<div><div style="font-weight:700">'+t[1]+'</div><div style="font-size:12px;color:var(--muted)">'+note+'</div></div></div>';
+ }).join("");
+ list.querySelectorAll("[data-bgm-play]").forEach(function(b){b.onclick=function(){setBGM(b.getAttribute("data-bgm-play"))}});
+}
+renderBgmAlbum();;
 if($("btn-album-bgm-stop"))$("btn-album-bgm-stop").onclick=()=>{bgmStopAll()};
 function bootLoading(){
  const base=["assets/sakura.webp","assets/akari.webp","assets/yuki.webp","assets/rin.webp"];
