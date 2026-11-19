@@ -225,7 +225,7 @@ const HOKKORI=[
 ];
 const ALL_MEMORIES=[
  {id:"mem_start",title:"桜の下の再会",date:"4月",hero:"sakura",tag:"物語",text:"桜丘黒羽学園の校門前。舞う桜の中、幼なじみの桜井さくらと再会した。高校生活の3年間が、ここから始まった。"},
- {id:"mem_festival_sport",title:"体育祭のゴールテープ",date:"5月",hero:"akari",tag:"行事",variant:"gym",text:"体育祭のリレー。バトンをつないで駆け抜けた先に、ゴールテープと仲間の歓声があった。あかりの笑顔が、誰より眩しかった。"},
+ {id:"mem_festival_sport",title:"体育祭のゴールテープ",date:"6月",hero:"akari",tag:"行事",variant:"gym",text:"体育祭のリレー。バトンをつないで駆け抜けた先に、ゴールテープと仲間の歓声があった。あかりの笑顔が、誰より眩しかった。"},
  {id:"mem_test",title:"期末テストの結果",date:"7月",hero:"yuki",tag:"行事",text:"期末テストの返却日。努力の結果が数字になって返ってきた。図書室で一緒に勉強した日々が、静かに報われた気がした。"},
  {id:"mem_summer",title:"夏祭りの夜",date:"8月",hero:"sakura",tag:"行事",variant:"yukata",text:"提灯の明かり、たこ焼きの匂い、遠くの花火。浴衣姿の彼女と歩いた夏祭りの夜は、少しだけ大人になった気分だった。"},
  {id:"mem_culture",title:"文化祭のステージ",date:"10月",hero:"rin",tag:"行事",variant:"gyouji",text:"文化祭のステージ。準備の日々も当日の緊張も、幕が下りた瞬間に全部「やってよかった」に変わった。"},
@@ -235,10 +235,10 @@ const ALL_MEMORIES=[
  {id:"mem_rooftop_rumor",title:"屋上の伝説",date:"5月",hero:"rin",tag:"物語",text:"「卒業式の日、校舎の屋上で告白すると、その恋は実る」――代々受け継がれる桜丘黒羽学園の神話を聞いた日。屋上への階段は、普段は閉ざされている。"},
  {id:"mem_pool",title:"水泳大会の水しぶき",date:"6月",hero:"akari",tag:"行事",variant:"pool",text:"水泳大会。プールサイドの声援、水しぶき、夏の始まりの匂い。あかりの泳ぎは誰より速くて、誰より楽しそうだった。"},
  {id:"mem_ballgame",title:"球技大会の逆転シュート",date:"5月",hero:"akari",tag:"行事",variant:"gym",text:"球技大会。残り10秒の逆転シュートが決まった瞬間、体育館の歓声が天井を揺らした。あかりとハイタッチした手が、しばらく熱かった。"},
- {id:"mem_marathon",title:"マラソン大会の伴走",date:"1月",hero:"sakura",tag:"行事",variant:"winter",text:"冬のマラソン大会。歩きかけた彼女の隣に、そっと並んで走った。ゴールは一人より、二人の方がずっと近かった。"},
+ {id:"mem_marathon",title:"マラソン大会の伴走",date:"2月",hero:"sakura",tag:"行事",variant:"winter",text:"冬のマラソン大会。歩きかけた彼女の隣に、そっと並んで走った。ゴールは一人より、二人の方がずっと近かった。"},
  {id:"mem_sea",title:"海辺の一日",date:"7月",hero:"akari",tag:"行事",variant:"sea",text:"夏休みの海。波打ち際ではしゃぐ声、塩辛い風、少し焼けた肩。夏が永遠に続けばいいのに、と本気で思った一日。"},
  {id:"mem_nurse",title:"看病とおかゆ",date:"9月",hero:"sakura",tag:"ほっこり",variant:"shy",text:"風邪で寝込んだ彼女の家を訪ねた日。冷えピタを貼って、おかゆを作って、「ありがとう」の弱々しい笑顔。看病は、距離が縮まる魔法だった。"},
- {id:"mem_ski",title:"スキー場の転倒",date:"12月",hero:"akari",tag:"行事",variant:"ski",text:"冬のスキー。転んで、笑って、手を取って起き上がる。雪の中で掴んだ手の温かさは、しばらく離れなかった。"},
+ {id:"mem_ski",title:"スキー場の転倒",date:"1月",hero:"akari",tag:"行事",variant:"ski",text:"冬のスキー。転んで、笑って、手を取って起き上がる。雪の中で掴んだ手の温かさは、しばらく離れなかった。"},
  {id:"mem_hatsumode",title:"初詣のおみくじ",date:"1月",hero:"yuki",tag:"行事",text:"新年の神社。二人で引いたおみくじと、恋愛成就の祈願。絵馬に書いた願い事は、卒業まで秘密。"},
  {id:"mem_birthday",title:"誕生日の贈り物",date:"いつかの記念日",hero:"sakura",tag:"ほっこり",variant:"smile",text:"彼女の誕生日。覚えていてくれたことが、何よりのプレゼントだと言われた。贈り物より、気持ちが嬉しいのだと知った日。"},
  {id:"mem_whiteday",title:"ホワイトデーのお返し",date:"3月",hero:"sakura",tag:"行事",variant:"shy",text:"バレンタインのお返し。奮発した贈り物を渡すと、彼女は宝物みたいに抱きしめた。卒業まで、あと少し。"},
@@ -259,7 +259,7 @@ const ALL_MEMORIES=[
  {id:"mem_planetarium",title:"プラネタリウムの約束",date:"8月",hero:"sakura",tag:"デート",variant:"planet",text:"夏のプラネタリウム。暗闇に浮かぶ満天の星と、隣で小さく息をのむ彼女。星より、隣の横顔の方が心に残った。"},
  {id:"mem_illumination",title:"冬のイルミネーション",date:"1月",hero:"rin",tag:"行事",variant:"winter",text:"冬の駅前イルミネーション。光のトンネルの中で、彼女が言った。『点灯の瞬間を一緒に見られて、よかった』。寒さの中の、温かい記憶。"},
  {id:"mem_rainylibrary",title:"梅雨の図書室",date:"6月",hero:"yuki",tag:"ほっこり",variant:"club",text:"梅雨の放課後。雨の音に守られた図書室で、隣の席の彼女と静かに本を読んだ。何も起きない時間が、一番物語みたいだった。"},
- {id:"mem_senko",title:"線香花火の夜",date:"9月",hero:"akari",tag:"行事",variant:"shy",text:"夏の終わりの夕方、河原で線香花火をした。小さい火花が落ちそうで落ちない時間。『なんか、私たちみたいだね』と彼女が笑った。"},
+ {id:"mem_senko",title:"線香花火の夜",date:"8月",hero:"akari",tag:"行事",variant:"shy",text:"夏の終わりの夕方、河原で線香花火をした。小さい火花が落ちそうで落ちない時間。『なんか、私たちみたいだね』と彼女が笑った。"},
  {id:"mem_concert",title:"秋の音楽室コンサート",date:"11月",hero:"rin",tag:"行事",variant:"club",text:"秋の放課後、音楽室の小さなコンサート。夕日に染まるピアノと、特等席で聴いた一曲。卒業の日に聴かせたい曲の、練習だった。"},
  {id:"mem_setsubun",title:"節分と本気の豆",date:"2月",hero:"rin",tag:"行事",variant:"gyouji",text:"生徒会企画の節分。鬼役を引き受けて、彼女の本気の豆に本気で逃げた。笑い声の響く校舎は、卒業を前に少しだけ賑やかだった。"},
  {id:"mem_gymclass",title:"二人三脚の練習",date:"4月",hero:"akari",tag:"行事",variant:"gym",text:"体育の授業で二人三脚の練習をした日。体操着で肩を組んで、転んで、笑って。足並みが揃った瞬間、二人の距離も少し縮まった気がした。"},
@@ -506,6 +506,14 @@ ALL_MEMORIES.forEach(m=>{
 /* 攻略本生成用にアルバムデータを公開 */
 window.SAKURA_ALBUM_DATA=ALL_MEMORIES;
 /* ===== 月島ゆき栃木弁 変換データ（語尾→語彙→相づち の順で適用） ===== */
+const YUKI_DIALECT_PAIRS=[
+["大丈夫ですか？","だいじけ？"],["大丈夫？","だいじけ？"],
+["ですよね","だっぺ"],["ますよね","だっぺ"],["でしょう","だっぺ"],["じゃないですか","だかんね"],
+["してください","してくださいん"],["ますか？","ますけ？"],["ですか？","だっぺ？"],
+["大丈夫です","だいじだよ"],["大丈夫","だいじ"],["疲れた","こえー"],["たくさん","いっぺ"],
+["触って","ちょして"],["触る","ちょす"],["捨てて","なげて"],
+["そうですね","んだ、そうだっぺ"],["そうですか","ほうけ"]
+];
 /* 句碑データの画像パス対応（句碑番号→画像） */
 const KUHI_IMGS={1:"assets/kuhi01.webp",2:"assets/kuhi02.webp",3:"assets/kuhi03.webp",4:"assets/kuhi04.webp",5:"assets/kuhi05.webp",6:"assets/kuhi06.webp",7:"assets/kuhi07.webp",8:"assets/kuhi08.webp",9:"assets/kuhi09.webp",10:"assets/kuhi10.webp"};
 
