@@ -14,7 +14,6 @@ if(!String.prototype.replaceAll){String.prototype.replaceAll=function(a,b){retur
  }
 }catch(e){}})();
 
-"use strict";
 /* ================= STATE ================= */
 let S=null;
 let slots=[null,null,null];
@@ -23,8 +22,8 @@ let META={clears:0,endings:new Set(),ach:new Set()};
 /* ================= PERSISTENCE (localStorage) ================= */
 const LS_KEYS={slots:"sakura-memorial-slots-v1",meta:"sakura-memorial-meta-v1",admin:"sakura-memorial-admin-v1",album:"sakura-memorial-album-v1"};
 function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
-function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-function persistSlots(){lsSet(LS_KEYS.slots,slots)}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function persistSlots(){return lsSet(LS_KEYS.slots,slots)}
 function persistMeta(){lsSet(LS_KEYS.meta,{clears:META.clears,endings:Array.from(META.endings),ach:Array.from(META.ach)})}
 function persistAlbum(){lsSet(LS_KEYS.album,Array.from(albumUnlocked))}
 function persistAdmin(){if(typeof ADMIN!=="undefined")lsSet(LS_KEYS.admin,ADMIN)}
@@ -419,10 +418,12 @@ function migrateState(st){
 }
 
 /* ================= NOVEL ENGINE ================= */
-let novelQueue=[],novelIdx=0,novelDone=null,typeTimer=null;
+let novelQueue=[],novelIdx=0,novelDone=null,typeTimer=null,typeState=null;
 let translateMode=false;
-function typeText(el,text){clearInterval(typeTimer);if(translateMode){el.textContent=text;el.classList.remove("typing-cursor");return}el.textContent="";el.classList.add("typing-cursor");let i=0;typeTimer=setInterval(()=>{i++;el.textContent=text.slice(0,i);if(i>=text.length){clearInterval(typeTimer);el.classList.remove("typing-cursor")}},18)}
+function typeText(el,text){clearInterval(typeTimer);typeState=null;if(translateMode){el.textContent=text;el.classList.remove("typing-cursor");return}el.textContent="";el.classList.add("typing-cursor");let i=0;typeState={el:el,text:text};typeTimer=setInterval(()=>{i++;el.textContent=text.slice(0,i);if(i>=text.length){clearInterval(typeTimer);typeState=null;el.classList.remove("typing-cursor")}},18)}
+function typeComplete(){if(!typeState)return false;clearInterval(typeTimer);typeState.el.textContent=typeState.text;typeState.el.classList.remove("typing-cursor");typeState=null;return true}
 function playNovel(scenes,done,tag){
+if(typeof S!=="undefined"&&S&&tag)S._lastEvent=tag;
 const no=scenes.__no||__adminNextNo||deriveStoryNo(tag);__adminNextNo=null;__adminCurNo=no;
 const ov=ADMIN.overrides[no];
 let scs=scenes;
@@ -449,11 +450,11 @@ sc.choices.forEach(c=>{const b=document.createElement("button");b.textContent=c.
 }else{ch.classList.add("hidden");$("novel-next").classList.remove("hidden")}
 }
 function finishNovel(){const b=$("story-no-badge");if(b)b.classList.add("hidden");__adminCurNo=null;const d=novelDone;novelDone=null;if(d)d()}
-$("novel-next").onclick=()=>{beep(520,.07);novelIdx++;renderNovel()};
-$("novel-stage").addEventListener("click",e=>{if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("novel-choices").classList.contains("hidden"))return;novelIdx++;renderNovel()});
+$("novel-next").onclick=()=>{if(typeComplete())return;beep(520,.07);novelIdx++;renderNovel()};
+$("novel-stage").addEventListener("click",e=>{if(typeComplete())return;if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("novel-choices").classList.contains("hidden"))return;novelIdx++;renderNovel()});
 $("novel-skip").onclick=()=>finishNovel();
 document.querySelectorAll(".btn-translate").forEach(b=>b.onclick=()=>{translateMode=!translateMode;document.querySelectorAll(".btn-translate").forEach(x=>x.textContent="⌨️ タイプモード: "+(translateMode?"OFF":"ON"));toast(translateMode?"⌨️ タイプモード: OFF（文章を一括表示します）":"⌨️ タイプモード: ON（タイプライター表示）")});
-$("novel-title").onclick=()=>{novelDone=null;novelQueue=[];__adminCurNo=null;const b=$("story-no-badge");if(b)b.classList.add("hidden");gameBusy=false;show("screen-title");toast("タイトルに戻りました。「さっきの画面にもどる」で再開できます")};
+$("novel-title").onclick=()=>{resetPlayState();__adminCurNo=null;show("screen-title");toast("タイトルに戻りました。「さっきの画面にもどる」で再開できます")};
 $("btn-resume").onclick=()=>{if(!S)return;beep(660,.08);if(S.ended){show("screen-ending")}else{show("screen-game");render()}};
 
 /* ================= OPENING ================= */
@@ -473,7 +474,7 @@ $("btn-name-back").onclick=()=>show("screen-title");
 $("btn-start-story").onclick=()=>{
 const last=$("in-last").value.trim()||"佐藤",first=$("in-first").value.trim()||"健太";
 const nick=$("in-nick").value.trim()||first;
-S=defaultState(last,first,nick,$("in-birth").value,$("in-goal").value);
+S=defaultState(last,first,nick,$("in-birth").value,$("in-goal").value);resetPlayState();
 if(META.clears>0){const b=Math.min(META.clears,3);HEROINES.forEach(h=>{S.aff[h.id]=clamp(S.aff[h.id]+3*b);S.prevAff[h.id]=S.aff[h.id]});Object.keys(S.stats).forEach(k=>{if(k!=="stress")S.stats[k]=clamp(S.stats[k]+2*b)});S.money+=1500*b;S.clears=META.clears;setTimeout(()=>toast("🌸 周回特典："+META.clears+"周クリア済みボーナス適用（好感度・能力・所持金アップ）"),800)}
 S.memories.forEach(id=>albumUnlocked.add(id));persistAlbum();chime();
 unlockMem("mem_op01");
@@ -539,7 +540,7 @@ const lock=(k,need)=>'<div class="kv"><span>'+k+'</span><span style="color:var(-
 let rows="";
 if(met){
  rows+=kv("🎂 誕生日",p.birthday+"（血液型 "+p.blood+"）")+kv("🏫 部活",p.club)+kv("🎨 趣味",p.hobby);
- rows+=kv("💗 好感度／状態",S.aff[hid]+"（"+affState(S.aff[hid])+"）")+kv("📖 二人の物語","第"+((S.story&&S.story[hid])||0)+"章／全4章");
+ rows+=kv("💗 好感度／状態",S.aff[hid]+"（"+affState(S.aff[hid])+"）")+kv("📖 二人の物語","第"+((S.story&&S.story[hid])||0)+"章／全8章");
  if(stage>=2){rows+=kv("💗 性格",p.personality)+kv("⭐ 好きな物",p.fav)+kv("💦 苦手な物",p.dislike)+kv("🤝 信頼度",r.trust)+kv("🏠 親密度",r.close)+kv("💢 嫉妬度",r.jealous)+kv("💔 傷心度",((S.hurt&&S.hurt[hid])||0))}
  else rows+=lock("💗 性格・好きな物・関係値",30);
  if(stage>=3){rows+=kv("🎁 喜ぶプレゼント",p.giftName)+kv("💌 好きなデート先",placeNames)+kv("✉️ メールアドレス",p.mail)}
@@ -626,8 +627,8 @@ if(id==="date"){openDate();return}
 if(id==="gift"){openGift();return}
 if(id==="contact"){openContact();return}
 const cmd=COMMANDS.find(c=>c.id===id);gameBusy=true;beep(600,.08);
-if(id==="sport"&&typeof nurseTryInjury==="function"&&nurseTryInjury(()=>{gameBusy=false;nextTurn()}))return;
 const msgs=applyFx(cmd.fxd);
+if(id==="sport"&&typeof nurseTryInjury==="function"&&nurseTryInjury(()=>{gameBusy=false;nextTurn()}))return;
 if(id==="work"){const pay=rnd(1500,2500);S.money+=pay;msgs.push("バイト代 +"+pay+"円")}
 addLog(cmd.name+"（"+(msgs.join("、")||"変化なし")+"）");
 /* bomb decay + hurt drift */
@@ -642,10 +643,10 @@ if(S.sick&&id==="rest"){sickRest(()=>{gameBusy=false;nextTurn()});render();retur
 if(id==="rest"&&typeof nurseTryOffice==="function"&&nurseTryOffice(()=>{gameBusy=false;nextTurn()})){render();return}
 /* scheduled / hokkori / encounter */
 if(customStoryEvent(()=>{gameBusy=false;nextTurn()})){render();return}
-const ev=scheduledEvent();
-if(ev){__adminNextNo="EV-"+String(S.turn).padStart(2,"0");render();ev(()=>{gameBusy=false;nextTurn()});return}
 if(storyEvent(()=>{gameBusy=false;nextTurn()})){render();return}
 if(dateLabel(S.turn).month===8&&!S.flags.fireworksDone&&HEROINES.some(h=>S.met[h.id])){const topF=HEROINES.filter(h=>S.met[h.id]).slice().sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];evFireworks(topF,()=>{gameBusy=false;nextTurn()});render();return}
+const ev=scheduledEvent();
+if(ev){__adminNextNo="EV-"+String(S.turn).padStart(2,"0");render();ev(()=>{bonusEvent(id,()=>{gameBusy=false;nextTurn()})});return}
 const roll=Math.random();
 if(roll<0.20){hokkoriEvent(()=>{gameBusy=false;nextTurn()});render();return}
 if(roll<0.44&&extraEvent(()=>{gameBusy=false;nextTurn()})){render();return}
@@ -674,7 +675,7 @@ function hokkoriEvent(done){
 const ev=HOKKORI[rnd(0,HOKKORI.length-1)];__adminNextNo="HK-"+ev.id;
  const SPOT_BY_HOK={hok_library:"library",hok_ayu:"nakagawa"};visitSpot(SPOT_BY_HOK[ev.id]);
 const metIds=HEROINES.filter(h=>S.met[h.id]).map(h=>h.id);
-const hid=metIds.length?metIds[rnd(0,metIds.length-1)]:"sakura";const h=hero(hid);
+const hid=(ev.img&&S.met[ev.img])?ev.img:(metIds.length?metIds[rnd(0,metIds.length-1)]:"sakura");const h=hero(hid);
 S.aff[hid]=clamp(S.aff[hid]+5);S.stats.stress=clamp(S.stats.stress-10);S.lastMeet[hid]=S.turn;
 unlockMem(ev.id);addLog("ほっこりイベント「"+ev.title+"」（"+h.short+" 好感度+5、ストレス-10）");
 const text=ev.text.replaceAll("{hero}",h.short);
@@ -727,7 +728,7 @@ function kuhiEvent(done,lead){
  if(doneAll)scenes.push({sys:true,text:"🎉 句碑10か所をすべて巡りました！実績「句碑めぐり制覇」を達成。思い出がアルバムに追加されました。"});
  playNovel(scenes,()=>{if(doneAll){unlockMem("mem_kuhi");unlockAch("kuhi_master")}show("screen-game");render();done()},"🗿 句碑めぐり");
 }
-/* ================= STORY ARCS（各ヒロイン4章立て） ================= */
+/* ================= STORY ARCS（各ヒロイン8章立て） ================= */
 function storyEvent(done){
  if(!S.story)S.story={sakura:0,akari:0,yuki:0,rin:0};
  const grade=gradeOf(S.turn);
@@ -741,7 +742,7 @@ function storyEvent(done){
  return true;
 }
 /* scheduled events keyed by turn */
-function scheduledMap(){return {2:evWalkHome,3:evGymClass,4:evRooftopRumor,5:evSakuraTree,6:evSports,7:evSpeech,8:evBallGame,9:evRainyLibrary,10:evPool,11:evStudyGroup,12:evTanabata,13:evBirthdayAkari,14:evTest,15:evSummerPlan,16:evSea,17:evPhoneCall,18:evSummer,19:evPlanetarium,20:evAquariumNight,21:evBirthdaySakura,22:evNurse,23:evSenko,24:evCulturePrep,25:evShopping,26:evCulture,27:evCleanup,28:evHalloween,29:evTripPrep,30:evTrip,31:evConcert,32:evMomiji,33:evBirthdayYuki,34:evSki,35:evSnowDay,36:evMarathon,37:evHatsumode,38:evXmas,39:evIllumination,40:evExam,41:evBirthdayRin,42:evChocoEve,43:evSetsubun,44:evValentine,45:evYosegaki,46:evWhiteDay,47:evRooftopEve}}
+function scheduledMap(){return {2:evWalkHome,3:evGymClass,4:evRooftopRumor,5:evSakuraTree,6:evSports,7:evSpeech,8:evBallGame,9:evRainyLibrary,10:evPool,11:evStudyGroup,12:evTanabata,13:evSummerPlan,14:evTest,15:evSea,16:evBirthdayAkari,17:evPhoneCall,18:evSummer,19:evPlanetarium,20:evAquariumNight,21:evSenko,22:evNurse,23:evBirthdaySakura,24:evCulturePrep,25:evShopping,26:evCulture,27:evCleanup,28:evHalloween,29:evTripPrep,30:evTrip,31:evConcert,32:evMomiji,33:evBirthdayYuki,34:evSki,35:evSnowDay,36:evXmas,37:evHatsumode,38:evMarathon,39:evIllumination,40:evExam,41:evSetsubun,42:evBirthdayRin,43:evChocoEve,44:evValentine,45:evYosegaki,46:evWhiteDay,47:evRooftopEve}}
 function scheduledEvent(){
 const t=turnInYear(S.turn);const g=gradeOf(S.turn);
 if((t===2||t===4)&&g!==1)return null;      /* 入学直後の出来事は1年次のみ */
@@ -793,7 +794,7 @@ playNovel([{who:"　",text:"水泳大会。プールサイドは声援で熱気�
 {hero:"akari",who:"星野 あかり",variant:"smile",text:win?"やるじゃん！プールでも陸でも、あんたは私のライバルだね！":"お疲れ！夏はまだ始まったばかりだよ。海もプールも、今年は遊び尽くそうね！"}],
 ()=>{S.aff.akari=clamp(S.aff.akari+(win?9:6));S.lastMeet.akari=S.turn;S.met.akari=true;HEROINES.forEach(h=>{if(h.id!=="akari"&&S.met[h.id])S.aff[h.id]=clamp(S.aff[h.id]+2)});addLog("水泳大会（活躍がみんなの評価に波及）");show("screen-game");render();done()},"🏊 水泳大会")}
 function evSea(done){unlockMem("mem_sea");
-const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];
+const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
 if(cand&&cand.id==="akari")unlockMem("mem_seaside");if(cand&&cand.id==="yuki")unlockMem("mem_seayuki");
 playNovel([{who:"　",text:"夏休み、クラスのみんなで海へ行った。"},
 {hero:cand.id,who:cand.name,variant:"sea",text:"見て見て、波！夏って感じだね。…ねえ、こういう日が、ずっと続けばいいのに"},
@@ -843,13 +844,13 @@ playNovel([{who:"　",img:"assets/op19.webp",text:"新年。思い切って"+can
  {label:"「学業成就にしたよ」",effect:()=>{S.aff[cand.id]=clamp(S.aff[cand.id]+5);S.stats.gakuryoku=clamp(S.stats.gakuryoku+4)}}]}],
 ()=>{S.lastMeet[cand.id]=S.turn;rippleHurt(cand.id,6);addLog("初詣に"+cand.short+"と行った");show("screen-game");render();done()},"⛩️ 初詣")}
 function evWhiteDay(done){unlockMem("mem_whiteday");
-const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];
+const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
 playNovel([{who:"　",text:"ホワイトデー。バレンタインのお返しに、少し奮発した贈り物を用意した。"},
 {hero:cand.id,who:cand.name,variant:"shy",text:"え、私に…？こんなに素敵なの、いいの？…ありがとう。卒業まで、あと少しだね"},
 {hero:cand.id,who:"　",text:"卒業は、もう目の前。伝えたい気持ちが、胸の中で静かに膨らんでいく。"}],
 ()=>{S.aff[cand.id]=clamp(S.aff[cand.id]+8);S.lastMeet[cand.id]=S.turn;addLog("ホワイトデーに"+cand.short+"へお返し（好感度+8）");show("screen-game");render();done()},"🤍 ホワイトデー")}
 function evRooftopEve(done){
-const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];
+const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
 playNovel([{who:"　",text:"卒業式を明日に控えた放課後。屋上への階段の前を通ると、扉が少しだけ開いていた。"},
 {hero:cand.id,who:cand.name,variant:"ending",text:"…明日の今頃、ここで何かが変わる気がするの。ねえ、卒業式の最後――屋上に、来てくれる？"},
 {who:"　",text:"夕日に染まる屋上。1年間のすべてが、明日の一日に集まっていく。――神話の扉が、開こうとしていた。"}],
@@ -894,7 +895,7 @@ playNovel([{who:"　",text:"修学旅行。班行動で古い街並みを歩い�
 {who:"　",text:"翌朝の自由行動。昨夜の約束通り、古い街の小さな本屋と甘味処を回った。旅行の思い出は、予定表にない時間ほど鮮やかに残った。"}],
 ()=>{HEROINES.forEach(h=>{if(S.met[h.id])S.aff[h.id]=clamp(S.aff[h.id]+3)});addLog("修学旅行（出会った全員 好感度+3）");show("screen-game");render();done()},"🚌 修学旅行")}
 function evXmas(done){unlockMem("mem_xmas");
-const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];
+const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
 playNovel([{who:"　",text:"クリスマスイブの放課後。イルミネーションが街を彩っていた。"},{hero:cand.id,who:cand.name,variant:"winter",text:"これ…ささやかだけど、プレゼント。開けるのは家に帰ってからね？"},
 {who:"　",text:"家で包みを開けると、手編みのマフラーだった。不器用な編み目が、なんだか嬉しかった。"}],
 ()=>{const bonus=S.stats.miryoku>=60?3:0;S.aff[cand.id]=clamp(S.aff[cand.id]+9+bonus);S.lastMeet[cand.id]=S.turn;rippleHurt(cand.id,5);addLog("クリスマスに"+cand.short+"と贈り物交換（好感度+"+(9+bonus)+(bonus?"、身だしなみの良さも好印象":"")+"）");show("screen-game");render();done()},"🎄 クリスマス")}
@@ -1066,7 +1067,7 @@ playNovel([{who:"　",text:"期末テストが近づき、放課後の図書室�
  {label:"さくらのお菓子でみんなと休憩する",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+7);S.stats.stress=clamp(S.stats.stress-6)}}]}],
 ()=>{S.met.yuki=true;S.met.sakura=true;S.lastMeet.yuki=S.turn;addLog("期末前の勉強会に参加した");show("screen-game");render();done()},"📚 期末前の勉強会")}
 function evSummerPlan(done){
-const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];
+const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
 playNovel([{who:"　",text:"夏休み直前。下校路で、夏の計画の話になった。"},
 {hero:cand.id,who:cand.name,variant:"smile",text:"夏休み、あんたはどう過ごすの？…私はね、できれば、あんたと過ごす日を増やしたいな"},
 {who:"　",text:"海、夏祭り、花火、宿題。短い夏の予定表に、二人の名前が少しずつ増えていく。",choices:[
@@ -1075,7 +1076,7 @@ playNovel([{who:"　",text:"夏休み直前。下校路で、夏の計画の話�
 {hero:cand.id,who:cand.name,variant:"shy",text:"…約束だよ。…この夏が、卒業しても忘れられない夏になりますように"}],
 ()=>{S.lastMeet[cand.id]=S.turn;addLog("夏休みの計画を"+cand.short+"と立てた");show("screen-game");render();done()},"🌻 夏休みの計画")}
 function evPhoneCall(done){unlockMem("mem_phone");
-const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];
+const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
 playNovel([{who:"　",text:"夏休みの夜。スマホが鳴った。"+cand.name+"からだった。"},
 {hero:cand.id,who:cand.name,variant:"shy",text:"あ、もしもし？…ごめん、なんでもない用事なんだけど…。声、聞きたくなっちゃって"},
 {who:"　",text:"他愛ない話が、気づけば1時間。花火の音、宿題の愚痴、明日の天気。切るきっかけが、なかなか見つからなかった。",choices:[
@@ -1277,6 +1278,15 @@ function runContact(h,method,topic){
  playNovel(scenes,()=>{show("screen-game");render();gameBusy=false;nextTurn()},"📱 "+(method==="tel"?"電話":"メール"));
 }
 /* ---------- 追加イベント（月→好感度→能力値の入れ子条件＋成功率） ---------- */
+function bonusEvent(cmdId,done){
+ if(Math.random()>=0.35){done();return}
+ const roll=Math.random();
+ if(roll<0.25){hokkoriEvent(done);return}
+ if(roll<0.55&&extraEvent(done))return;
+ if(roll<0.65&&secretEvent(done))return;
+ if(roll<0.85){encounter(cmdId,done);return}
+ if(S.kuhi&&S.kuhi.length<10&&Math.random()<0.5){kuhiEvent(done,null)}else{localEvent(done,null)}
+}
 function extraEvent(done){
  const month=dateLabel(S.turn).month;
  const met=HEROINES.filter(h=>S.met[h.id]);
@@ -1440,7 +1450,7 @@ advanceTurn();
 }
 function advanceTurn(){
 weeklyChecks();
-const prevTitle=EVENT_TITLES[turnInYear(S.turn)];
+const prevTitle=S._lastEvent?String(S._lastEvent).replace(/^[^ぁ-んァ-ヶ一-龥Ａ-Ｚａ-ｚA-Za-z0-9]+/,""):null;S._lastEvent=null;
 S.turn++;render();
 const d=dateLabel(S.turn);
 setStage(null,"　",(prevTitle?("先週の「"+prevTitle+"」の余韻を胸に、"):"")+d.text+"。新しい1週間が始まった。物語は、少しずつ進んでいく。","📅 "+d.text+" "+d.season);
@@ -1516,7 +1526,7 @@ chime();show("screen-ending");
 $("btn-ending-title").onclick=()=>show("screen-title");
 $("btn-ending-replay").onclick=()=>{S=null;show("screen-name")};
 $("btn-ending-album").onclick=()=>{albumReturn="ending";openAlbum()};
-$("btn-to-title").onclick=()=>show("screen-title");
+$("btn-to-title").onclick=()=>{resetPlayState();show("screen-title")};
 $("btn-sound").onclick=e=>{soundOn=!soundOn;e.target.textContent=soundOn?"🔊 音ON":"🔇 音OFF";
 if(!soundOn){if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}adminStopMp3()}
 else{beep(660,.1);const cur=bgmName;bgmName=null;setBGM(cur||"daily")}};
@@ -1628,6 +1638,7 @@ $("adm-ov-save").onclick=()=>{
 };
 $("adm-ov-del").onclick=()=>{const no=$("adm-ov-no").value.trim();if(no&&ADMIN.overrides[no]){delete ADMIN.overrides[no];persistAdmin();adminRenderLists();toast("No."+no+" の上書きを削除しました")}else toast("そのNoの上書きはありません")};
 $("adm-cu-template").onclick=()=>{$("adm-cu-json").value=JSON.stringify({no:"CU-001",title:"放課後の約束",turn:20,hero:"sakura",minAff:30,fx:{aff:{sakura:5}},scenes:[{hero:"sakura",variant:"smile",text:"放課後、教室にさくらが戻ってきた。"},{hero:"sakura",variant:"shy",text:"「ねえ、今日は一緒に帰ろう？」",choices:[{label:"「いいよ」",fx:{aff:{sakura:3}}},{label:"「用事がある」",fx:{aff:{sakura:-2}}}]}]},null,1)};
+$("adm-cu-json").addEventListener("input",()=>{const st=$("adm-cu-status");const v=$("adm-cu-json").value.trim();if(!v){st.textContent="";return}try{JSON.parse(v);st.textContent="✅ JSONの形式は正しいです";st.style.color="#2e7d32"}catch(e){st.textContent="⚠️ JSONの形式エラー："+e.message;st.style.color="#c62828"}});
 $("adm-cu-add").onclick=()=>{
  try{const cs=JSON.parse($("adm-cu-json").value);if(!cs||!Array.isArray(cs.scenes)||!cs.scenes.length){toast("scenesが空です");return}
   if(!cs.no)cs.no="CU-"+String(ADMIN.custom.length+1).padStart(3,"0");
@@ -1690,7 +1701,6 @@ document.querySelectorAll("[data-dbg-end]").forEach(b=>{b.onclick=()=>{if(!confi
 
 
 
-"use strict";
 /* ================= SAVE / LOAD ================= */
 let modalMode="save";
 function openModal(mode){
@@ -1710,7 +1720,7 @@ function renderSlots(){
   const btns=document.createElement("div");btns.className="slot-btns";
   if(modalMode==="save"){
    const b1=document.createElement("button");b1.className="btn small primary";b1.textContent=S?"ここにセーブ":"セーブ不可";b1.disabled=!S;
-   b1.onclick=()=>{slots[i]=JSON.parse(JSON.stringify(S));persistSlots();renderSlots();toast("スロット"+(i+1)+"にセーブしました");beep(784,.12)};
+   b1.onclick=()=>{slots[i]=JSON.parse(JSON.stringify(S));if(persistSlots()){renderSlots();toast("スロット"+(i+1)+"にセーブしました")}else{toast("⚠️ セーブに失敗しました（ブラウザの保存容量不足の可能性があります）。ファイル書き出しもお試しください")}beep(784,.12)};
    const b2=document.createElement("button");b2.className="btn small";b2.textContent="📄 ファイルに保存";b2.disabled=!S;
    b2.onclick=()=>downloadSave(S,i+1);
    btns.append(b1,b2);
@@ -1731,7 +1741,9 @@ function downloadSave(state,slotNo){
  a.download="sakura-memorial-save"+(slotNo||"")+"-"+state.last+state.first+".json";a.click();
  setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast("セーブファイルを保存しました");
 }
+function resetPlayState(){gameBusy=false;igActive=false;igQueue=[];igDone=null;novelQueue=[];novelDone=null;const b=$("story-no-badge");if(b)b.classList.add("hidden")}
 function loadState(state){
+ resetPlayState();
  S=migrateState(JSON.parse(JSON.stringify(state)));
  S.memories.forEach(id=>albumUnlocked.add(id));persistAlbum();if(S.clears&&S.clears>META.clears){META.clears=S.clears;persistMeta()}
  $("modal-save").classList.add("hidden");chime();
@@ -1799,7 +1811,7 @@ $("detail-close").onclick=()=>$("album-detail").classList.add("hidden");
 const OP_MAX=10;
 let opImages=[],opTimer=null,opIdx=0,opFront="a",openingActive=false;
 function stopOpening(){if(opTimer){clearInterval(opTimer);opTimer=null}openingActive=false;try{bgmAudio.pause()}catch(e){}bgmAudio.onended=null;bgmAudio.loop=true;bgmAudio.dataset.track="";bgmName=null}
-function goTitle(){stopOpening();show("screen-title")}
+function goTitle(){resetPlayState();stopOpening();show("screen-title")}
 function startOpening(){
  show("screen-opening");openingActive=true;
  const A=$("op-img-a"),B=$("op-img-b");opIdx=0;opFront="a";
@@ -1916,7 +1928,7 @@ function playNovelInGame(scenes,done,tag){
 const no=scenes.__no||__adminNextNo||deriveStoryNo(tag);__adminNextNo=null;__adminCurNo=no;
 const ov=ADMIN.overrides[no];let scs=scenes;
 if(ov){scs=scenes.map((sc,i)=>{const c=Object.assign({},sc);if(ov.img)c.img=ov.img;if(ov.variant&&c.hero)c.variant=ov.variant;if(ov.texts&&ov.texts[i]!=null)c.text=ov.texts[i];return c})}
-igQueue=scs;igIdx=0;igDone=done||null;igActive=true;
+igQueue=scs;igIdx=0;igDone=done||null;igActive=true;$("game-skip").classList.remove("hidden");
 if(ov&&ov.fx){const d0=igDone;igDone=()=>{applyAdminFx(ov.fx);if(d0)d0()}}
 $("game-tag").textContent=tag||"物語";setBGM(bgmForNovel(tag));renderNovelInGame();
 }
@@ -1934,14 +1946,16 @@ const ch=$("game-choices");ch.innerHTML="";
 if(sc.choices){ch.classList.remove("hidden");$("game-next").classList.add("hidden");
 sc.choices.forEach(c=>{const b=document.createElement("button");b.textContent=c.label;b.onclick=()=>{beep(740,.1);ch.classList.add("hidden");$("game-next").classList.remove("hidden");if(c.effect)c.effect();igIdx++;renderNovelInGame()};ch.appendChild(b)});
 }else{ch.classList.add("hidden");$("game-next").classList.remove("hidden")}
-$("game-next").onclick=()=>{beep(520,.07);igIdx++;renderNovelInGame()};
+$("game-next").onclick=()=>{if(typeComplete())return;beep(520,.07);igIdx++;renderNovelInGame()};
+$("game-skip").onclick=()=>{if(!igActive)return;beep(660,.07);typeComplete();finishNovelInGame()};
 $("game-hint").textContent="タップ／クリックで進む";
 }
-function finishNovelInGame(){igActive=false;__adminCurNo=null;const d=igDone;igDone=null;igQueue=[];$("game-hint").textContent="";if(d)d()}
-const __gsEl=$("game-stage");if(__gsEl)__gsEl.addEventListener("click",e=>{if(!igActive)return;if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("game-choices").classList.contains("hidden"))return;igIdx++;renderNovelInGame()});
+function finishNovelInGame(){igActive=false;__adminCurNo=null;const d=igDone;igDone=null;igQueue=[];$("game-hint").textContent="";$("game-skip").classList.add("hidden");if(d)d()}
+const __gsEl=$("game-stage");if(__gsEl)__gsEl.addEventListener("click",e=>{if(typeComplete())return;if(!igActive)return;if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("game-choices").classList.contains("hidden"))return;igIdx++;renderNovelInGame()});
 window.__igRouteOk=true;
 /* ===== デバッグ：先生ルート状態の表示 ===== */
 setInterval(()=>{
+ const modal=$("modal-admin");if(modal&&modal.classList.contains("hidden"))return;
  const el=document.getElementById("adm-nurse-state");if(!el)return;
  if(!S||!S.nurse){el.textContent="―（プレイ中のみ表示）";return}
  const n=S.nurse;
