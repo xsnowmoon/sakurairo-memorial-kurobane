@@ -111,11 +111,169 @@ const BGM_TRACKS={
  ending:{step:295,wave:"triangle",vol:0.052,legato:0.94,bassWave:"sine",bassVol:0.046,arpWave:"triangle",arpVol:0.02,
   melody:[[78,2],[81,2],[86,3],[85,1],[83,2],[81,2],[79,2],[78,2],[76,2],[78,2],[81,2],[83,2],[86,4],[83,1],[81,1],[78,2]],
   bass:[[50,4],[47,4],[43,4],[45,4],[50,4],[47,4],[43,4],[45,4]],
-  arp:[[62,2],[66,2],[69,2],[74,2],[59,2],[62,2],[66,2],[71,2],[59,2],[62,2],[67,2],[71,2],[61,2],[64,2],[69,2],[73,2]]}
+  arp:[[62,2],[66,2],[69,2],[74,2],[59,2],[62,2],[66,2],[71,2],[59,2],[62,2],[67,2],[71,2],[61,2],[64,2],[69,2],[73,2]]},
+ /* ほっこり：ハ長調。ゆったり歩く温かい旋律（v2で実曲化） */
+ hokkori:{step:340,wave:"sine",vol:0.046,legato:0.95,bassWave:"sine",bassVol:0.042,arpWave:"sine",arpVol:0.016,
+  melody:[[72,2],[76,2],[79,2],[76,2],[81,2],[79,2],[76,4],[74,2],[72,2],[74,2],[76,2],[74,2],[72,6]],
+  bass:[[48,4],[43,4],[41,4],[43,4],[48,4],[43,4],[41,4],[48,4]],
+  arp:[[64,2],[67,2],[71,2],[67,2],[65,2],[69,2],[72,2],[69,2]]},
+ /* 黒羽の出来事：ト長調。町を歩くような軽い足取り */
+ local:{step:260,wave:"triangle",vol:0.048,legato:0.9,bassWave:"sine",bassVol:0.044,arpWave:"triangle",arpVol:0.015,
+  melody:[[67,2],[71,2],[74,2],[71,2],[76,2],[74,2],[71,2],[69,2],[67,2],[69,2],[71,2],[69,2],[67,4],[0,2]],
+  bass:[[43,2],[50,2],[43,2],[50,2],[48,2],[55,2],[50,2],[43,2]],
+  arp:[[59,1],[62,1],[59,1],[62,1],[60,1],[64,1],[60,1],[64,1]]},
+ /* 句碑めぐり：イ短調系の静かな旋律。余白多め */
+ kuhi:{step:400,wave:"sine",vol:0.044,legato:0.96,bassWave:"sine",bassVol:0.04,arpWave:"sine",arpVol:0.013,
+  melody:[[69,3],[72,1],[74,2],[76,2],[74,4],[72,2],[69,2],[67,2],[69,6],[0,2],[74,2],[76,2],[79,2],[76,2],[74,2],[72,2],[69,6]],
+  bass:[[45,6],[41,6],[43,6],[45,6]],
+  arp:[[0,4],[76,2],[0,4],[79,2],[0,4],[76,2],[0,4],[74,2]]},
+ /* 個別ストーリー：ニ長調。少し切ない上行旋律 */
+ story:{step:300,wave:"triangle",vol:0.05,legato:0.94,bassWave:"sine",bassVol:0.044,arpWave:"triangle",arpVol:0.017,
+  melody:[[74,2],[78,2],[81,2],[78,2],[79,2],[78,2],[76,2],[74,2],[73,2],[74,2],[76,2],[78,2],[81,4],[79,2],[78,6]],
+  bass:[[50,4],[47,4],[43,4],[45,4],[50,4],[47,4],[43,4],[45,4]],
+  arp:[[66,2],[69,2],[74,2],[69,2],[62,2],[66,2],[69,2],[66,2]]},
+ /* 夏祭り：ニ長調。太鼓の脈打ちベースと跳ねる旋律 */
+ matsuri:{step:170,wave:"square",vol:0.026,legato:0.85,bassWave:"triangle",bassVol:0.055,arpWave:"square",arpVol:0.012,
+  melody:[[74,1],[74,1],[77,1],[81,1],[79,1],[77,1],[74,1],[73,1],[74,1],[74,1],[77,1],[81,1],[84,2],[81,1],[79,1],[77,1],[76,1],[77,1],[79,1],[81,1],[79,1],[77,1],[76,1],[74,1],[73,2],[74,2]],
+  bass:[[50,1],[0,1],[50,1],[0,1],[50,1],[0,1],[50,1],[0,1],[45,1],[0,1],[45,1],[0,1],[47,1],[0,1],[47,1],[0,1]],
+  arp:[[69,1],[74,1],[69,1],[74,1]]},
+ /* スポーツ行事：ハ長調の行進曲。元気な同音連打 */
+ sports:{step:180,wave:"square",vol:0.026,legato:0.88,bassWave:"triangle",bassVol:0.05,arpWave:"square",arpVol:0.012,
+  melody:[[72,1],[72,1],[72,1],[76,2],[79,2],[76,1],[79,1],[84,2],[79,1],[76,1],[74,1],[76,1],[74,1],[72,2],[0,1],[74,1],[76,1],[79,1],[76,1],[74,1],[72,1],[74,1],[71,1],[72,4]],
+  bass:[[48,1],[55,1],[48,1],[55,1],[41,1],[48,1],[43,1],[50,1],[48,1],[55,1],[48,1],[55,1],[43,1],[50,1],[43,1],[48,1]],
+  arp:[[64,1],[67,1],[64,1],[67,1]]},
+ /* 文化祭：ヘ長調。明るく弾むポップな旋律 */
+ culture:{step:230,wave:"triangle",vol:0.048,legato:0.9,bassWave:"triangle",bassVol:0.044,arpWave:"square",arpVol:0.013,
+  melody:[[77,1],[81,1],[84,1],[81,1],[79,1],[77,1],[76,1],[77,1],[79,1],[81,1],[79,1],[77,1],[76,1],[74,1],[72,1],[74,1],[77,4]],
+  bass:[[41,2],[48,2],[46,2],[53,2],[38,2],[46,2],[48,2],[41,2]],
+  arp:[[65,1],[69,1],[65,1],[69,1],[67,1],[70,1],[67,1],[70,1]]},
+ /* 海・夏：ハ長調。風のようなアルペジオと伸びやかな旋律 */
+ sea:{step:280,wave:"sine",vol:0.047,legato:0.95,bassWave:"sine",bassVol:0.042,arpWave:"sine",arpVol:0.018,
+  melody:[[76,2],[79,2],[84,2],[79,2],[81,2],[79,2],[76,2],[74,2],[72,2],[74,2],[76,2],[79,2],[76,6]],
+  bass:[[48,4],[55,4],[53,4],[55,4]],
+  arp:[[72,1],[76,1],[79,1],[84,1],[79,1],[76,1],[72,1],[76,1],[74,1],[77,1],[81,1],[86,1],[81,1],[77,1],[74,1],[77,1]]},
+ /* 雪・冬：ホ短調。まばらな高音が雪のように降る */
+ snow:{step:380,wave:"sine",vol:0.044,legato:0.96,bassWave:"sine",bassVol:0.04,arpWave:"sine",arpVol:0.013,
+  melody:[[83,2],[79,2],[76,4],[0,2],[81,2],[79,2],[76,2],[74,2],[71,2],[74,2],[76,6],[0,2]],
+  bass:[[40,6],[43,6],[40,6],[47,6]],
+  arp:[[0,3],[88,1],[0,3],[86,1],[0,3],[83,1],[0,3],[81,1]]},
+ /* 通常・春：ハ長調。桜の季節の明るい通常曲 */
+ daily_spring:{step:280,wave:"triangle",vol:0.048,legato:0.93,bassWave:"sine",bassVol:0.044,arpWave:"sine",arpVol:0.017,
+  melody:[[76,2],[74,1],[72,1],[74,2],[0,2],[76,2],[79,1],[81,1],[79,2],[76,2],[77,2],[76,1],[74,1],[72,2],[0,2],[74,2],[76,1],[74,1],[72,4]],
+  bass:[[48,4],[55,4],[53,4],[55,4],[48,4],[55,4],[53,4],[48,4]],
+  arp:[[67,2],[72,2],[76,2],[72,2],[65,2],[69,2],[74,2],[69,2]]},
+ /* 通常・夏：ヘ長調。蝉しぐれのような細かいアルペジオ */
+ daily_summer:{step:265,wave:"triangle",vol:0.048,legato:0.92,bassWave:"sine",bassVol:0.044,arpWave:"triangle",arpVol:0.016,
+  melody:[[77,2],[76,1],[74,1],[76,2],[0,2],[77,2],[81,1],[84,1],[81,2],[77,2],[79,2],[77,1],[76,1],[74,2],[0,2],[76,2],[77,1],[76,1],[74,4]],
+  bass:[[41,4],[48,4],[46,4],[48,4],[41,4],[48,4],[46,4],[41,4]],
+  arp:[[69,1],[72,1],[77,1],[72,1],[70,1],[74,1],[79,1],[74,1]]},
+ /* 通常・秋：イ短調。少し物思う通常曲 */
+ daily_autumn:{step:320,wave:"sine",vol:0.046,legato:0.94,bassWave:"sine",bassVol:0.043,arpWave:"sine",arpVol:0.016,
+  melody:[[76,2],[74,1],[72,1],[71,2],[0,2],[72,2],[76,1],[79,1],[76,2],[74,2],[72,2],[71,1],[69,1],[68,2],[0,2],[69,2],[71,1],[69,1],[69,4]],
+  bass:[[45,4],[41,4],[43,4],[40,4],[45,4],[41,4],[43,4],[45,4]],
+  arp:[[64,2],[69,2],[72,2],[69,2],[62,2],[65,2],[69,2],[65,2]]},
+ /* 通常・冬：ハ長調。静かで澄んだ通常曲 */
+ daily_winter:{step:350,wave:"sine",vol:0.045,legato:0.95,bassWave:"sine",bassVol:0.042,arpWave:"sine",arpVol:0.015,
+  melody:[[79,2],[76,1],[74,1],[72,2],[0,2],[74,2],[76,1],[79,1],[81,2],[79,2],[76,2],[74,1],[72,1],[71,2],[0,2],[72,4]],
+  bass:[[48,4],[43,4],[41,4],[43,4]],
+  arp:[[0,2],[84,2],[0,2],[83,2],[0,2],[81,2],[0,2],[79,2]]},
+ /* 桜：ハ長調。花びらのように舞う旋律 */
+ sakura:{step:300,wave:"triangle",vol:0.048,legato:0.94,bassWave:"sine",bassVol:0.043,arpWave:"sine",arpVol:0.017,
+  melody:[[84,2],[81,1],[79,1],[76,2],[79,2],[81,2],[84,2],[86,1],[84,1],[81,2],[79,2],[76,2],[77,2],[79,4]],
+  bass:[[48,4],[55,4],[53,4],[55,4]],
+  arp:[[72,1],[76,1],[79,1],[76,1],[74,1],[77,1],[81,1],[77,1]]},
+ /* 梅雨・雨：ト短調寄り。雨だれのようなアルペジオ */
+ rain:{step:360,wave:"sine",vol:0.045,legato:0.94,bassWave:"sine",bassVol:0.042,arpWave:"sine",arpVol:0.015,
+  melody:[[74,2],[70,1],[67,1],[70,2],[0,2],[72,2],[74,1],[70,1],[67,2],[65,2],[67,2],[70,2],[74,4]],
+  bass:[[43,4],[46,4],[41,4],[43,4]],
+  arp:[[0,1],[79,1],[0,1],[77,1],[0,1],[74,1],[0,1],[77,1]]},
+ /* 七夕：ニ長調。星空に願いをかける旋律 */
+ tanabata:{step:300,wave:"sine",vol:0.047,legato:0.95,bassWave:"sine",bassVol:0.043,arpWave:"sine",arpVol:0.016,
+  melody:[[78,2],[81,2],[85,2],[81,2],[83,2],[81,2],[78,2],[76,2],[78,2],[81,2],[83,2],[85,4],[83,2],[81,6]],
+  bass:[[50,4],[47,4],[43,4],[45,4]],
+  arp:[[0,2],[90,2],[0,2],[88,2],[0,2],[85,2],[0,2],[88,2]]},
+ /* クリスマス：ヘ長調。ベルのアルペジオと祝祭の旋律 */
+ xmas:{step:240,wave:"triangle",vol:0.05,legato:0.92,bassWave:"triangle",bassVol:0.045,arpWave:"sine",arpVol:0.02,
+  melody:[[77,1],[77,1],[77,2],[0,1],[77,1],[77,1],[77,2],[0,1],[77,1],[81,1],[74,1],[76,1],[77,6],[0,1],[79,1],[79,1],[78,1],[77,1],[76,1],[76,1],[76,1],[81,1],[79,1],[78,1],[74,1],[76,1],[77,2]],
+  bass:[[41,2],[48,2],[46,2],[53,2],[41,2],[48,2],[36,2],[41,2]],
+  arp:[[84,1],[81,1],[84,1],[81,1],[86,1],[84,1],[81,1],[84,1]]},
+ /* イルミネーション：ハ長調。瞬く光のような高音 */
+ illumination:{step:330,wave:"sine",vol:0.046,legato:0.95,bassWave:"sine",bassVol:0.042,arpWave:"sine",arpVol:0.018,
+  melody:[[84,2],[79,2],[76,2],[79,2],[81,2],[79,2],[76,4],[83,2],[79,2],[76,2],[74,2],[76,2],[72,4]],
+  bass:[[48,4],[43,4],[41,4],[48,4]],
+  arp:[[0,1],[88,1],[0,1],[86,1],[0,1],[84,1],[0,1],[86,1],[0,1],[88,1],[0,1],[84,1],[0,1],[83,1],[0,1],[81,1]]},
+ /* 初詣・正月：イ長調寄りの和風旋律 */
+ newyear:{step:300,wave:"triangle",vol:0.048,legato:0.92,bassWave:"sine",bassVol:0.043,arpWave:"triangle",arpVol:0.015,
+  melody:[[69,2],[73,2],[76,2],[78,2],[81,2],[78,2],[76,2],[73,2],[74,2],[76,2],[73,2],[69,2],[68,2],[69,4]],
+  bass:[[45,4],[49,4],[42,4],[45,4]],
+  arp:[[64,1],[69,1],[73,1],[69,1],[66,1],[69,1],[73,1],[69,1]]},
+ /* バレンタイン：ハ長調。甘く弾む旋律 */
+ valentine:{step:270,wave:"sine",vol:0.048,legato:0.93,bassWave:"triangle",bassVol:0.043,arpWave:"sine",arpVol:0.017,
+  melody:[[76,1],[79,1],[81,2],[79,1],[76,1],[74,1],[76,1],[79,1],[84,2],[81,1],[79,1],[81,1],[79,1],[76,1],[74,1],[72,1],[74,1],[76,4]],
+  bass:[[48,2],[55,2],[53,2],[55,2],[41,2],[48,2],[43,2],[48,2]],
+  arp:[[72,1],[76,1],[79,1],[76,1],[74,1],[77,1],[81,1],[77,1]]},
+ /* ハロウィン：ハ短調。おどけた不気味さ */
+ halloween:{step:240,wave:"square",vol:0.024,legato:0.85,bassWave:"triangle",bassVol:0.05,arpWave:"sine",arpVol:0.014,
+  melody:[[72,1],[0,1],[75,1],[0,1],[74,1],[0,1],[75,1],[0,1],[72,1],[0,1],[68,1],[0,1],[71,1],[0,1],[72,4],[0,2],[70,1],[0,1],[67,1],[0,1],[72,4]],
+  bass:[[36,2],[39,2],[36,2],[41,2],[36,2],[39,2],[43,2],[36,2]],
+  arp:[[0,2],[79,1],[0,3],[77,1],[0,3]]},
+ /* 修学旅行：ト長調。旅のわくわく */
+ trip:{step:250,wave:"triangle",vol:0.049,legato:0.9,bassWave:"sine",bassVol:0.044,arpWave:"triangle",arpVol:0.015,
+  melody:[[67,1],[71,1],[74,1],[79,2],[76,1],[74,1],[71,1],[74,1],[76,2],[0,1],[67,1],[71,1],[74,1],[79,2],[81,1],[79,1],[76,1],[74,1],[71,1],[69,1],[67,4]],
+  bass:[[43,2],[50,2],[48,2],[55,2],[43,2],[50,2],[50,2],[43,2]],
+  arp:[[62,1],[67,1],[62,1],[67,1],[64,1],[69,1],[64,1],[69,1]]},
+ /* コンサート：ヘ長調。ステージの華やかさ */
+ concert:{step:260,wave:"triangle",vol:0.049,legato:0.92,bassWave:"sine",bassVol:0.044,arpWave:"triangle",arpVol:0.016,
+  melody:[[81,2],[79,1],[77,1],[76,2],[77,1],[79,1],[81,2],[84,1],[81,1],[79,2],[77,1],[76,1],[74,2],[76,1],[77,1],[79,4]],
+  bass:[[41,4],[46,4],[38,4],[41,4]],
+  arp:[[69,2],[72,2],[77,2],[72,2],[67,2],[70,2],[74,2],[70,2]]},
+ /* テスト・受験：イ短調。時計の針のような緊張感 */
+ exam:{step:280,wave:"sine",vol:0.046,legato:0.8,bassWave:"sine",bassVol:0.044,
+  melody:[[69,1],[0,1],[69,1],[0,1],[72,1],[0,1],[69,1],[0,1],[68,1],[0,1],[68,1],[0,1],[71,1],[0,1],[68,1],[0,1],[69,1],[0,1],[69,1],[0,1],[72,1],[0,1],[74,1],[0,1],[76,4]],
+  bass:[[45,2],[0,2],[41,2],[0,2],[43,2],[0,2],[40,2],[0,2]]},
+ /* 誕生日：ハ長調。祝いの明るい旋律 */
+ birthday:{step:220,wave:"triangle",vol:0.05,legato:0.9,bassWave:"triangle",bassVol:0.045,arpWave:"square",arpVol:0.013,
+  melody:[[72,1],[72,1],[74,1],[72,1],[77,1],[76,3],[72,1],[72,1],[74,1],[72,1],[79,1],[77,3],[74,1],[76,1],[79,1],[81,1],[79,1],[77,1],[76,1],[74,1],[77,1],[76,1],[72,3]],
+  bass:[[48,2],[55,2],[41,2],[48,2],[48,2],[55,2],[53,2],[48,2]],
+  arp:[[67,1],[72,1],[67,1],[72,1],[69,1],[74,1],[69,1],[74,1]]},
+ /* 夜：イ短調。夜空と電話の静けさ */
+ night:{step:340,wave:"sine",vol:0.046,legato:0.95,bassWave:"sine",bassVol:0.042,arpWave:"sine",arpVol:0.015,
+  melody:[[81,2],[79,1],[76,1],[79,2],[0,2],[76,2],[74,1],[76,1],[79,2],[81,2],[79,2],[76,2],[74,2],[69,4]],
+  bass:[[45,4],[41,4],[43,4],[45,4]],
+  arp:[[0,2],[88,2],[0,2],[84,2],[0,2],[81,2],[0,2],[79,2]]},
+ /* プール：ハ長調。水しぶきのような軽快さ */
+ pool:{step:210,wave:"square",vol:0.024,legato:0.87,bassWave:"triangle",bassVol:0.048,arpWave:"square",arpVol:0.012,
+  melody:[[72,1],[76,1],[79,1],[76,1],[81,1],[79,1],[76,1],[74,1],[72,1],[76,1],[79,1],[81,1],[84,1],[81,1],[79,1],[76,1],[74,1],[76,1],[74,1],[72,2]],
+  bass:[[48,1],[55,1],[53,1],[55,1],[48,1],[55,1],[43,1],[48,1]],
+  arp:[[79,1],[84,1],[79,1],[84,1]]},
+ /* 夏休み：ヘ長調。夏の午後の明るさ */
+ summer:{step:240,wave:"triangle",vol:0.049,legato:0.91,bassWave:"sine",bassVol:0.044,arpWave:"triangle",arpVol:0.015,
+  melody:[[81,1],[84,1],[81,1],[79,1],[77,1],[79,1],[81,2],[0,1],[77,1],[79,1],[81,1],[84,1],[86,1],[84,1],[81,1],[79,1],[77,1],[76,1],[77,4]],
+  bass:[[41,2],[48,2],[46,2],[53,2],[41,2],[48,2],[48,2],[41,2]],
+  arp:[[72,1],[77,1],[72,1],[77,1],[74,1],[79,1],[74,1],[79,1]]},
+ /* 屋上：ト長調。夕日の屋上の切なさ */
+ rooftop:{step:310,wave:"triangle",vol:0.048,legato:0.94,bassWave:"sine",bassVol:0.043,arpWave:"sine",arpVol:0.016,
+  melody:[[79,2],[83,2],[86,2],[83,2],[81,2],[79,2],[78,2],[76,2],[74,2],[76,2],[79,2],[81,2],[79,6]],
+  bass:[[43,4],[48,4],[40,4],[43,4]],
+  arp:[[67,2],[71,2],[74,2],[71,2],[64,2],[67,2],[71,2],[67,2]]},
+ /* 看病：ハ長調。静かに寄り添う旋律 */
+ sick:{step:360,wave:"sine",vol:0.045,legato:0.95,bassWave:"sine",bassVol:0.042,arpWave:"sine",arpVol:0.014,
+  melody:[[76,2],[72,2],[74,2],[72,2],[71,2],[72,2],[74,4],[0,2],[76,2],[79,2],[76,2],[74,2],[72,6]],
+  bass:[[48,4],[41,4],[43,4],[48,4]],
+  arp:[[0,4],[79,2],[0,4],[76,2]]},
+ /* 電話・メール：ハ長調。呼び出し音のような軽いモチーフ */
+ phone:{step:260,wave:"sine",vol:0.047,legato:0.9,bassWave:"sine",bassVol:0.043,
+  melody:[[84,1],[0,1],[84,1],[0,3],[79,1],[81,1],[79,1],[76,1],[74,1],[76,1],[79,2],[0,2],[84,1],[0,1],[84,1],[0,3],[86,1],[84,1],[81,1],[79,1],[76,4]],
+  bass:[[48,2],[55,2],[53,2],[55,2],[48,2],[55,2],[43,2],[48,2]]},
+ /* 回想：ヘ長調。アルバムを開く懐かしさ */
+ memory:{step:320,wave:"sine",vol:0.047,legato:0.95,bassWave:"sine",bassVol:0.043,arpWave:"sine",arpVol:0.016,
+  melody:[[81,2],[79,1],[77,1],[79,2],[81,2],[84,2],[81,1],[79,1],[77,2],[76,1],[74,1],[76,2],[77,4],[0,2]],
+  bass:[[41,4],[46,4],[38,4],[41,4]],
+  arp:[[72,2],[77,2],[81,2],[77,2],[70,2],[74,2],[77,2],[74,2]]}
 };
 function bgmExpand(line){const out=[];if(!line)return out;for(let i=0;i<line.length;i++){out.push({m:line[i][0],l:line[i][1]});for(let j=1;j<line[i][1];j++)out.push(null)}return out}
 Object.keys(BGM_TRACKS).forEach(function(k){const tr=BGM_TRACKS[k];tr._mel=bgmExpand(tr.melody);tr._bas=bgmExpand(tr.bass);tr._arp=bgmExpand(tr.arp)});
-function bgmForNovel(tag){const t=tag||"";if(t.indexOf("ほっこり")>=0)return "hokkori";if(t.indexOf("句碑")>=0)return "kuhi";if(t.indexOf("黒羽の出来事")>=0)return "local";if(t.indexOf("の物語")>=0)return "story";if(t.indexOf("プロローグ")>=0)return "opening";if(t.indexOf("寝込")>=0||t.indexOf("見舞い")>=0||t.indexOf("ケンカ")>=0||t.indexOf("病気")>=0||t.indexOf("断念")>=0||t.indexOf("別れ")>=0)return "sad";if(t.indexOf("卒業")>=0||t.indexOf("告白")>=0)return "ending";if(t.indexOf("デート")>=0||t.indexOf("お部屋")>=0||t.indexOf("電話")>=0||t.indexOf("メール")>=0)return "date";if(t.indexOf("やきもち")>=0||t.indexOf("誤解")>=0||t.indexOf("ライバル")>=0||t.indexOf("秘密")>=0)return "choice";return "event"}
+function bgmForNovel(tag){const t=tag||"";if(t.indexOf("ほっこり")>=0)return "hokkori";if(t.indexOf("句碑")>=0)return "kuhi";if(t.indexOf("黒羽の出来事")>=0)return "local";if(t.indexOf("の物語")>=0)return "story";if(t.indexOf("プロローグ")>=0)return "opening";if(t.indexOf("寝込")>=0||t.indexOf("見舞い")>=0||t.indexOf("ケンカ")>=0||t.indexOf("病気")>=0||t.indexOf("断念")>=0||t.indexOf("別れ")>=0)return "sad";if(t.indexOf("卒業")>=0||t.indexOf("告白")>=0)return "ending";if(t.indexOf("屋上")>=0&&t.indexOf("告白")<0)return "rooftop";if(t.indexOf("看病")>=0)return "sick";if(t.indexOf("電話")>=0||t.indexOf("メール")>=0)return "phone";if(t.indexOf("デート")>=0||t.indexOf("お部屋")>=0)return "date";if(t.indexOf("やきもち")>=0||t.indexOf("誤解")>=0||t.indexOf("ライバル")>=0||t.indexOf("秘密")>=0)return "choice";if(t.indexOf("夏祭り")>=0||t.indexOf("花火")>=0)return "matsuri";if(t.indexOf("体育祭")>=0||t.indexOf("球技")>=0||t.indexOf("マラソン")>=0)return "sports";if(t.indexOf("文化祭")>=0)return "culture";if(t.indexOf("スキー")>=0||t.indexOf("雪の日")>=0)return "snow";if(t.indexOf("海の一日")>=0)return "sea";if(t.indexOf("水泳")>=0||t.indexOf("プール")>=0)return "pool";if(t.indexOf("クリスマス")>=0)return "xmas";if(t.indexOf("イルミネーション")>=0)return "illumination";if(t.indexOf("初詣")>=0||t.indexOf("合格お守り")>=0)return "newyear";if(t.indexOf("バレンタイン")>=0||t.indexOf("ホワイトデー")>=0||t.indexOf("チョコ")>=0)return "valentine";if(t.indexOf("ハロウィン")>=0)return "halloween";if(t.indexOf("七夕")>=0)return "tanabata";if(t.indexOf("修学旅行")>=0)return "trip";if(t.indexOf("コンサート")>=0)return "concert";if(t.indexOf("期末")>=0||t.indexOf("テスト")>=0||t.indexOf("勉強会")>=0)return "exam";if(t.indexOf("誕生日")>=0)return "birthday";if(t.indexOf("プラネタリウム")>=0||t.indexOf("水族館")>=0||t.indexOf("夜の電話")>=0)return "night";if(t.indexOf("夏休み")>=0)return "summer";if(t.indexOf("桜の下")>=0)return "sakura";if(t.indexOf("梅雨")>=0)return "rain";return "event"}
 let bgmName=null,bgmStep=0,bgmTimer=null;
 let bgmVolume=0.5;try{const __v=lsGet("sakura-memorial-vol-v1");if(typeof __v==="number"&&__v>=0&&__v<=1)bgmVolume=__v}catch(e){}
 /* ==== BGMのタブ間調整：鳴らすのは常に1タブだけ。隠れたタブ・後から開いたタブは自動で止まる ==== */
@@ -156,7 +314,7 @@ function bgmTick(){
  bgmTimer=setTimeout(bgmTick,tr.step);
 }
 function setBGM(name){
- if((name==="hokkori"||name==="local"||name==="kuhi"||name==="story")&&typeof adminBgmUrl==="function"&&!adminBgmUrl(name))name="event";
+ if(name==="daily"&&typeof S!=="undefined"&&S){const __m=((3+Math.floor(((S.turn-1)%48)/4))%12)+1;name=(__m>=3&&__m<=5)?"daily_spring":(__m>=6&&__m<=8)?"daily_summer":(__m>=9&&__m<=11)?"daily_autumn":"daily_winter"}
  if(bgmName===name)return;
  bgmName=name;bgmStep=0;
  if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
@@ -183,7 +341,7 @@ document.addEventListener("pointerdown",function(){
 });
 function bgmForScreen(id){
  if(id==="screen-loading"||id==="screen-opening")return;
- if(id!=="screen-novel")setBGM(id==="screen-game"?"daily":id==="screen-ending"?"ending":"title");
+ if(id!=="screen-novel")setBGM(id==="screen-game"?"daily":id==="screen-ending"?"ending":id==="screen-album"?"memory":"title");
 }
 function show(id){const __pg=$("page-no-badge");if(__pg&&id!=="screen-game"&&id!=="screen-novel")__pg.classList.add("hidden");const __rs=$("btn-resume");if(__rs)__rs.classList.toggle("hidden",!(id==="screen-title"&&S));["screen-loading","screen-opening","screen-title","screen-novel","screen-name","screen-game","screen-ending","screen-album"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo({top:0});bgmForScreen(id)}
 /* petals */
@@ -294,7 +452,7 @@ function finishNovel(){const b=$("story-no-badge");if(b)b.classList.add("hidden"
 $("novel-next").onclick=()=>{beep(520,.07);novelIdx++;renderNovel()};
 $("novel-stage").addEventListener("click",e=>{if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("novel-choices").classList.contains("hidden"))return;novelIdx++;renderNovel()});
 $("novel-skip").onclick=()=>finishNovel();
-document.querySelectorAll(".btn-translate").forEach(b=>b.onclick=()=>{translateMode=!translateMode;document.querySelectorAll(".btn-translate").forEach(x=>x.textContent="🌐 翻訳モード: "+(translateMode?"ON":"OFF"));toast(translateMode?"🌐 翻訳モードON：文章を一括表示します":"翻訳モードOFF：タイプライター表示に戻しました")});
+document.querySelectorAll(".btn-translate").forEach(b=>b.onclick=()=>{translateMode=!translateMode;document.querySelectorAll(".btn-translate").forEach(x=>x.textContent="⌨️ タイプモード: "+(translateMode?"OFF":"ON"));toast(translateMode?"⌨️ タイプモード: OFF（文章を一括表示します）":"⌨️ タイプモード: ON（タイプライター表示）")});
 $("novel-title").onclick=()=>{novelDone=null;novelQueue=[];__adminCurNo=null;const b=$("story-no-badge");if(b)b.classList.add("hidden");gameBusy=false;show("screen-title");toast("タイトルに戻りました。「さっきの画面にもどる」で再開できます")};
 $("btn-resume").onclick=()=>{if(!S)return;beep(660,.08);if(S.ended){show("screen-ending")}else{show("screen-game");render()}};
 
@@ -1366,7 +1524,7 @@ else{beep(660,.1);const cur=bgmName;bgmName=null;setBGM(cur||"daily")}};
 /* ================= ADMIN (maintenance) ================= */
 let ADMIN={bgm:{},overrides:{},custom:[]};
 let __adminNextNo=null,__adminCurNo=null;
-const BGM_LABELS={opening:"オープニング（プロローグ）",title:"タイトル",daily:"通常（本編）",event:"イベント",choice:"選択肢・ドキドキ",date:"デート",sad:"悲しい場面",ending:"エンディング",hokkori:"ほっこりイベント",local:"黒羽の出来事（地元イベント）",kuhi:"句碑めぐり",story:"個別ストーリー"};
+const BGM_LABELS={opening:"オープニング（プロローグ）",title:"タイトル",daily:"通常（本編）",daily_spring:"通常・春",daily_summer:"通常・夏",daily_autumn:"通常・秋",daily_winter:"通常・冬",event:"イベント",choice:"選択肢・ドキドキ",date:"デート",sad:"悲しい場面",ending:"エンディング",hokkori:"ほっこりイベント",local:"黒羽の出来事（地元イベント）",kuhi:"句碑めぐり",story:"個別ストーリー",matsuri:"夏祭り",sports:"スポーツ行事",culture:"文化祭",sea:"海・夏",snow:"雪・冬",sakura:"桜",rain:"梅雨・雨",tanabata:"七夕",xmas:"クリスマス",illumination:"イルミネーション",newyear:"初詣・正月",valentine:"バレンタイン",halloween:"ハロウィン",trip:"修学旅行",concert:"コンサート",exam:"テスト・受験",birthday:"誕生日",night:"夜",pool:"プール",summer:"夏休み",rooftop:"屋上",sick:"看病",phone:"電話・メール",memory:"回想"};
 const bgmAudio=new Audio();bgmAudio.loop=true;bgmAudio.volume=bgmVolume;
 const bgmFailedUrls=new Set();
 function adminBgmUrl(name){const u=((ADMIN.bgm||{})[name]||"").trim();return bgmFailedUrls.has(u)?"":u}
@@ -1667,6 +1825,10 @@ $("btn-opening").onclick=()=>{beep(784,.1);startOpening()};
 if($("btn-opening-title"))$("btn-opening-title").onclick=()=>{beep(784,.1);startOpening()};
 async function hardRefresh(){try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}try{const u=new URL(location.href);u.searchParams.set("r",String(Date.now()));location.replace(u.toString())}catch(e){location.reload()}}
 if($("btn-refresh"))$("btn-refresh").onclick=()=>{hardRefresh()};
+const BGM_ALBUM_LIST=[["opening","オープニング","プロローグ","assets/op01.webp"],["title","タイトル","タイトル画面","assets/op10.webp"],["daily","通常（原曲）","本編の通常週（季節で下の4曲に変化）","assets/op16.webp"],["daily_spring","通常・春","春（3〜5月）のメイン画面","assets/sakura-smile.webp"],["daily_summer","通常・夏","夏（6〜8月）のメイン画面","assets/akari-sea.webp"],["daily_autumn","通常・秋","秋（9〜11月）のメイン画面","assets/op08.webp"],["daily_winter","通常・冬","冬（12〜2月）のメイン画面","assets/rin-winter.webp"],["event","イベント","行事などのイベント全般","assets/op22.webp"],["choice","選択肢・ドキドキ","選択肢・やきもち・秘密の場面","assets/rin.webp"],["date","デート","デート・お部屋デート","assets/sakura-date.webp"],["sad","悲しい場面","病気・別れの場面","assets/yuki-sick.webp"],["ending","エンディング","卒業・告白の場面","assets/sakura-ending.webp"],["hokkori","ほっこり","ほっこりイベント","assets/akari-smile.webp"],["local","黒羽の出来事","地域イベント","assets/basho-yakata.webp"],["kuhi","句碑めぐり","芭蕉の句碑めぐり","assets/kuhi01.webp"],["story","個別ストーリー","ヒロインの物語（章）","assets/yuki.webp"],["matsuri","夏祭り","夏祭り・花火大会・線香花火","assets/sakura-yukata.webp"],["sports","スポーツ行事","体育祭・球技大会・マラソン","assets/akari-gym.webp"],["culture","文化祭","文化祭と準備・片付け","assets/rin-gyouji.webp"],["sea","海・夏","海の一日","assets/sakura-sea.webp"],["snow","雪・冬","スキー合宿・雪の日","assets/akari-ski.webp"],["sakura","桜","伝説の桜の下で","assets/sakura-shy.webp"],["rain","梅雨・雨","梅雨の図書室","assets/yuki-smile.webp"],["tanabata","七夕","七夕","assets/rin-planet.webp"],["xmas","クリスマス","クリスマス","assets/sakura-winter.webp"],["illumination","イルミネーション","冬のイルミネーション","assets/rin-date.webp"],["newyear","初詣・正月","初詣・合格お守り","assets/yuki-yukata.webp"],["valentine","バレンタイン","バレンタイン・ホワイトデー・チョコ作り","assets/rin-shy.webp"],["halloween","ハロウィン","ハロウィン","assets/op20.webp"],["trip","修学旅行","修学旅行とその準備","assets/op18.webp"],["concert","コンサート","秋の音楽室コンサート","assets/rin-club.webp"],["exam","テスト・受験","期末テスト・勉強会","assets/sakura-gyouji.webp"],["birthday","誕生日","ヒロインの誕生日","assets/akari-date.webp"],["night","夜","夏休みの夜の電話・水族館の夜・プラネタリウム","assets/akari-planet.webp"],["pool","プール","水泳大会・プール","assets/akari-club.webp"],["summer","夏休み","夏休みの計画","assets/op06.webp"],["rooftop","屋上","屋上の伝説・卒業前日の屋上","assets/rin-grad.webp"],["sick","看病","看病の場面","assets/rin-sick.webp"],["phone","電話・メール","電話・メールの場面","assets/akari.webp"],["memory","回想","回想アルバムを開いている時","assets/op21.webp"]];
+function bgmStopAll(){if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}bgmName=null;try{adminStopMp3()}catch(e){}}
+(function(){const list=$("album-bgm-list");if(list){list.innerHTML=BGM_ALBUM_LIST.map(function(t){return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #f3b8cc;border-radius:10px;padding:8px;margin:6px 0"><img src="'+t[3]+'" loading="lazy" onerror="this.style.visibility=\'hidden\'" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none"><button class="btn small" data-bgm-play="'+t[0]+'">▶</button><div><div style="font-weight:700">'+t[1]+'</div><div style="font-size:12px;color:var(--muted)">'+t[2]+'</div></div></div>'}).join("");list.querySelectorAll("[data-bgm-play]").forEach(function(b){b.onclick=function(){setBGM(b.getAttribute("data-bgm-play"))}})}})();
+if($("btn-album-bgm-stop"))$("btn-album-bgm-stop").onclick=()=>{bgmStopAll()};
 function bootLoading(){
  const base=["assets/sakura.webp","assets/akari.webp","assets/yuki.webp","assets/rin.webp"];
  const variants=["assets/sakura-smile.webp","assets/sakura-shy.webp","assets/sakura-date.webp","assets/sakura-yukata.webp","assets/sakura-gyouji.webp","assets/sakura-club.webp","assets/sakura-winter.webp","assets/sakura-ski.webp","assets/sakura-sick.webp","assets/sakura-planet.webp","assets/sakura-grad.webp","assets/sakura-ending.webp","assets/akari-smile.webp","assets/akari-shy.webp","assets/akari-date.webp","assets/akari-yukata.webp","assets/akari-gyouji.webp","assets/akari-club.webp","assets/akari-winter.webp","assets/akari-ski.webp","assets/akari-grad.webp","assets/akari-ending.webp","assets/yuki-smile.webp","assets/yuki-shy.webp","assets/yuki-date.webp","assets/yuki-yukata.webp","assets/yuki-gyouji.webp","assets/yuki-club.webp","assets/yuki-winter.webp","assets/yuki-grad.webp","assets/yuki-ending.webp","assets/rin-smile.webp","assets/rin-shy.webp","assets/rin-date.webp","assets/rin-yukata.webp","assets/rin-gyouji.webp","assets/rin-club.webp","assets/rin-winter.webp","assets/rin-grad.webp","assets/rin-ending.webp","assets/sakura-gym.webp","assets/akari-gym.webp","assets/yuki-gym.webp","assets/rin-gym.webp","assets/akari-planet.webp","assets/yuki-planet.webp","assets/rin-planet.webp","assets/yuki-ski.webp","assets/sakura-sea.webp","assets/akari-sick.webp","assets/akari-sea.webp","assets/yuki-sick.webp","assets/yuki-sea.webp","assets/rin-ski.webp","assets/rin-sick.webp","assets/rin-sea.webp"];

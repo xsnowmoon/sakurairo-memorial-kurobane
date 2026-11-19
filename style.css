@@ -243,7 +243,7 @@ button:not(.btn):not(.cmd):not(.mem):active{transform:translateY(2px) scale(.98)
 .op-caption{position:relative;text-align:center;color:var(--navy);text-shadow:0 2px 14px rgba(255,255,255,.85);padding:20px;z-index:2}
 .op-title{font-size:clamp(34px,7vw,56px);font-weight:700}
 .op-to-title{position:absolute;right:16px;bottom:16px;z-index:3}
-.page-no{position:fixed;left:12px;bottom:12px;z-index:60;background:rgba(38,53,92,.88);color:#fff;font-size:11px;font-weight:700;border-radius:8px;padding:4px 9px;pointer-events:none}
+.page-no{position:fixed;left:12px;bottom:12px;z-index:40;background:rgba(38,53,92,.88);color:#fff;font-size:11px;font-weight:700;border-radius:8px;padding:4px 9px;pointer-events:none}
 .mem.end-locked img{filter:blur(18px) brightness(.35) grayscale(1);transform:scale(1.25)}
 .perfect-frame{border:2px dashed var(--line);border-radius:14px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:18px 10px;min-height:150px;color:var(--muted);font-weight:900}
 .perfect-frame .q{font-size:44px;color:var(--sakura)}

@@ -516,3 +516,4 @@ const YUKI_DIALECT_PAIRS=[
 ];
 /* 句碑データの画像パス対応（句碑番号→画像） */
 const KUHI_IMGS={1:"assets/kuhi01.webp",2:"assets/kuhi02.webp",3:"assets/kuhi03.webp",4:"assets/kuhi04.webp",5:"assets/kuhi05.webp",6:"assets/kuhi06.webp",7:"assets/kuhi07.webp",8:"assets/kuhi08.webp",9:"assets/kuhi09.webp",10:"assets/kuhi10.webp"};
+

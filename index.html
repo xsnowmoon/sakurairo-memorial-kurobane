@@ -15,7 +15,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611182355">
+<link rel="stylesheet" href="style.css?b=202611191732">
 
 </head>
 <body>
@@ -147,14 +147,6 @@
 
   <section class="card">
     <section class="card">
-    <h2 class="mincho">🪞 キャラクター三面図</h2>
-    <p>ヒロイン4人の設定資料（三面図）です。動画づくりや二次制作の資料にもどうぞ。</p>
-    <div class="three-views">
-      <figure><img src="assets/sakurai-sakura-three-view.webp" alt="桜井さくらの三面図"><figcaption>桜井 さくら</figcaption></figure>
-      <figure><img src="assets/hoshino-akari-three-view.webp" alt="星野あかりの三面図"><figcaption>星野 あかり</figcaption></figure>
-      <figure><img src="assets/tsukishima-yuki-three-view.webp" alt="月島ゆきの三面図"><figcaption>月島 ゆき</figcaption></figure>
-      <figure><img src="assets/fujiwara-rin-three-view.webp" alt="藤原りんの三面図"><figcaption>藤原 りん</figcaption></figure>
-    </div>
     <p style="font-size:13px;color:var(--muted);font-weight:700">……なお、保健室の先生には、まだ誰も知らない秘密があるらしい。部活で怪我をした時は、保健室を訪ねてみてください。</p>
   </section>
   <h2 class="mincho">🎮 システム</h2>
@@ -180,8 +172,8 @@
       <tbody><tr><th>タイトル</th><td>桜色メモリアル 〜ときめき学園物語〜</td></tr>
       <tr><th>ジャンル</th><td>1人用・育成シミュレーション／恋愛アドベンチャー</td></tr>
       <tr><th>制作・著作</th><td>Snow Moon Games</td></tr>
-      <tr><th>イラスト</th><td>ヒロイン4人×15枚＝60枚＋新規79枚（OP／保健室の先生／句碑／地域イベント／バッドエンド／特典。すべて assets フォルダのWebP画像）＋キャラクター三面図4枚</td></tr>
-      <tr><th>BGM</th><td>Web Audioによる場面別12曲の合成演奏（管理機能でMP3差し替え可）</td></tr>
+      <tr><th>イラスト</th><td>ヒロイン4人×15枚＝60枚＋新規79枚（OP／保健室の先生／句碑／地域イベント／バッドエンド／特典。すべて assets フォルダのWebP画像）</td></tr>
+      <tr><th>BGM</th><td>Web Audioによる場面別40曲の合成演奏（管理機能でMP3差し替え可）</td></tr>
       <tr><th>セーブ</th><td>3スロット（ブラウザに自動保存）＋ファイル保存対応</td></tr>
       <tr><th>動作環境</th><td>モダンブラウザ（PC／スマートフォン）。表示は明るいテーマ固定</td></tr>
     </tbody></table>
@@ -206,7 +198,7 @@
 <tr><th>ヒロイン</th><td>4人（桜井さくら／星野あかり／月島ゆき／藤原りん）、各15枚・合計60枚の差分イラスト、各4章立ての個別ストーリー</td></tr>
 <tr><th>システム</th><td>全144週間（3年間）・コマンド14種・パラメータ21項目（基本10＋評価5＋スキル6）・関係値4種（好感度／信頼度／親密度／嫉妬度）＋傷心度・年間行事46種・デート14か所・実績10種・マルチエンディング（恋愛／親友／ライバル／人生型ほか）・周回特典</td></tr>
 <tr><th>セーブ</th><td>3スロット（ブラウザの localStorage に自動保存）＋JSONファイルへの書き出し／読み込み対応。周回データ・アルバム収集・管理データも自動保存されます</td></tr>
-<tr><th>技術仕様</th><td>ファイル分割構成（index.html／style.css／engine.js／story.js／data.js、外部ライブラリ不使用）。イラストは assets フォルダの WebP 画像、BGMは Web Audio API による場面別12曲の合成演奏（管理機能でMP3への差し替え可）。スマートフォン表示・モーション軽減設定に対応（表示は明るいテーマ固定）</td></tr>
+<tr><th>技術仕様</th><td>ファイル分割構成（index.html／style.css／engine.js／story.js／data.js、外部ライブラリ不使用）。イラストは assets フォルダの WebP 画像、BGMは Web Audio API による場面別40曲の合成演奏（管理機能でMP3への差し替え可）。スマートフォン表示・モーション軽減設定に対応（表示は明るいテーマ固定）</td></tr>
 <tr><th>動作環境</th><td>モダンブラウザ（PC／スマートフォン）</td></tr>
 </tbody></table>
 
@@ -333,7 +325,7 @@
   </div>
   <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
     <button class="btn small" id="novel-skip">スキップ ⏩</button>
-    <button class="btn small btn-translate">🌐 翻訳モード: OFF</button>
+    <button class="btn small btn-translate">⌨️ タイプモード: ON</button>
     <button class="btn small ghost" id="novel-title">タイトルへ戻る</button>
   </div>
 </main>
@@ -384,7 +376,7 @@
         <button class="btn small" id="btn-load-open">📂 ロード</button>
         <button class="btn small" id="btn-album-game">📖 アルバム</button>
         <button class="btn small" id="btn-sound">🔊 音ON</button>
-        <button class="btn small btn-translate">🌐 翻訳モード: OFF</button>
+        <button class="btn small btn-translate">⌨️ タイプモード: ON</button>
         <button class="btn small" id="btn-to-title">🏠 タイトル</button>
       </div>
     </section>
@@ -433,6 +425,12 @@
   <p style="font-weight:500;color:var(--muted);line-height:1.8;margin:0 0 12px">集めた思い出をタップすると、その場面をもう一度読めます。エンディング後に開くと、卒業アルバムとして3年間の記録がまとまります。</p>
   <div class="card hidden" id="album-summary" style="margin-bottom:12px"></div>
   <div class="card hidden" id="album-ach" style="margin-bottom:12px"></div>
+  <div class="card" id="album-bgm" style="margin-bottom:12px">
+    <h3 class="mincho" style="margin:0 0 4px">🎵 BGMコレクション（全40曲）</h3>
+    <p style="font-weight:500;color:var(--muted);line-height:1.7;margin:0 0 8px">思い出と一緒に、ゲームの曲もここで聴けます。▶で再生（管理機能でMP3に差し替えた曲は、そのMP3が流れます）。</p>
+    <div id="album-bgm-list"></div>
+    <div style="margin-top:10px"><button class="btn small" id="btn-album-bgm-stop">⏹ BGM停止</button></div>
+  </div>
   <div class="album-grid" id="album-grid"></div>
   <div class="card hidden" id="album-detail" style="margin-top:14px">
     <span class="tag" id="detail-tag"></span>
@@ -532,9 +530,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611182355"></script>
-<script src="story.js?b=202611182355"></script>
-<script src="engine.js?b=202611182355"></script>
+<script src="data.js?b=202611191732"></script>
+<script src="story.js?b=202611191732"></script>
+<script src="engine.js?b=202611191732"></script>
 
 
 
