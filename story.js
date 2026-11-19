@@ -80,7 +80,42 @@ sakura:[
  {min:85,title:"第4章 桜の約束",scenes:[
   {who:"　",text:"卒業式まで、あと少し。さくらが、桜の木の下で待っていた。"},
   {hero:"sakura",who:"桜井 さくら",variant:"smile",text:"覚えてる？小さい頃、ここで「また一緒に帰ろう」って約束したこと。…あれが、私の原点なんだ"},
-  {hero:"sakura",who:"桜井 さくら",variant:"shy",text:"卒業式の日、屋上で。…今度は私が、あんたを待つ番。…桜が散る前に、必ず来てね"}]}],
+  {hero:"sakura",who:"桜井 さくら",variant:"shy",text:"卒業式の日、屋上で。…今度は私が、あんたを待つ番。…桜が散る前に、必ず来てね"}]}, {min:88,title:"第5章 遠出・御殿山の桜",scenes:[
+  {who:"　",text:"休日。さくらに誘われ、バスに揺られて佐久山の御殿山公園まで来た。黒羽の外に出るのは、久しぶりだ。"},
+  {hero:"sakura",who:"桜井 さくら",variant:"smile",text:"見て！桜がまだ残ってる！小さい頃、遠足で来たの覚えてる？あんた、お弁当の卵焼き、落としたんだよ"},
+  {who:"　",text:"展望台からは、大田原の町が一望できた。いつも見ている黒羽とは、少し違う景色。"},
+  {hero:"sakura",who:"桜井 さくら",text:"ねえ、私たちって、ずっと黒羽の中で生きてきたんだね。…たまには、こういう遠出もいいな"},
+  {who:"　",text:"さくらが、桜の木の下で振り返った。",choices:[
+   {label:"「来年も再来年も、一緒に来よう」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+6)}},
+   {label:"「今日の景色、覚えておこう」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+3)}}]},
+  {hero:"sakura",who:"桜井 さくら",variant:"shy",text:"…約束だよ。卒業しても、その先も。…ふふ、なんだか遠足の続きみたい"}]},
+ {min:91,title:"第6章 遠出・金燈籠の願い",scenes:[
+  {who:"　",text:"大田原の市街地。大田原神社の前にある金燈籠は、日本でも有数の大きさだという。"},
+  {hero:"sakura",who:"桜井 さくら",variant:"smile",text:"おっきい…！ねえ、願い事していい？…内緒だけど、叶ったら教えるね"},
+  {who:"　",text:"さくらは燈籠の前で、長く手を合わせていた。"},
+  {hero:"sakura",who:"桜井 さくら",variant:"shy",text:"…あんたの願い事は？…言わなくていいよ。だいたい分かるから。…私も、同じだから"},
+  {who:"　",text:"帰りのバスを待つ間、さくらが小さく言った。",choices:[
+   {label:"「同じ願い、きっと叶うよ」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+6)}},
+   {label:"「バス、来たよ」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+3)}}]},
+  {hero:"sakura",who:"桜井 さくら",variant:"smile",text:"うん…！…あ、バス来た。…今日はありがとう。連れてきてくれて"}]},
+ {min:94,title:"第7章 遠出・蛇尾川の土手",scenes:[
+  {who:"　",text:"放課後、自転車で蛇尾川の土手を走った。川沿いの道は、夕日に染まっていた。"},
+  {hero:"sakura",who:"桜井 さくら",text:"この川、黒羽の那珂川とはまた違うね。…穏やかで、好きだな"},
+  {who:"　",text:"土手に座って、二人でジュースを飲んだ。言葉は少なくても、悪くない時間。"},
+  {hero:"sakura",who:"桜井 さくら",variant:"shy",text:"…ねえあんた。卒業したら、離れ離れになるのかな。…なんて、今は考えたくないけど"},
+  {who:"　",text:"さくらは、夕日の川面を見つめていた。",choices:[
+   {label:"「離れても、ここには帰って来られる」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+6)}},
+   {label:"「今は夕日を見よう」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+3)}}]},
+  {hero:"sakura",who:"桜井 さくら",variant:"smile",text:"…そっか。帰る場所があるって、強いことだね。…よし、暗くなる前に帰ろ！"}]},
+ {min:97,title:"第8章 遠出・龍城公園の夕日",scenes:[
+  {who:"　",text:"大田原城址・龍城公園。城の跡に立つと、町全体が見渡せた。"},
+  {hero:"sakura",who:"桜井 さくら",text:"ここに昔、お城があったんだね。…私たちの学校も、百年後には伝説になってるのかな"},
+  {who:"　",text:"夕日が、公園の木々を金色に染めていく。"},
+  {hero:"sakura",who:"桜井 さくら",variant:"shy",text:"卒業式まで、あと少し。…屋上の約束、覚えてるよね。…私は、あの日を信じてる"},
+  {who:"　",text:"夕日の中で、さくらが笑った。",choices:[
+   {label:"「必ず屋上に行くよ」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+6)}},
+   {label:"「忘れるわけない」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+4)}}]},
+  {hero:"sakura",who:"桜井 さくら",variant:"smile",text:"…うん！…じゃあ今日は、これでおしまい。…最後の遠出、楽しかったな"}]}],
 akari:[
  {min:35,title:"第1章 隠した痛み",scenes:[
   {who:"　",text:"放課後のコート。あかりの動きが、いつもと違う。左足を、かばっている。"},
@@ -100,7 +135,42 @@ akari:[
  {min:85,title:"第4章 コートの隣",scenes:[
   {who:"　",text:"最後の大会が終わった夕方。あかりが、使い込んだラケットをそっと差し出した。"},
   {hero:"akari",who:"星野 あかり",variant:"shy",text:"これ、私の宝物。…卒業式の日まで、あんたが預かって。…屋上に、持ってきてくれる？"},
-  {hero:"akari",who:"星野 あかり",variant:"smile",text:"返しに来る理由があれば、あんたは絶対に来てくれるでしょ。…待ってるから。コートじゃなく、屋上でね"}]}],
+  {hero:"akari",who:"星野 あかり",variant:"smile",text:"返しに来る理由があれば、あんたは絶対に来てくれるでしょ。…待ってるから。コートじゃなく、屋上でね"}]}, {min:88,title:"第5章 遠出・蛇尾川ラン",scenes:[
+  {who:"　",text:"休日の朝。あかりに誘われ、蛇尾川沿いをランニングすることになった。"},
+  {hero:"akari",who:"星野 あかり",variant:"smile",text:"このコース、信号が少なくて走りやすいんだ！ほら、置いてくよ！"},
+  {who:"　",text:"川面が朝日に光る。あかりの背中は、いつもより少し遠かった。"},
+  {hero:"akari",who:"星野 あかり",text:"…ねえ。私、卒業したら、もっと遠くの大会にも出てみたい。…あんたは、見に来てくれる？"},
+  {who:"　",text:"あかりが、立ち止まって振り返った。",choices:[
+   {label:"「どこでも応援に行くよ」",effect:()=>{S.aff.akari=clamp(S.aff.akari+6)}},
+   {label:"「まず今日のランを完走しよう」",effect:()=>{S.aff.akari=clamp(S.aff.akari+3)}}]},
+  {hero:"akari",who:"星野 あかり",variant:"shy",text:"…！…約束だかんね。…ふふ、じゃあ最後まで付き合ってもらうよ！"}]},
+ {min:91,title:"第6章 遠出・風土記の丘サイクリング",scenes:[
+  {who:"　",text:"湯津上まで自転車で。那須風土記の丘と、侍塚古墳を見に来た。"},
+  {hero:"akari",who:"星野 あかり",variant:"smile",text:"古墳って、思ったよりデカい！昔の人も、ここを走ったりしたのかな"},
+  {who:"　",text:"古墳の上に立つと、那須野が原が一望できた。"},
+  {hero:"akari",who:"星野 あかり",text:"千五百年前の景色と、今の景色。…あんたと同じものを見てるって、不思議だね"},
+  {who:"　",text:"風が、古墳の草を揺らしていた。",choices:[
+   {label:"「千五百年後にも残る思い出にしよう」",effect:()=>{S.aff.akari=clamp(S.aff.akari+6)}},
+   {label:"「写真、撮ろうか」",effect:()=>{S.aff.akari=clamp(S.aff.akari+3)}}]},
+  {hero:"akari",who:"星野 あかり",variant:"shy",text:"…お、たまにはいいこと言うじゃん。…よーし、帰りは競争ね！"}]},
+ {min:94,title:"第7章 遠出・金燈籠ダッシュ",scenes:[
+  {who:"　",text:"早朝。大田原神社の金燈籠まで、あかりと朝ランでやって来た。"},
+  {hero:"akari",who:"星野 あかり",variant:"smile",text:"到着！…はあ、気持ちいい。ここの燈籠、朝日で金色に光るんだよ"},
+  {who:"　",text:"静かな境内に、二人の息づかいだけが響いた。"},
+  {hero:"akari",who:"星野 あかり",variant:"shy",text:"…ねえ、あんた。私が遠くに行っても…この場所は、変わらないでいてほしいな"},
+  {who:"　",text:"朝日の中で、あかりが小さく笑った。",choices:[
+   {label:"「変わらないよ。帰る場所はここだ」",effect:()=>{S.aff.akari=clamp(S.aff.akari+6)}},
+   {label:"「燈籠に願っておこう」",effect:()=>{S.aff.akari=clamp(S.aff.akari+3)}}]},
+  {hero:"akari",who:"星野 あかり",variant:"smile",text:"…うん。…じゃあ、帰りも走るよ！置いてっても知らないからね！"}]},
+ {min:97,title:"第8章 遠出・龍城公園の自主練",scenes:[
+  {who:"　",text:"龍城公園の広場。あかりの自主練に付き合っていた。"},
+  {hero:"akari",who:"星野 あかり",text:"見てて。新しいフォーム…！どう、今の！"},
+  {who:"　",text:"夕日の広場で、何度も何度も素振りを繰り返すあかり。"},
+  {hero:"akari",who:"星野 あかり",variant:"shy",text:"卒業式の日、屋上の約束…覚えてる？…私の宝物、預けてあるんだから。…必ず、来てね"},
+  {who:"　",text:"夕日が、あかりの影を長く伸ばしていた。",choices:[
+   {label:"「必ず行く。コートじゃなく、屋上に」",effect:()=>{S.aff.akari=clamp(S.aff.akari+6)}},
+   {label:"「宝物は大事に持ってるよ」",effect:()=>{S.aff.akari=clamp(S.aff.akari+4)}}]},
+  {hero:"akari",who:"星野 あかり",variant:"smile",text:"…ふふ、楽しみにしてる。…さ、最後にもう一本だけ付き合って！"}]}],
 yuki:[
  {min:35,title:"第1章 落ちた原稿",scenes:[
   {who:"　",text:"図書室で、ゆきが慌てて原稿用紙を拾い集めていた。一枚が、足元に滑ってきた。"},
@@ -120,7 +190,42 @@ yuki:[
  {min:85,title:"第4章 最後のページ",scenes:[
   {who:"　",text:"卒業式の前日。ゆきから、新しい原稿を渡された。タイトルは『屋上の神話』。"},
   {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"最後のページだけ、白紙なんだっぺ。…結末は、物語の中の二人じゃなく、私たちが決めるものだから"},
-  {hero:"yuki",who:"月島 ゆき",variant:"smile",text:"卒業式の日、屋上で待っています。…二人で、最後のページを埋めましょうね"}]}],
+  {hero:"yuki",who:"月島 ゆき",variant:"smile",text:"卒業式の日、屋上で待っています。…二人で、最後のページを埋めましょうね"}]}, {min:88,title:"第5章 遠出・侍塚古墳の取材",scenes:[
+  {who:"　",text:"湯津上、なす風土記の丘。ゆきの小説の取材に付き合って、侍塚古墳まで来た。"},
+  {hero:"yuki",who:"月島 ゆき",variant:"smile",text:"千五百年以上前のお墓…。ここに眠る人は、どんな物語を生きたんだっぺね"},
+  {who:"　",text:"ゆきはノートに、古墳の形を丁寧にスケッチしていた。"},
+  {hero:"yuki",who:"月島 ゆき",text:"…物語って、こういう場所から生まれるんだと思います。…今日は、来てよかった"},
+  {who:"　",text:"ゆきが、スケッチの手を止めてこちらを見た。",choices:[
+   {label:"「ゆきの小説に、この古墳が出てくるのが楽しみ」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+6)}},
+   {label:"「スケッチ、上手だね」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+3)}}]},
+  {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"…！…じゃあ、最初に読むのは…やっぱり、あなたです。…約束、ですよ"}]},
+ {min:91,title:"第6章 遠出・大田原神社の参道",scenes:[
+  {who:"　",text:"大田原神社の参道。木々に囲まれた石畳は、静かで、少しひんやりしていた。"},
+  {hero:"yuki",who:"月島 ゆき",text:"ここ、好きです。…言葉が、自然と静かになる場所だっぺ"},
+  {who:"　",text:"金燈籠の前で、ゆきは立ち止まって見上げた。"},
+  {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"…お願い事、しました。…内容は、内緒です。…でも、あなたも関係あることです"},
+  {who:"　",text:"参道に、木漏れ日が揺れていた。",choices:[
+   {label:"「叶うといいね。…僕も同じことを願ったよ」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+6)}},
+   {label:"「燈籠、大きいね」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+3)}}]},
+  {hero:"yuki",who:"月島 ゆき",variant:"smile",text:"…！…そ、そうですか。…じゃあ、きっと叶いますね。…二人分ですから"}]},
+ {min:94,title:"第7章 遠出・御殿山の読書",scenes:[
+  {who:"　",text:"佐久山の御殿山公園。桜の木の下のベンチで、ゆきと並んで本を読んだ。"},
+  {hero:"yuki",who:"月島 ゆき",text:"外で読む本は、家で読むのと少し違います。…風の音も、物語の一部みたいで"},
+  {who:"　",text:"花びらが、開いたページの上に落ちた。ゆきはそれを、栞の代わりに挟んだ。"},
+  {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"…この栞、使います。…あなたと来た日の、証拠みたいなものですから"},
+  {who:"　",text:"ページをめくる音だけが、静かに響いた。",choices:[
+   {label:"「今度は僕の好きな本も持ってくるよ」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+6)}},
+   {label:"「似合ってるよ、その栞」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+3)}}]},
+  {hero:"yuki",who:"月島 ゆき",variant:"smile",text:"…はい。…次の遠出も、静かな場所がいいです。…あなたとなら、どこでも、ですけど"}]},
+ {min:97,title:"第8章 遠出・金燈籠の句",scenes:[
+  {who:"　",text:"夕方の大田原神社。金燈籠が、西日に金色に光っていた。"},
+  {hero:"yuki",who:"月島 ゆき",text:"芭蕉なら、この燈籠で何と詠むんだっぺ…。…私も一句、考えてみました"},
+  {who:"　",text:"ゆきは小さな声で、自作の句を読み上げた。燈籠と、二人の影が伸びる句だった。"},
+  {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"…卒業式の日、屋上で待っています。…最後のページは、まだ白紙のままです。…二人で埋める、その日まで"},
+  {who:"　",text:"西日が、二人の影を長く伸ばしていた。",choices:[
+   {label:"「必ず行く。二人で最後のページを埋めよう」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+6)}},
+   {label:"「今日の句、忘れないよ」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+4)}}]},
+  {hero:"yuki",who:"月島 ゆき",variant:"smile",text:"…はい。…今日の遠出が、私の物語の大事な一章になりました"}]}],
 rin:[
  {min:35,title:"第1章 生徒会室の居眠り",scenes:[
   {who:"　",text:"放課後の生徒会室。りんが、資料の山にもたれて眠っていた。"},
@@ -141,7 +246,42 @@ rin:[
  {min:85,title:"第4章 二つ目の鍵",scenes:[
   {who:"　",text:"卒業式の前日。りんが、小さな包みを手渡してきた。中には、屋上の鍵と同じ形の、小さな鍵。"},
   {hero:"rin",who:"藤原 りん",variant:"shy",text:"これは、私の心の鍵。…開けられるのは、世界で一人だけよ"},
-  {hero:"rin",who:"藤原 りん",variant:"smile",text:"卒業式の日、夕日が沈む前に、屋上で。…二つの鍵が揃うのを、待っているわ"}]}]
+  {hero:"rin",who:"藤原 りん",variant:"smile",text:"卒業式の日、夕日が沈む前に、屋上で。…二つの鍵が揃うのを、待っているわ"}]}, {min:88,title:"第5章 遠出・龍城公園の城主",scenes:[
+  {who:"　",text:"大田原城址・龍城公園。りんに誘われ、城の歴史を聞きながら歩いた。"},
+  {hero:"rin",who:"藤原 りん",variant:"smile",text:"大田原氏のお城よ。…城主の目線で町を見ると、守るべきものの大きさが分かるわ"},
+  {who:"　",text:"本丸跡から見渡す町並み。りんはしばらく、静かに眺めていた。"},
+  {hero:"rin",who:"藤原 りん",text:"…私も、生徒会長として学園を守ってきたつもり。…卒業したら、誰が守るのかしらね"},
+  {who:"　",text:"風が、城址の木々を揺らした。",choices:[
+   {label:"「りんの背中を見て育った後輩が、きっと守るよ」",effect:()=>{S.aff.rin=clamp(S.aff.rin+6)}},
+   {label:"「たまには守られる側になってもいいんじゃない？」",effect:()=>{S.aff.rin=clamp(S.aff.rin+4)}}]},
+  {hero:"rin",who:"藤原 りん",variant:"shy",text:"…ふふ、あなたは時々、核心を突くわね。…今日は、悪くない遠出だったわ"}]},
+ {min:91,title:"第6章 遠出・金燈籠と大田原神社",scenes:[
+  {who:"　",text:"大田原神社と金燈籠。格式ある場所で、りんの背筋がいつもより伸びていた。"},
+  {hero:"rin",who:"藤原 りん",text:"この燈籠、江戸時代からのものよ。…長く残るものには、理由があるの"},
+  {who:"　",text:"参道を歩きながら、りんは珍しく、家のことを少しだけ話した。"},
+  {hero:"rin",who:"藤原 りん",variant:"shy",text:"…藤原の名を背負うのは、誇りでもあり、重さでもあるの。…あなたにだけ、言うけれど"},
+  {who:"　",text:"参道の静けさが、二人を包んでいた。",choices:[
+   {label:"「重さは、半分持つよ」",effect:()=>{S.aff.rin=clamp(S.aff.rin+6)}},
+   {label:"「話してくれてありがとう」",effect:()=>{S.aff.rin=clamp(S.aff.rin+4)}}]},
+  {hero:"rin",who:"藤原 りん",variant:"smile",text:"…ありがとう。…じゃあ、帰りましょう。…今日のことは、二人だけの話よ"}]},
+ {min:94,title:"第7章 遠出・風土記の丘の下見",scenes:[
+  {who:"　",text:"なす風土記の丘。卒業記念の校外学習の下見に、りんと二人で来た。"},
+  {hero:"rin",who:"藤原 りん",variant:"smile",text:"下見は完璧にね。…侍塚古墳、思ったより立派だわ。これなら皆も満足するはず"},
+  {who:"　",text:"古墳の上で、りんは行程表を閉じて、景色に目を細めた。"},
+  {hero:"rin",who:"藤原 りん",variant:"shy",text:"…下見は二人きり、というのも、悪くないわね。…仕事を忘れるくらいには"},
+  {who:"　",text:"古墳の草が、風に波打っていた。",choices:[
+   {label:"「卒業までの遠出、あと何回行けるかな」",effect:()=>{S.aff.rin=clamp(S.aff.rin+6)}},
+   {label:"「下見、完璧だったね」",effect:()=>{S.aff.rin=clamp(S.aff.rin+3)}}]},
+  {hero:"rin",who:"藤原 りん",variant:"smile",text:"…数えるのは、終わってからにしましょう。…まだ、少し残っているわ"}]},
+ {min:97,title:"第8章 遠出・御殿山のお茶会",scenes:[
+  {who:"　",text:"佐久山・御殿山公園。桜の木の下で、りんが小さなお茶会を開いてくれた。"},
+  {hero:"rin",who:"藤原 りん",variant:"smile",text:"特別よ。私のお茶を飲める機会なんて、そうそうないんだから"},
+  {who:"　",text:"紙コップのお茶でも、りんが淹れると不思議と格式が漂った。"},
+  {hero:"rin",who:"藤原 りん",variant:"shy",text:"…卒業式の日、夕日が沈む前に屋上で。…二つの鍵の約束、忘れていないわよね"},
+  {who:"　",text:"桜の花びらが、湯呑みに一つ落ちた。",choices:[
+   {label:"「忘れるわけがない。当日、必ず行く」",effect:()=>{S.aff.rin=clamp(S.aff.rin+6)}},
+   {label:"「鍵は大事に持っているよ」",effect:()=>{S.aff.rin=clamp(S.aff.rin+4)}}]},
+  {hero:"rin",who:"藤原 りん",variant:"smile",text:"…ふふ、よろしい。…じゃあ、最後の遠出はこれでお開き。…名残惜しい、わね"}]}]
 };
 const CONTACT_REPLIES={
 sakura:{chat:"今日ね、帰りに子猫がついてきちゃって…！あんたも見たかったでしょ？今度一緒に探しに行こ？",praise:"えへへ…そんなに褒められると照れるよ。…でも、ありがと。今日はいい夢見れそう",worry:"あんたの相談なら、いつでも聞くよ。…私でよければ、だけどね",plan:"次の休み？…うん、空いてるよ！どこ行くか、考えるの楽しみにしてるね"},
