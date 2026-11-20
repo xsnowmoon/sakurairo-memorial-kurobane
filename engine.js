@@ -20,9 +20,12 @@ let slots=[null,null,null];
 let albumUnlocked=new Set();
 let META={clears:0,endings:new Set(),ach:new Set()};
 /* ================= PERSISTENCE (localStorage) ================= */
-const LS_KEYS={slots:"sakura-memorial-slots-v1",meta:"sakura-memorial-meta-v1",admin:"sakura-memorial-admin-v1",album:"sakura-memorial-album-v1",bgmHeard:"sakura-memorial-bgmheard-v1"};
+const LS_KEYS={slots:"sakura-memorial-slots-v1",meta:"sakura-memorial-meta-v1",admin:"sakura-memorial-admin-v1",album:"sakura-memorial-album-v1",bgmHeard:"sakura-memorial-bgmheard-v1",videoSeen:"sakura-memorial-videoseen-v1"};
 let bgmHeardSet=new Set();
 function persistBgmHeard(){lsSet(LS_KEYS.bgmHeard,Array.from(bgmHeardSet))}
+let videoSeenSet=new Set();
+function persistVideoSeen(){lsSet(LS_KEYS.videoSeen,Array.from(videoSeenSet))}
+function markVideoSeen(f){if(f&&!videoSeenSet.has(f)){videoSeenSet.add(f);persistVideoSeen();if($("album-video-list"))renderVideoList()}}
 function markBgmHeard(k){if(k&&BGM_TRACKS&&BGM_TRACKS[k]&&!bgmHeardSet.has(k)){bgmHeardSet.add(k);persistBgmHeard()}}
 function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
@@ -30,7 +33,7 @@ function persistSlots(){return lsSet(LS_KEYS.slots,slots)}
 function persistMeta(){lsSet(LS_KEYS.meta,{clears:META.clears,endings:Array.from(META.endings),ach:Array.from(META.ach)})}
 function persistAlbum(){lsSet(LS_KEYS.album,Array.from(albumUnlocked))}
 function persistAdmin(){if(typeof ADMIN!=="undefined")lsSet(LS_KEYS.admin,ADMIN)}
-function restorePersisted(){const sl=lsGet(LS_KEYS.slots);if(Array.isArray(sl))slots=[sl[0]||null,sl[1]||null,sl[2]||null];const mt=lsGet(LS_KEYS.meta);if(mt&&typeof mt==="object"){META.clears=typeof mt.clears==="number"?mt.clears:0;META.endings=new Set(Array.isArray(mt.endings)?mt.endings:[]);META.ach=new Set(Array.isArray(mt.ach)?mt.ach:[])}const al=lsGet(LS_KEYS.album);if(Array.isArray(al))albumUnlocked=new Set(al);const bh=lsGet(LS_KEYS.bgmHeard);if(Array.isArray(bh))bgmHeardSet=new Set(bh);const ad=lsGet(LS_KEYS.admin);if(ad&&typeof ad==="object"&&typeof ADMIN!=="undefined")ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[]}}
+function restorePersisted(){const sl=lsGet(LS_KEYS.slots);if(Array.isArray(sl))slots=[sl[0]||null,sl[1]||null,sl[2]||null];const mt=lsGet(LS_KEYS.meta);if(mt&&typeof mt==="object"){META.clears=typeof mt.clears==="number"?mt.clears:0;META.endings=new Set(Array.isArray(mt.endings)?mt.endings:[]);META.ach=new Set(Array.isArray(mt.ach)?mt.ach:[])}const al=lsGet(LS_KEYS.album);if(Array.isArray(al))albumUnlocked=new Set(al);const bh=lsGet(LS_KEYS.bgmHeard);if(Array.isArray(bh))bgmHeardSet=new Set(bh);const vs=lsGet(LS_KEYS.videoSeen);if(Array.isArray(vs))videoSeenSet=new Set(vs);const ad=lsGet(LS_KEYS.admin);if(ad&&typeof ad==="object"&&typeof ADMIN!=="undefined")ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[]}}
 const ENDING_LABELS={love:"恋愛成就エンド",almost:"もう少しだった春",solo:"それぞれの春",rival:"ライバルエンド",friend:"親友エンド",life_work:"人生型：仕事成功型",life_hobby:"人生型：趣味没頭型",life_friends:"人生型：友人関係充実型",life_free:"人生型：独身自由人型",life_none:"人生型：何も成し遂げられなかった型"};
 let albumReturn="title";
 let soundOn=true, actx=null;
@@ -346,7 +349,7 @@ function bgmForScreen(id){
  if(id==="screen-loading"||id==="screen-opening")return;
  if(id!=="screen-novel")setBGM(id==="screen-game"?"daily":id==="screen-ending"?"ending":id==="screen-album"?"memory":"title");
 }
-function show(id){const __pg=$("page-no-badge");if(__pg&&id!=="screen-game"&&id!=="screen-novel")__pg.classList.add("hidden");const __rs=$("btn-resume");if(__rs)__rs.classList.toggle("hidden",!(id==="screen-title"&&S));["screen-loading","screen-opening","screen-title","screen-novel","screen-name","screen-game","screen-ending","screen-album"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo({top:0});bgmForScreen(id)}
+function show(id){const __pg=$("page-no-badge");if(__pg&&id!=="screen-game"&&id!=="screen-novel")__pg.classList.add("hidden");const __rs=$("btn-resume");if(__rs)__rs.classList.toggle("hidden",!(id==="screen-title"&&S));["screen-loading","screen-opening","screen-title","screen-novel","screen-name","screen-game","screen-ending","screen-album","screen-pilgrim"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo({top:0});bgmForScreen(id)}
 /* petals */
 (function(){const w=$("petals");for(let i=0;i<14;i++){const p=document.createElement("div");p.className="petal";const s=rnd(9,17);p.style.width=s+"px";p.style.height=s+"px";p.style.left=(Math.random()*100)+"%";p.style.animationDuration=(9+Math.random()*10)+"s";p.style.animationDelay=(-Math.random()*14)+"s";w.appendChild(p)}})();
 
@@ -437,6 +440,7 @@ if(ov&&ov.fx){const d0=novelDone;novelDone=()=>{applyAdminFx(ov.fx);if(d0)d0()}}
 $("novel-tag").textContent=tag||"物語";setBGM(bgmForNovel(tag));renderNovel();
 }
 function renderNovel(){
+stopSpeak();
 updateStoryBadge();
 const sc=novelQueue[novelIdx];if(!sc){finishNovel();return}
 const h=sc.hero?hero(sc.hero):null;
@@ -447,13 +451,13 @@ const __ni=$("novel-img");__ni.classList.remove("motion-slide","motion-shake","m
 const whoTxt=sc.sys?"【システム】":sc.player?pName():(sc.who||(h?h.name:"　"));
 $("novel-who").textContent=whoTxt;
 $("novel-who").className="who"+(sc.sys?" sys":sc.player?" player":"");
-typeText($("novel-text"),(sc.text||"").replaceAll("{call}",S?pCall(h?h.id:null):"君").replaceAll("{nick}",S?(S.nick||S.first):"健太").replaceAll("{last}",S?S.last:"佐藤").replaceAll("{first}",(h&&!sc.player&&!sc.sys&&S)?pCall(h.id):(S?S.first:"健太")).replaceAll("{name}",S?pName():"主人公"));
+autoSpeak("novel",novelIdx,sc,h);typeText($("novel-text"),(sc.text||"").replaceAll("{call}",S?pCall(h?h.id:null):"君").replaceAll("{nick}",S?(S.nick||S.first):"健太").replaceAll("{last}",S?S.last:"佐藤").replaceAll("{first}",(h&&!sc.player&&!sc.sys&&S)?pCall(h.id):(S?S.first:"健太")).replaceAll("{name}",S?pName():"主人公"));
 const ch=$("novel-choices");ch.innerHTML="";
 if(sc.choices){ch.classList.remove("hidden");$("novel-next").classList.add("hidden");
 sc.choices.forEach(c=>{const b=document.createElement("button");b.textContent=c.label;b.onclick=()=>{beep(740,.1);ch.classList.add("hidden");$("novel-next").classList.remove("hidden");if(c.effect)c.effect();novelIdx++;renderNovel()};ch.appendChild(b)});
 }else{ch.classList.add("hidden");$("novel-next").classList.remove("hidden")}
 }
-function finishNovel(){const b=$("story-no-badge");if(b)b.classList.add("hidden");__adminCurNo=null;const d=novelDone;novelDone=null;if(d)d()}
+function finishNovel(){stopSpeak();const b=$("story-no-badge");if(b)b.classList.add("hidden");__adminCurNo=null;const d=novelDone;novelDone=null;if(d)d()}
 $("novel-next").onclick=()=>{if(typeComplete())return;beep(520,.07);novelIdx++;renderNovel()};
 $("novel-stage").addEventListener("click",e=>{if(typeComplete())return;if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("novel-choices").classList.contains("hidden"))return;novelIdx++;renderNovel()});
 $("novel-skip").onclick=()=>finishNovel();
@@ -552,6 +556,7 @@ if(met){
  if(stage>=4){rows+=kv("📱 電話番号",p.tel)}
  else if(stage>=3)rows+=lock("📱 電話番号",70);
  if(stage>=5||(S.flags&&S.flags["secret_"+hid])){rows+=kv("🤫 秘密の一面",p.secret)}
+ if((stage>=5||(S.flags&&S.flags["secret_"+hid]))&&p.roots){rows+=kv("🏮 黒羽との縁",p.roots)}
  else if(stage>=4)rows+=lock("🤫 秘密の一面",85);
  const hist=(S.history&&S.history[hid])||[];
  if(hist.length)rows+='<div style="margin-top:8px;font-size:12.5px;font-weight:700;color:var(--muted);line-height:1.8">🕘 二人の履歴：'+hist.map(x=>esc(x.label)).join("／")+"</div>";
@@ -1291,6 +1296,17 @@ function bonusEvent(cmdId,done){
  if(roll<0.85){encounter(cmdId,done);return}
  if(S.kuhi&&S.kuhi.length<10&&Math.random()<0.5){kuhiEvent(done,null)}else{localEvent(done,null)}
 }
+function evBlackSwan(done){S.flags.swanDone=true;unlockMem("mem_swan");const h=hero("yuki");
+ playNovel([{sys:true,img:"assets/op03.webp",text:"ある月夜のこと――満月の光に誘われるように、羽田沼のほとりまで足を延ばした。隣には、月島ゆき。"},
+ {hero:"yuki",who:"　",variant:"smile",text:"静かだね……。水面が、月を映して銀色に揺れてる"},
+ {hero:"yuki",who:"月島 ゆき",text:"……見て。あれ、白鳥……でも、黒いっぺ？"},
+ {who:"　",img:"assets/op03.webp",text:"月明かりの中、黒い白鳥が一羽、音もなく水面を滑っていた。白鳥は白いものだと思っていた。でも、確かに――黒い。"},
+ {hero:"yuki",who:"月島 ゆき",text:"羽田沼の黒い白鳥は、見た人に幸運を運ぶって言い伝えがあるんだっぺ。……ふふ、内緒だよ。騒ぐと、逃げちゃうから"},
+ {player:true,text:"……じゃあ、俺たち、運がいいんだな"},
+ {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"うん。……今日のことは、二人だけの秘密だっぺ"},
+ {who:"　",img:"assets/op03.webp",text:"黒い白鳥は一度だけこちらを見て、月を映す水面の向こうへ消えた。――黒羽の森の奥には、まだ誰も知らない物語がある。"}],
+ ()=>{S.aff.yuki=clamp(S.aff.yuki+5);addRel("yuki",{close:5,trust:3});S.lastMeet.yuki=S.turn;pushHistory("yuki","swan","羽田沼の黒い白鳥");addLog("羽田沼で、ゆきと黒い白鳥を見た");show("screen-game");render();done()},"🦢 黒羽の森");
+}
 function extraEvent(done){
  const month=dateLabel(S.turn).month;
  const met=HEROINES.filter(h=>S.met[h.id]);
@@ -1314,6 +1330,7 @@ function extraEvent(done){
  if(bestStat>=72&&!S.flags.effortDone)cands.push({ok:true,fn:()=>evEffort(done)});
  if(S.stats.gakuryoku<=28&&S.met.yuki&&!S.flags.remedialDone)cands.push({ok:true,fn:()=>evRemedial(done)});
  if(month>=9&&!S.flags.rival&&top)cands.push({ok:true,fn:()=>evRival(top,done)});
+ if(S.met.yuki&&(month>=10||month<=2)&&!S.flags.swanDone)cands.push({ok:true,fn:()=>evBlackSwan(done)});
  const avail=cands.filter(c=>c.ok);
  if(!avail.length)return false;
  avail[rnd(0,avail.length-1)].fn();
@@ -1513,7 +1530,7 @@ const LT={work:["仕事成功型","学業に打ち込んだ3年間は、推薦�
 const lt=LT[e.life]||LT.free;title="卒業 ― 人生型エンディング（"+lt[0]+"）";text="卒業式。屋上に、待つ人はいなかった。\n\n"+lt[1]+"\n\n――"+pName()+"の物語は、ここからが本番だ。";
 }else if(e.type==="nurse"){img="assets/nurse10.webp";endMem="mem_nurse10";S.endingId="end_nurse";
 title="卒業 ― 保健室の先生／隠しエンディング";
-text="卒業式の日、保健室の先生の正体が明かされた。\n\n黒髪は学校での姿。街で出会った金髪の女性こそ、彼女の素顔――そして、藤原りんの姉だった。\n\n屋上の伝説は、先生にも届いた。夕日の中、差し出された手を握る。\n\n――3年間の、誰も知らないもう一つの物語が、ここから始まる。";
+text="卒業式の日、保健室の先生の正体が明かされた。\n\n黒髪は学校での姿。街で出会った金髪の女性こそ、彼女の素顔――そして、藤原りんの義理の姉、藤原千鶴だった。\n\n千鶴が看護の道を選んだのは、遠い親戚にあたる大関和への憧れだった。「明治のナイチンゲール」と呼ばれた黒羽の偉人の生き方に、いつか自分も――そう願い続けた彼女を、この街の保健室が待っていたのだ。\n\n屋上の伝説は、先生にも届いた。夕日の中、差し出された手を握る。\n\n――3年間の、誰も知らないもう一つの物語が、ここから始まる。";
 }else{S.endingId="end_solo";
 title="卒業 ― それぞれの春";
 text="卒業式。屋上にも、桜の木の下にも、待つ人はいなかった。\n\nけれど、この3年間は確かに自分のものだった。友達と笑い合って校門を出る。恋だけが青春じゃない。\n\n――"+pName()+"の春は、これから始まる。";
@@ -1679,6 +1696,7 @@ function debugPlayNo(raw){
  ensureDebugState();$("modal-admin").classList.add("hidden");
  const done=()=>dbgDone();let m;
  if(no==="P-001"){__adminNextNo="P-001";playNovel(prologueScenes(),done,"🌸 プロローグ");return}
+ if(no==="EX-SWAN"){evBlackSwan(done);return}
  if(m=no.match(/^EV-(\d+)$/)){const fn=scheduledMap()[+m[1]];if(!fn){toast("その週の行事はありません");show("screen-game");render();return}__adminNextNo="EV-"+String(+m[1]).padStart(2,"0");fn(done);return}
  if(m=no.match(/^ST-(SAKURA|AKARI|YUKI|RIN)-(\d+)$/)){const hid=m[1].toLowerCase();const ch=(STORY[hid]||[])[+m[2]-1];if(!ch){toast("その章はありません");return}__adminNextNo="ST-"+hid+"-"+m[2];playNovel([{hero:hid,who:"　",text:"――"+hero(hid).name+"の物語「"+ch.title+"」"}].concat(ch.scenes),done,"📖 "+hero(hid).short+"の物語");return}
  if(m=no.match(/^HK-(.+)$/)){const ev=HOKKORI.find(x=>x.id===m[1].toLowerCase());if(!ev){toast("そのほっこりイベントはありません");return}const h=hero(ev.img||"sakura");__adminNextNo="HK-"+ev.id;playNovel([{hero:h.id,who:h.name,variant:"smile",text:"――ほっこりイベント「"+ev.title+"」"},{hero:h.id,who:"　",variant:"smile",text:ev.text.replaceAll("{hero}",h.short)}],done,"♡ ほっこりイベント");return}
@@ -1770,7 +1788,21 @@ restorePersisted();migrateBgmPaths();
 
 /* ================= ALBUM ================= */
 function openAlbum(){
- show("screen-album");renderAlbum();renderBgmAlbum();
+ albumTab="none";show("screen-album");renderAlbum();renderBgmAlbum();renderVideoList();setAlbumTab("none");
+}
+function renderAlbumGrid(){
+ $("album-grid").innerHTML="";
+ ALL_MEMORIES.forEach(m=>{
+  const un=albumUnlocked.has(m.id)||(m.secret&&["end_sakura","end_akari","end_yuki","end_rin"].every(id=>albumUnlocked.has(id)));const h=hero(m.hero);const mImg=albumImgOf(m);
+  const b=document.createElement("button");b.className="mem"+(un?"":" locked")+((!un&&m.tag==="エンディング")?" end-locked":"")+((!un&&m.secret)?" secret-locked":"");
+  b.innerHTML=(!un&&m.secret)?'<div class="mem-secret">？</div><div class="pad"><span class="tag">隠し</span><div class="t">？？？</div><div class="d">まだ集まっていない思い出</div></div>':'<img src="'+mImg+'" alt=""><div class="pad"><span class="tag '+(m.tag==="ほっこり"?"hokkori":m.tag==="エンディング"?"ending":"")+'">'+m.tag+'</span><div class="t">'+(un?m.title:"？？？")+'</div><div class="d">'+(un?m.date+"／"+h.name:"まだ集まっていない思い出")+'</div></div>';
+  b.onclick=()=>{if(!un){toast("まだ集まっていない思い出です");return}
+   $("album-detail").classList.remove("hidden");
+   $("detail-tag").textContent=m.tag+"｜"+m.date;$("detail-title").textContent=m.title;
+   $("detail-img").src=mImg;const __pq2=placeOf(mImg);const __dm=$("detail-map");if(__dm){__dm.classList.toggle("hidden",!__pq2);__dm.setAttribute("data-q",__pq2||"")}$("detail-text").textContent=m.text+(m.cond?"\n\n【解放条件】"+m.cond:"");
+   $("album-detail").scrollIntoView({behavior:"smooth",block:"nearest"});beep(700,.08)};
+  $("album-grid").appendChild(b);
+ });
 }
 function renderAlbum(){
  const total=ALL_MEMORIES.length,got=ALL_MEMORIES.filter(m=>albumUnlocked.has(m.id)).length;
@@ -1793,19 +1825,7 @@ function renderAlbum(){
    '<div class="kv"><span>デート</span><span>'+S.dates+'回</span></div><div class="kv"><span>思い出</span><span>'+got+" / "+total+"</span></div>"+
    "<p style='font-weight:500;line-height:1.9'>入学の日の桜から、卒業の日の桜まで。下のカードをタップすると、あの日の場面をもう一度読めます。</p>";
  }else sum.classList.add("hidden");
- $("album-grid").innerHTML="";
- ALL_MEMORIES.forEach(m=>{
-  const un=albumUnlocked.has(m.id)||(m.secret&&["end_sakura","end_akari","end_yuki","end_rin"].every(id=>albumUnlocked.has(id)));const h=hero(m.hero);const mImg=albumImgOf(m);
-  const b=document.createElement("button");b.className="mem"+(un?"":" locked")+((!un&&m.tag==="エンディング")?" end-locked":"")+((!un&&m.secret)?" secret-locked":"");
-  b.innerHTML=(!un&&m.secret)?'<div class="mem-secret">？</div><div class="pad"><span class="tag">隠し</span><div class="t">？？？</div><div class="d">まだ集まっていない思い出</div></div>':'<img src="'+mImg+'" alt=""><div class="pad"><span class="tag '+(m.tag==="ほっこり"?"hokkori":m.tag==="エンディング"?"ending":"")+'">'+m.tag+'</span><div class="t">'+(un?m.title:"？？？")+'</div><div class="d">'+(un?m.date+"／"+h.name:"まだ集まっていない思い出")+'</div></div>';
-  b.onclick=()=>{if(!un){toast("まだ集まっていない思い出です");return}
-   $("album-detail").classList.remove("hidden");
-   $("detail-tag").textContent=m.tag+"｜"+m.date;$("detail-title").textContent=m.title;
-   $("detail-img").src=mImg;$("detail-text").textContent=m.text+(m.cond?"\n\n【解放条件】"+m.cond:"");
-   $("album-detail").scrollIntoView({behavior:"smooth",block:"nearest"});beep(700,.08)};
-  $("album-grid").appendChild(b);
- });
-
+ if(albumTab==="pic")renderAlbumGrid();
  /* perfect tokuten (v2 tougou) */
  if(["end_sakura","end_akari","end_yuki","end_rin"].every(id=>albumUnlocked.has(id))){["mem_perfect01","mem_perfect02","mem_perfect03","mem_perfect04"].forEach(id=>{if(!albumUnlocked.has(id)){albumUnlocked.add(id);persistAlbum()}})}
 }
@@ -1841,6 +1861,7 @@ $("btn-opening").onclick=()=>{beep(784,.1);startOpening()};
 if($("btn-opening-title"))$("btn-opening-title").onclick=()=>{beep(784,.1);startOpening()};
 async function hardRefresh(){try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}try{const u=new URL(location.href);u.searchParams.set("r",String(Date.now()));location.replace(u.toString())}catch(e){location.reload()}}
 if($("btn-refresh"))$("btn-refresh").onclick=()=>{hardRefresh()};
+if($("btn-refresh-loading"))$("btn-refresh-loading").onclick=()=>{hardRefresh()};
 const BGM_ALBUM_LIST=[["opening","オープニング","プロローグ","assets/op01.webp"],["title","タイトル","タイトル画面","assets/op10.webp"],["daily","通常（原曲）","本編の通常週（季節で下の4曲に変化）","assets/op16.webp"],["daily_spring","通常・春","春（3〜5月）のメイン画面","assets/sakura-smile.webp"],["daily_summer","通常・夏","夏（6〜8月）のメイン画面","assets/akari-sea.webp"],["daily_autumn","通常・秋","秋（9〜11月）のメイン画面","assets/op08.webp"],["daily_winter","通常・冬","冬（12〜2月）のメイン画面","assets/rin-winter.webp"],["event","イベント","行事などのイベント全般","assets/op22.webp"],["choice","選択肢・ドキドキ","選択肢・やきもち・秘密の場面","assets/rin.webp"],["date","デート","デート・お部屋デート","assets/sakura-date.webp"],["sad","悲しい場面","病気・別れの場面","assets/yuki-sick.webp"],["ending","エンディング","卒業・告白の場面","assets/sakura-ending.webp"],["hokkori","ほっこり","ほっこりイベント","assets/akari-smile.webp"],["local","黒羽の出来事","地域イベント","assets/basho-yakata.webp"],["kuhi","句碑めぐり","芭蕉の句碑めぐり","assets/kuhi01.webp"],["story","個別ストーリー","ヒロインの物語（章）","assets/yuki.webp"],["matsuri","夏祭り","夏祭り・花火大会・線香花火","assets/sakura-yukata.webp"],["sports","スポーツ行事","体育祭・球技大会・マラソン","assets/akari-gym.webp"],["culture","文化祭","文化祭と準備・片付け","assets/rin-gyouji.webp"],["sea","海・夏","海の一日","assets/sakura-sea.webp"],["snow","雪・冬","スキー合宿・雪の日","assets/akari-ski.webp"],["sakura","桜","伝説の桜の下で","assets/sakura-shy.webp"],["rain","梅雨・雨","梅雨の図書室","assets/yuki-smile.webp"],["tanabata","七夕","七夕","assets/rin-planet.webp"],["xmas","クリスマス","クリスマス","assets/sakura-winter.webp"],["illumination","イルミネーション","冬のイルミネーション","assets/rin-date.webp"],["newyear","初詣・正月","初詣・合格お守り","assets/yuki-yukata.webp"],["valentine","バレンタイン","バレンタイン・ホワイトデー・チョコ作り","assets/rin-shy.webp"],["halloween","ハロウィン","ハロウィン","assets/op20.webp"],["trip","修学旅行","修学旅行とその準備","assets/op18.webp"],["concert","コンサート","秋の音楽室コンサート","assets/rin-club.webp"],["exam","テスト・受験","期末テスト・勉強会","assets/sakura-gyouji.webp"],["birthday","誕生日","ヒロインの誕生日","assets/akari-date.webp"],["night","夜","夏休みの夜の電話・水族館の夜・プラネタリウム","assets/akari-planet.webp"],["pool","プール","水泳大会・プール","assets/akari-club.webp"],["summer","夏休み","夏休みの計画","assets/op06.webp"],["rooftop","屋上","屋上の伝説・卒業前日の屋上","assets/rin-grad.webp"],["sick","看病","看病の場面","assets/rin-sick.webp"],["phone","電話・メール","電話・メールの場面","assets/akari.webp"],["memory","回想","回想アルバムを開いている時","assets/op21.webp"]];
 function bgmStopAll(){if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}bgmName=null;try{adminStopMp3()}catch(e){}}
 function renderBgmAlbum(){
@@ -1892,6 +1913,7 @@ function bootLoading(){
  Promise.all([musicTask,...opTasks,...baseTasks]).then(()=>{
   const n=$("load-now");if(n)n.textContent="ローディング完了（残りの画像は裏で読み込みます）";
   const c=$("load-choice");if(c)c.classList.remove("hidden");
+  try{const __pp=new URLSearchParams(location.search).get("play");if(__pp)setTimeout(()=>{try{debugPlayNo(__pp)}catch(e){}},60)}catch(e){}
   variants.forEach(src=>{const im=new Image();im.src=src});
   const bgmUrls=new Set();Object.keys(ADMIN.bgm||{}).forEach(k=>{const u=(ADMIN.bgm[k]||"").trim();if(u&&u!==musicUrl)bgmUrls.add(u)});
   bgmUrls.forEach(u=>{const a=new Audio();a.preload="auto";a.src=u});
@@ -1946,10 +1968,12 @@ const ov=ADMIN.overrides[no];let scs=scenes;
 if(ov){scs=scenes.map((sc,i)=>{const c=Object.assign({},sc);if(ov.img)c.img=ov.img;if(ov.variant&&c.hero)c.variant=ov.variant;if(ov.texts&&ov.texts[i]!=null)c.text=ov.texts[i];return c})}
 igQueue=scs;igIdx=0;igDone=done||null;igActive=true;const __sk=$("game-skip");if(__sk)__sk.classList.remove("hidden");
 if(ov&&ov.fx){const d0=igDone;igDone=()=>{applyAdminFx(ov.fx);if(d0)d0()}}
-$("game-tag").textContent=tag||"物語";setBGM(bgmForNovel(tag));renderNovelInGame();
+$("game-tag").textContent=tag||"物語";igTag=tag||"";const __fh=(scs.find(function(x){return x&&x.hero})||{}).hero||null;igVideoFile=videoForNovel(igTag,__fh);const __gv=$("game-video");if(__gv)__gv.classList.toggle("hidden",!igVideoFile);const __gsp=$("game-speak");if(__gsp)__gsp.classList.remove("hidden");const __gsr=$("game-speak-rate");if(__gsr)__gsr.classList.remove("hidden");setBGM(bgmForNovel(tag));renderNovelInGame();
 }
 function renderNovelInGame(){
+stopSpeak();
 const sc=igQueue[igIdx];if(!sc){finishNovelInGame();return}
+igPlaceQuery=(sc&&sc.img)?placeOf(sc.img):null;const __gm=$("game-map");if(__gm)__gm.classList.toggle("hidden",!igPlaceQuery);
 const h=sc.hero?hero(sc.hero):null;
 if(sc.img){$("game-img").src=sc.img;lastStageSrc=sc.img;$("game-img-chip").classList.add("hidden")}
 else if(h){applyStageImg($("game-img"),$("game-img-chip"),h.id,pickVariant(h.id,sc.variant))}
@@ -1957,7 +1981,7 @@ else{$("game-img").src="assets/sakura.webp";lastStageSrc="assets/sakura.webp";$(
 const gi=$("game-img");gi.classList.remove("motion-slide","motion-shake","motion-jump");if(sc.motion){void gi.offsetWidth;gi.classList.add("motion-"+sc.motion)}
 const whoTxt=sc.sys?"":sc.player?pName():(sc.who||(h?h.name:"　"));
 $("game-who").textContent=whoTxt;$("game-who").className="who"+(sc.sys?" sys":sc.player?" player":"");
-typeText($("game-text"),(sc.text||"").replaceAll("{call}",S?pCall(h?h.id:null):"君").replaceAll("{nick}",S?(S.nick||S.first):"健太").replaceAll("{last}",S?S.last:"佐藤").replaceAll("{first}",(h&&!sc.player&&!sc.sys&&S)?pCall(h.id):(S?S.first:"健太")).replaceAll("{name}",S?pName():"主人公"));
+autoSpeak("game",igIdx,sc,h);typeText($("game-text"),(sc.text||"").replaceAll("{call}",S?pCall(h?h.id:null):"君").replaceAll("{nick}",S?(S.nick||S.first):"健太").replaceAll("{last}",S?S.last:"佐藤").replaceAll("{first}",(h&&!sc.player&&!sc.sys&&S)?pCall(h.id):(S?S.first:"健太")).replaceAll("{name}",S?pName():"主人公"));
 const ch=$("game-choices");ch.innerHTML="";
 if(sc.choices){ch.classList.remove("hidden");$("game-next").classList.add("hidden");
 sc.choices.forEach(c=>{const b=document.createElement("button");b.textContent=c.label;b.onclick=()=>{beep(740,.1);ch.classList.add("hidden");$("game-next").classList.remove("hidden");if(c.effect)c.effect();igIdx++;renderNovelInGame()};ch.appendChild(b)});
@@ -1966,7 +1990,7 @@ $("game-next").onclick=()=>{if(typeComplete())return;beep(520,.07);igIdx++;rende
 if($("game-skip"))$("game-skip").onclick=()=>{if(!igActive)return;beep(660,.07);typeComplete();finishNovelInGame()};
 $("game-hint").textContent="タップ／クリックで進む";
 }
-function finishNovelInGame(){igActive=false;__adminCurNo=null;const d=igDone;igDone=null;igQueue=[];$("game-hint").textContent="";const __sk2=$("game-skip");if(__sk2)__sk2.classList.add("hidden");if(d)d()}
+function finishNovelInGame(){igActive=false;__adminCurNo=null;const d=igDone;igDone=null;igQueue=[];$("game-hint").textContent="";const __sk2=$("game-skip");if(__sk2)__sk2.classList.add("hidden");const __gv2=$("game-video");if(__gv2)__gv2.classList.add("hidden");igVideoFile=null;const __gsp2=$("game-speak");if(__gsp2)__gsp2.classList.add("hidden");const __gsr2=$("game-speak-rate");if(__gsr2)__gsr2.classList.add("hidden");const __gm2=$("game-map");if(__gm2)__gm2.classList.add("hidden");igPlaceQuery=null;stopSpeak();if(d)d()}
 const __gsEl=$("game-stage");if(__gsEl)__gsEl.addEventListener("click",e=>{if(typeComplete())return;if(!igActive)return;if(e.target.closest("button")||e.target.closest(".choices"))return;if(!$("game-choices").classList.contains("hidden"))return;igIdx++;renderNovelInGame()});
 window.__igRouteOk=true;
 /* ===== デバッグ：先生ルート状態の表示 ===== */
@@ -1978,3 +2002,216 @@ setInterval(()=>{
  el.textContent="stage "+n.stage+" ／ 保健室 "+n.visits+"回 ／ 目撃 "+n.saw+"回 ／ 単独遭遇 "+n.solo+"回 ／ 先生の好感度 "+n.aff+(window.__nurseReady&&__nurseReady()?"（卒業で先生エンド到達可能）":"");
 },900);
 }
+
+/* ================= SPECIAL VIDEOS（お宝動画） ================= */
+const VIDEO_HERO_FULL={"さくら":"桜井 さくら","あかり":"星野 あかり","ゆき":"月島 ゆき","りん":"藤原 りん","全員":"全員"};
+let videoMode="list", igTag="", igVideoFile=null;
+const VIDEO_RULES=[
+ ["水族館",{rin:"date-rin.mp4"}],
+ ["クリスマス",{sakura:"date-sakura-winter.mp4",akari:"date-akari-winter.mp4",yuki:"date-yuki-winter.mp4",rin:"date-rin-winter.mp4"}],
+ ["雪",{sakura:"date-sakura-winter.mp4",akari:"date-akari-winter.mp4",yuki:"date-yuki-winter.mp4",rin:"date-rin-winter.mp4",any:"season-winter.mp4"}],
+ ["夏祭り",{sakura:"date-sakura-summer.mp4",akari:"date-akari-summer.mp4",yuki:"date-yuki-summer.mp4",rin:"date-rin-summer.mp4",any:"season-summer.mp4"}],
+ ["花火",{sakura:"date-sakura-summer.mp4",akari:"date-akari-summer.mp4",yuki:"date-yuki-summer.mp4",rin:"date-rin-summer.mp4",any:"season-summer.mp4"}],
+ ["海",{sakura:"date-sakura-summer.mp4",akari:"date-akari-summer.mp4",yuki:"date-yuki-summer.mp4",rin:"date-rin-summer.mp4"}],
+ ["紅葉",{sakura:"date-sakura-autumn.mp4",akari:"date-akari-autumn.mp4",yuki:"date-yuki-autumn.mp4",rin:"date-rin-autumn.mp4",any:"season-autumn.mp4"}],
+ ["桜の下",{sakura:"date-sakura-spring.mp4",akari:"date-akari-spring.mp4",yuki:"date-yuki-spring.mp4",rin:"date-rin-spring.mp4",any:"season-spring.mp4"}],
+ ["桜",{sakura:"date-sakura-spring.mp4",akari:"date-akari-spring.mp4",yuki:"date-yuki-spring.mp4",rin:"date-rin-spring.mp4",any:"season-spring.mp4"}],
+ ["カフェ",{sakura:"date-sakura.mp4",yuki:"date-yuki.mp4"}],
+ ["図書",{yuki:"date-yuki.mp4"}],
+ ["ブックカフェ",{yuki:"date-yuki.mp4"}],
+ ["河原",{akari:"date-akari.mp4"}],
+ ["那珂川",{akari:"date-akari.mp4"}],
+ ["テニス",{akari:"date-akari.mp4"}],
+ ["川",{akari:"date-akari-summer.mp4",any:"season-summer.mp4"}],
+ ["デート",{sakura:"date-sakura.mp4",akari:"date-akari.mp4",yuki:"date-yuki.mp4",rin:"date-rin.mp4"}],
+ ["お部屋",{sakura:"date-sakura.mp4",akari:"date-akari.mp4",yuki:"date-yuki.mp4",rin:"date-rin.mp4"}],
+ ["春",{sakura:"date-sakura-spring.mp4",akari:"date-akari-spring.mp4",yuki:"date-yuki-spring.mp4",rin:"date-rin-spring.mp4",any:"season-spring.mp4"}],
+ ["夏",{sakura:"date-sakura-summer.mp4",akari:"date-akari-summer.mp4",yuki:"date-yuki-summer.mp4",rin:"date-rin-summer.mp4",any:"season-summer.mp4"}],
+ ["秋",{sakura:"date-sakura-autumn.mp4",akari:"date-akari-autumn.mp4",yuki:"date-yuki-autumn.mp4",rin:"date-rin-autumn.mp4",any:"season-autumn.mp4"}],
+ ["冬",{sakura:"date-sakura-winter.mp4",akari:"date-akari-winter.mp4",yuki:"date-yuki-winter.mp4",rin:"date-rin-winter.mp4",any:"season-winter.mp4"}]
+];
+function videoForNovel(tag,heroId){
+ const t=tag||"";
+ for(let i=0;i<VIDEO_RULES.length;i++){
+  if(t.indexOf(VIDEO_RULES[i][0])>=0){
+   const map=VIDEO_RULES[i][1];
+   if(heroId&&map[heroId])return map[heroId];
+   if(map.any)return map.any;
+   return null;
+  }
+ }
+ return null;
+}
+function setVideoNavVisible(on){["btn-video-prev","btn-video-next","btn-video-bgm","btn-video-menu"].forEach(function(id){const b=$(id);if(b)b.style.display=on?"":"none"})}
+function playEventVideo(){
+ if(!igVideoFile)return;
+ videoMode="event";setVideoNavVisible(false);
+ const v=$("special-video");if(v)v.loop=true;
+ videoLoadShow();
+ playSpecialCore(igVideoFile,"イベント動画");
+}
+function renderVideoList(){
+ const box=$("album-video-list");if(!box)return;
+ const order=["さくら","あかり","ゆき","りん","全員"];let html="";videoDisplay=[];
+ order.forEach(function(h){
+  const items=(window.SAKURA_SPECIAL_VIDEOS||[]).filter(function(v){return v[0]===h});
+  if(!items.length)return;
+  html+='<h3 class="mincho" style="margin:14px 0 4px">'+(VIDEO_HERO_FULL[h]||h)+'</h3>';
+  items.forEach(function(v,i){
+   const label=h+"-"+String(i+1).padStart(2,"0")+"　"+v[2];
+   const vidx=videoDisplay.length;videoDisplay.push([v[1],label]);
+   if(videoSeenSet.has(v[1]))html+='<button class="btn small" data-video="'+v[1]+'" data-vidx="'+vidx+'" data-vtitle="'+label+'" style="display:block;width:100%;text-align:left;margin:4px 0">'+label+'</button>';
+   else html+='<button class="btn small" disabled style="display:block;width:100%;text-align:left;margin:4px 0;opacity:.55">'+h+"-"+String(i+1).padStart(2,"0")+"　🔒 ゲームの中で見ると解放されます</button>";
+  });
+ });
+ box.innerHTML=html||'<p style="color:var(--muted)">動画リストがありません。</p>';
+ const vc=$("album-video-count");if(vc)vc.textContent="（解放 "+videoSeenSet.size+" / "+(window.SAKURA_SPECIAL_VIDEOS||[]).length+"）";
+ box.querySelectorAll("[data-video]").forEach(function(b){b.onclick=function(){playSpecialAt(parseInt(b.getAttribute("data-vidx"),10))}});
+}
+let specialIdx=-1, videoDisplay=[], videoBgmOn=false;
+function playSpecialCore(file,title,idx){
+ stopSpeak();
+ markVideoSeen(file);
+ const m=$("modal-video"),v=$("special-video");if(!m||!v)return;
+ if(typeof idx==="number")specialIdx=idx;
+ $("video-title").textContent="🎁 "+title;$("video-msg").textContent="";
+ if(!videoBgmOn)bgmStopAll();
+ m.classList.remove("hidden");
+ v.src="videos/"+file;
+ try{const p=v.play&&v.play();if(p&&p.catch)p.catch(function(){})}catch(e){}
+}
+function playSpecial(file,title,idx){
+ videoMode="list";setVideoNavVisible(true);
+ const v=$("special-video");if(v)v.loop=false;
+ playSpecialCore(file,title,idx);
+}
+function playSpecialAt(i){
+ if(!videoDisplay.length)return;
+ const n=videoDisplay.length;
+ specialIdx=((i%n)+n)%n;
+ const d=videoDisplay[specialIdx];
+ playSpecial(d[0],d[1],specialIdx);
+}
+function setVideoBgm(on){
+ videoBgmOn=on;
+ const b=$("btn-video-bgm");if(b)b.textContent="🎵 BGM: "+(on?"ON":"OFF");
+ if(on)setBGM("opening");else bgmStopAll();
+}
+function closeSpecial(){
+ const m=$("modal-video"),v=$("special-video");
+ if(v){try{v.pause()}catch(e){}v.removeAttribute("src");try{v.load()}catch(e){}}
+ if(m)m.classList.add("hidden");
+ videoBgmOn=false;const b=$("btn-video-bgm");if(b)b.textContent="🎵 BGM: OFF";
+ const vv=$("special-video");if(vv)vv.loop=false;
+ if(videoMode==="event"){setBGM(bgmForNovel(igTag||""))}else{setBGM("title")}
+ videoMode="list";
+}
+if($("btn-video-close"))$("btn-video-close").onclick=closeSpecial;
+if($("game-video"))$("game-video").onclick=function(){playEventVideo()};
+if($("btn-video-prev"))$("btn-video-prev").onclick=function(){playSpecialAt(specialIdx-1)};
+if($("btn-video-next"))$("btn-video-next").onclick=function(){playSpecialAt(specialIdx+1)};
+if($("btn-video-bgm"))$("btn-video-bgm").onclick=function(){setVideoBgm(!videoBgmOn)};
+if($("btn-video-menu"))$("btn-video-menu").onclick=function(){closeSpecial();goTitle()};
+if($("special-video")){
+ $("special-video").addEventListener("ended",closeSpecial);
+ $("special-video").addEventListener("error",function(){$("video-msg").textContent="動画ファイルが見つかりませんでした。videos フォルダにファイルを入れてください。";toast("🎁 動画ファイルが見つかりません")});
+}
+
+/* お宝動画ローディングバー */
+function videoLoadShow(){$("video-loading").style.display="block";$("video-load-bar").style.width="0%";$("video-load-text").textContent="読み込み中… 0%"}
+function videoLoadUpdate(){
+ const v=$("special-video");if(!v)return;
+ let pct=null;
+ try{if(v.buffered&&v.buffered.length&&v.duration&&isFinite(v.duration))pct=Math.min(100,Math.round(v.buffered.end(v.buffered.length-1)/v.duration*100))}catch(e){}
+ if(pct===null)$("video-load-text").textContent="読み込み中…";
+ else{$("video-load-bar").style.width=pct+"%";$("video-load-text").textContent="読み込み中… "+pct+"%"}
+ if(pct!==null&&pct>=100)videoLoadDone();
+}
+function videoLoadDone(){$("video-load-bar").style.width="100%";$("video-loading").style.display="none"}
+if($("special-video")){
+ const sv=$("special-video");
+ sv.addEventListener("progress",videoLoadUpdate);
+ sv.addEventListener("loadedmetadata",videoLoadUpdate);
+ sv.addEventListener("canplay",videoLoadDone);
+ sv.addEventListener("playing",videoLoadDone);
+ sv.addEventListener("waiting",function(){if(sv.readyState<3)videoLoadShow()});
+ const _ps=playSpecial;
+ playSpecial=function(file,title,idx){videoLoadShow();_ps(file,title,idx)};
+}
+
+/* ================= 読み上げ（端末の音声合成） ================= */
+function speakJa(text){
+ try{
+  if(!("speechSynthesis" in window)||typeof SpeechSynthesisUtterance==="undefined")return false;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang="ja-JP";u.rate=speakRate;u.pitch=1.0;
+  try{const vs=speechSynthesis.getVoices?speechSynthesis.getVoices():[];const jv=vs.find(function(v){return /^ja/i.test(v.lang||"")});if(jv)u.voice=jv}catch(e){}
+  speechSynthesis.speak(u);return true;
+ }catch(e){return false}
+}
+function stopSpeak(){try{if("speechSynthesis" in window)speechSynthesis.cancel()}catch(e){}}
+const SPEAK_RATES=[0.75,1,1.25,1.5,1.75,2];
+let speakRate=1,lastSpeakEl=null;
+try{const sr=parseFloat(localStorage.getItem("sakura-memorial-speakrate-v1"));if(SPEAK_RATES.includes(sr))speakRate=sr}catch(e){}
+function speakRateLabel(){return "速度 ×"+speakRate.toFixed(2).replace(/0$/,"")}
+function refreshSpeakRateBtns(){["game-speak-rate","novel-speak-rate"].forEach(function(id){const b=$(id);if(b)b.textContent=speakRateLabel()})}
+function cycleSpeakRate(){const i=SPEAK_RATES.indexOf(speakRate);speakRate=SPEAK_RATES[(i+1)%SPEAK_RATES.length];try{localStorage.setItem("sakura-memorial-speakrate-v1",String(speakRate))}catch(e){}refreshSpeakRateBtns();refreshSpeakBtns();toast("読み上げ速度 "+speakRateLabel());if(lastSpeakEl&&"speechSynthesis" in window&&speechSynthesis.speaking)speakFrom(lastSpeakEl)}
+let speakAuto=false,lastSpokenKey="";
+try{speakAuto=localStorage.getItem("sakura-memorial-speakauto-v1")==="1"}catch(e){}
+function speakTextOf(sc,h){return (sc.text||"").replaceAll("{call}",S?pCall(h?h.id:null):"君").replaceAll("{nick}",S?(S.nick||S.first):"健太").replaceAll("{last}",S?S.last:"佐藤").replaceAll("{first}",(h&&!sc.player&&!sc.sys&&S)?pCall(h.id):(S?S.first:"健太")).replaceAll("{name}",S?pName():"主人公")}
+function autoSpeak(screen,idx,sc,h){if(!speakAuto)return;const t=speakTextOf(sc,h).trim();if(!t)return;const key=screen+":"+idx+":"+t;if(key===lastSpokenKey)return;lastSpokenKey=key;speakJa(t)}
+function refreshSpeakBtns(){["game-speak","novel-speak"].forEach(function(id){const b=$(id);if(b)b.textContent=speakAuto?"🔊 読上ON":"🔇 読上OFF"})}
+function toggleSpeakAuto(elId){speakAuto=!speakAuto;try{localStorage.setItem("sakura-memorial-speakauto-v1",speakAuto?"1":"0")}catch(e){}refreshSpeakBtns();if(speakAuto){toast("読み上げON：文章が自動で読み上げられます");speakFrom(elId)}else{stopSpeak();toast("読み上げOFF")}}
+function speakFrom(elId){lastSpeakEl=elId;
+ const el=$(elId);if(!el)return;
+ if(typeof typeComplete==="function")typeComplete();
+ const text=(el.textContent||"").trim();if(!text)return;
+ if(!speakJa(text))toast("この環境では読み上げに対応していません");
+}
+if($("game-speak"))$("game-speak").onclick=function(){toggleSpeakAuto("game-text")};
+if($("novel-speak"))$("novel-speak").onclick=function(){toggleSpeakAuto("novel-text")};
+if($("game-speak-rate"))$("game-speak-rate").onclick=function(){cycleSpeakRate()};
+if($("novel-speak-rate"))$("novel-speak-rate").onclick=function(){cycleSpeakRate()};
+refreshSpeakRateBtns();
+try{if("speechSynthesis" in window&&speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",function(){try{speechSynthesis.getVoices()}catch(e){}})}catch(e){}
+
+/* ================= 実在スポット地図 ================= */
+let igPlaceQuery=null;
+function placeOf(img){if(!img)return null;const base=String(img).split("/").pop();const map=window.SAKURA_PLACE_MAP||{};return map[base]||null}
+function openPlaceMap(q){if(!q)return;window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q),"_blank")}
+if($("game-map"))$("game-map").onclick=function(){openPlaceMap(igPlaceQuery)};
+if($("detail-map"))$("detail-map").onclick=function(){openPlaceMap(this.getAttribute("data-q"))};
+
+/* ================= 聖地巡礼（観光案内） ================= */
+function openPilgrim(){show("screen-pilgrim");renderPilgrim()}
+function renderPilgrim(){
+ const box=$("pilgrim-list");if(!box)return;
+ box.innerHTML=(window.SAKURA_PILGRIM||[]).map(function(p){
+  const q=placeOf(p.img);
+  return '<div class="card" style="margin-bottom:12px;display:flex;gap:12px;align-items:flex-start">'
+   +'<img src="'+p.img+'" alt="" loading="lazy" style="width:110px;aspect-ratio:3/4;object-fit:cover;object-position:top;border-radius:10px;flex:none">'
+   +'<div style="flex:1;min-width:0"><h3 class="mincho" style="margin:0 0 4px;font-size:17px">'+p.name+'</h3>'
+   +(p.haiku?'<p style="margin:0 0 4px;font-weight:700;line-height:1.8">「'+p.haiku+'」</p>':"")
+   +'<p style="margin:0 0 8px;font-weight:500;line-height:1.8;color:var(--muted)">'+p.note+'</p>'
+   +(q?'<button class="btn small" data-pmap="'+q+'">🗺 地図で見る</button>':"")
+   +'</div></div>';
+ }).join("");
+ box.querySelectorAll("[data-pmap]").forEach(function(b){b.onclick=function(){openPlaceMap(b.getAttribute("data-pmap"))}});
+}
+let albumTab="none";
+function setAlbumTab(t){albumTab=(t===albumTab)?"none":t;const tg=function(id,on){const el=$(id);if(el)el.classList.toggle("hidden",!on)};
+ tg("album-videos",albumTab==="video");tg("album-bgm",albumTab==="bgm");tg("album-grid",albumTab==="pic");
+ if(albumTab==="pic")renderAlbumGrid();
+ if(albumTab!=="pic")tg("album-detail",false);
+ tg("album-ach",albumTab==="none");const sm=$("album-summary");if(sm)sm.classList.toggle("hidden",!(albumTab==="none"&&S&&S.ended));
+ const bp=$("tab-pic"),bb=$("tab-bgm"),bv=$("tab-video");
+ if(bp)bp.classList.toggle("primary",albumTab==="pic");if(bb)bb.classList.toggle("primary",albumTab==="bgm");if(bv)bv.classList.toggle("primary",albumTab==="video");
+ window.scrollTo({top:0});}
+if($("tab-pic"))$("tab-pic").onclick=function(){setAlbumTab("pic")};
+if($("tab-bgm"))$("tab-bgm").onclick=function(){setAlbumTab("bgm")};
+if($("tab-video"))$("tab-video").onclick=function(){setAlbumTab("video")};
+if($("btn-pilgrim"))$("btn-pilgrim").onclick=openPilgrim;
+if($("btn-pilgrim-title"))$("btn-pilgrim-title").onclick=openPilgrim;
+if($("btn-pilgrim-back"))$("btn-pilgrim-back").onclick=function(){goTitle()};
+if($("btn-pilgrim-back-top"))$("btn-pilgrim-back-top").onclick=function(){goTitle()};
+if($("btn-album-to-title"))$("btn-album-to-title").onclick=function(){goTitle()};

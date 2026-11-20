@@ -5,7 +5,7 @@ const HEROINES=[
   imgs:{normal:"assets/sakura.webp",smile:"assets/sakura-smile.webp",shy:"assets/sakura-shy.webp",date:"assets/sakura-date.webp",yukata:"assets/sakura-yukata.webp",gyouji:"assets/sakura-gyouji.webp",gym:"assets/sakura-gym.webp",club:"assets/sakura-club.webp",winter:"assets/sakura-winter.webp",ski:"assets/sakura-ski.webp",sick:"assets/sakura-sick.webp",planet:"assets/sakura-planet.webp",sea:"assets/sakura-sea.webp",grad:"assets/sakura-grad.webp",ending:"assets/sakura-ending.webp"},
   order:["normal","smile","shy","date","yukata","gyouji","gym","club","winter","ski","sick","planet","sea","grad","ending"],
   role:"幼なじみ・クラスメイト",like:["park","cafe","movie","aquarium","river"],stat:"miryoku",statName:"魅力",
-  profile:{birthday:"9月18日",blood:"O型",club:"帰宅部（みんなの手伝い）",hobby:"お菓子作り・園芸",personality:"明るく面倒見がいい。少しお節介で、自分の気持ちは後回しにしがち。",fav:"手作りクッキーと桜の小物",dislike:"辛いもの・ホラー映画",gift:"cookie",giftName:"手作りクッキー",mail:"sakura.hana@sakuramail.jp",tel:"090-2345-6781",secret:"実は、小さい頃に交わした約束を書いた手紙を、今も筆箱に入れて持ち歩いている"},
+  profile:{birthday:"9月18日",blood:"O型",club:"帰宅部（みんなの手伝い）",hobby:"お菓子作り・園芸",personality:"明るく面倒見がいい。少しお節介で、自分の気持ちは後回しにしがち。",fav:"手作りクッキーと桜の小物",dislike:"辛いもの・ホラー映画",gift:"cookie",giftName:"手作りクッキー",mail:"sakura.hana@sakuramail.jp",tel:"090-2345-6781",roots:"実は、実家は商店街の老舗和菓子屋。子どもの頃から店を手伝い、お菓子作りの腕前は店仕込み。桜の季節にだけ並ぶ限定の和菓子は、毎年楽しみに待つ常連客がいるほどの人気だという",secret:"実は、小さい頃に交わした約束を書いた手紙を、今も筆箱に入れて持ち歩いている"},
   desc:"隣の家に住む幼なじみ。明るくて面倒見がよく、クラスの人気者。昔、桜の木の下で「また一緒に帰ろう」と約束した。",
   lines:[
    {q:"帰り、黒羽城址公園に寄ってかない？桜、そろそろ見頃だよ",a:"行こう",b:"今日は真っ直ぐ帰る",ra:6,rb:-2,ta:"さくら「やった！あそこの桜、今年もすごいんだから。…あんたと見るのが、一番好きなんだけどね」",tb:"さくら「そっか…。じゃあまた今度ね」少し寂しそうに笑った。"},
@@ -36,7 +36,7 @@ const HEROINES=[
   imgs:{normal:"assets/akari.webp",smile:"assets/akari-smile.webp",shy:"assets/akari-shy.webp",date:"assets/akari-date.webp",yukata:"assets/akari-yukata.webp",gyouji:"assets/akari-gyouji.webp",gym:"assets/akari-gym.webp",club:"assets/akari-club.webp",winter:"assets/akari-winter.webp",ski:"assets/akari-ski.webp",planet:"assets/akari-planet.webp",sick:"assets/akari-sick.webp",sea:"assets/akari-sea.webp",grad:"assets/akari-grad.webp",ending:"assets/akari-ending.webp"},
   order:["normal","smile","shy","date","yukata","gyouji","gym","club","winter","ski","planet","sick","sea","grad","ending"],
   role:"テニス部・エース",like:["amuse","sports","park","sea","pool","river"],stat:"undou",statName:"運動",
-  profile:{birthday:"7月25日",blood:"B型",club:"テニス部（エース）",hobby:"スポーツ全般・早朝ランニング",personality:"全力で明るい負けず嫌い。弱音を吐くのが苦手で、無理を隠してしまう。",fav:"スポーツドリンクとタオル",dislike:"じっとしていること・雨の日",gift:"drink",giftName:"スポーツドリンク",mail:"akari-star@sakuramail.jp",tel:"090-3456-7812",secret:"実は、編み物が得意で、チームメイトのタオルにこっそり刺繍をしている"},
+  profile:{birthday:"7月25日",blood:"B型",club:"テニス部（エース）",hobby:"スポーツ全般・早朝ランニング",personality:"全力で明るい負けず嫌い。弱音を吐くのが苦手で、無理を隠してしまう。",fav:"スポーツドリンクとタオル",dislike:"じっとしていること・雨の日",gift:"drink",giftName:"スポーツドリンク",mail:"akari-star@sakuramail.jp",tel:"090-3456-7812",roots:"実は、先祖は那珂川で渡し船の船頭を務め、鮎を獲って商いをしてきた家系。実家はいまも那珂川の鮎屋（観光やな）を営み、夏になれば看板娘として店に立つ。河原でテニスの練習に励むのは、店の手伝いの合間に通い続けた、大好きな場所だからだ",secret:"実は、編み物が得意で、チームメイトのタオルにこっそり刺繍をしている"},
   desc:"テニス部のエース。いつも全力、笑顔がまぶしい。負けず嫌いだが、弱った人を見ると放っておけない。",
   lines:[
    {q:"ねえ、夏休み、那珂川に川遊び行こうよ！鮎も食べたい！",a:"行こう！楽しみだ",b:"川はちょっと…",ra:7,rb:-3,ta:"あかり「やったー！黒羽の鮎、絶対食べてほしいんだ。川で遊んで、鮎食べて、最高の夏にしよう！」",tb:"あかり「えー、もったいない！あんた、損してるよ？」"},
@@ -67,7 +67,7 @@ const HEROINES=[
   imgs:{normal:"assets/yuki.webp",smile:"assets/yuki-smile.webp",shy:"assets/yuki-shy.webp",date:"assets/yuki-date.webp",yukata:"assets/yuki-yukata.webp",gyouji:"assets/yuki-gyouji.webp",gym:"assets/yuki-gym.webp",club:"assets/yuki-club.webp",winter:"assets/yuki-winter.webp",ski:"assets/yuki-ski.webp",planet:"assets/yuki-planet.webp",sick:"assets/yuki-sick.webp",sea:"assets/yuki-sea.webp",grad:"assets/yuki-grad.webp",ending:"assets/yuki-ending.webp"},
   order:["normal","smile","shy","date","yukata","gyouji","gym","club","winter","ski","planet","sick","sea","grad","ending"],
   role:"文芸部・図書委員",like:["library","movie","cafe","planetarium","aquarium"],stat:"gakuryoku",statName:"学力",
-  profile:{birthday:"12月3日",blood:"A型",club:"文芸部・図書委員",hobby:"読書・小説を書くこと・星を見ること",personality:"静かで内向的。でも好きな事の話になると止まらない。自作の小説は秘密。",fav:"素敵な栞と星空の本",dislike:"騒がしい場所・注目されること",gift:"bookmark",giftName:"星空の栞",mail:"yuki.tsukishima@sakuramail.jp",tel:"090-4567-8123",secret:"実は、書いている小説の主人公のモデルは、身近なあの人――あなたなんだっぺ"},
+  profile:{birthday:"12月3日",blood:"A型",club:"文芸部・図書委員",hobby:"読書・小説を書くこと・星を見ること",personality:"静かで内向的。でも好きな事の話になると止まらない。自作の小説は秘密。",fav:"素敵な栞と星空の本",dislike:"騒がしい場所・注目されること",gift:"bookmark",giftName:"星空の栞",mail:"yuki.tsukishima@sakuramail.jp",tel:"090-4567-8123",roots:"実は、月島家は芭蕉が黒羽に逗留した頃からの家系。先祖は芭蕉の句会に連なった友人の一人で、句碑に詳しいのは家に伝わる記録のおかげ。そして家宝として、世間には知られていない芭蕉直筆の俳句の短冊が、今も大切に守られている",secret:"実は、書いている小説の主人公のモデルは、身近なあの人――あなたなんだっぺ"},
   desc:"文芸部で図書委員。静かで本が好き。人と話すのは苦手だが、好きな本の話になると目が輝く。",
   lines:[
    {q:"今度、黒羽の句碑巡りをしませんか？芭蕉の石碑が、町なかに点々とあるんだっぺ",a:"行こう、案内して",b:"石碑かあ…",ra:7,rb:-2,ta:"ゆき「…！はい、私のメモした地図、持ってきますね。…二人で全部回れたら、きっと素敵だっぺ」",tb:"ゆき「…そうだっぺか。地味だっぺけど、静かでいい所ばかりなんだっぺよ」"},
@@ -99,7 +99,7 @@ const HEROINES=[
   imgs:{normal:"assets/rin.webp",smile:"assets/rin-smile.webp",shy:"assets/rin-shy.webp",date:"assets/rin-date.webp",yukata:"assets/rin-yukata.webp",gyouji:"assets/rin-gyouji.webp",gym:"assets/rin-gym.webp",club:"assets/rin-club.webp",winter:"assets/rin-winter.webp",planet:"assets/rin-planet.webp",ski:"assets/rin-ski.webp",sick:"assets/rin-sick.webp",sea:"assets/rin-sea.webp",grad:"assets/rin-grad.webp",ending:"assets/rin-ending.webp"},
   order:["normal","smile","shy","date","yukata","gyouji","gym","club","winter","planet","ski","sick","sea","grad","ending"],
   role:"生徒会長",like:["museum","concert","cafe","planetarium"],stat:"geijutsu",statName:"芸術",
-  profile:{birthday:"2月11日",blood:"AB型",club:"生徒会（会長）・ピアノ",hobby:"ピアノ・紅茶・猫カフェ巡り（秘密）",personality:"凛とした完璧主義者。期待に応えようと無理をしがち。甘いものと猫に弱い。",fav:"高級チョコと猫グッズ",dislike:"だらしない服装・約束を破る人",gift:"choco",giftName:"高級チョコ",mail:"rin.fujiwara@sakuramail.jp",tel:"090-5678-1234",secret:"実は、猫カフェの常連で、店員さんに『りんちゃん』と呼ばれている"},
+  profile:{birthday:"2月11日",blood:"AB型",club:"生徒会（会長）・ピアノ",hobby:"ピアノ・紅茶・猫カフェ巡り（秘密）",personality:"凛とした完璧主義者。期待に応えようと無理をしがち。甘いものと猫に弱い。",fav:"高級チョコと猫グッズ",dislike:"だらしない服装・約束を破る人",gift:"choco",giftName:"高級チョコ",mail:"rin.fujiwara@sakuramail.jp",tel:"090-5678-1234",roots:"実は、藤原家は黒羽の旧家。那須神社の例大祭では、今も巫女の舞を奉納する役目を受け継いでいる。凛とした佇まいは、その家系に流れる気品ゆえ",secret:"実は、猫カフェの常連で、店員さんに『りんちゃん』と呼ばれている"},
   desc:"生徒会長。成績優秀、ピアノも弾ける才女。凛としているが、実は甘いものと猫に弱い一面がある。",
   lines:[
    {q:"黒羽城址公園の大関和の記念碑、見たことある？町の歴史の話になると、つい長くなるの",a:"今度ゆっくり聞かせて",b:"歴史は苦手で…",ra:6,rb:-2,ta:"りん「ふふ、いいわ。…じゃあ今度、記念碑の前で。黒羽の町の話、してあげる」",tb:"りん「そう…。残念ね、あの碑の話は面白いのに」"},
@@ -292,6 +292,7 @@ const ALL_MEMORIES=[
  {id:"end_akari",title:"エンディング：あかり",date:"卒業式",hero:"akari",tag:"エンディング",variant:"ending",text:"伝説の桜の木の下で——。"},
  {id:"end_yuki",title:"エンディング：ゆき",date:"卒業式",hero:"yuki",tag:"エンディング",variant:"ending",text:"伝説の桜の木の下で——。"},
  {id:"end_rin",title:"エンディング：りん",date:"卒業式",hero:"rin",tag:"エンディング",variant:"ending",text:"伝説の桜の木の下で——。"},
+ {id:"mem_swan",title:"羽田沼の黒い白鳥",date:"月夜",hero:"yuki",tag:"物語",variant:"smile",text:"月夜の羽田沼で、ゆきと黒い白鳥を見た。見た人に幸運を運ぶという、黒羽の言い伝え。二人だけの秘密。"},
  {id:"mem_river",title:"那珂川と鮎の塩焼き",date:"夏",hero:"akari",tag:"物語",variant:"sea",text:"黒羽の那珂川で川遊び。冷たい清流と、香ばしい鮎の塩焼き。彼女の笑顔と一緒に、夏の味がした。"},
  {id:"mem_camp",title:"ホテル花月の合宿",date:"夏",hero:"akari",tag:"物語",variant:"gym",text:"テニス部の合宿先は、町内のホテル花月。日焼けしたあかりと交わした「鮎を食べに行こう」の約束。"},
  {id:"mem_fireworks",title:"くろばね夏まつりの花火",date:"8月",hero:"sakura",tag:"行事",variant:"yukata",text:"芭蕉の里くろばね夏まつりのフィナーレ、市民花火大会。那珂川の水面に映る大輪と、隣の浴衣姿。「来年も、同じ場所で」――夏の約束。"},
@@ -393,6 +394,7 @@ mem_secret:"追加イベント「秘密を知ってしまう」が発生する",
 mem_lostchild:"追加イベント「迷子の子供を助ける」が発生する",
 mem_dream:"追加イベント「将来の夢を語る」が発生する",
 mem_river:"イベント「那珂川の川遊び」が発生する",
+mem_swan:"追加イベント「羽田沼の黒い白鳥」が発生する（秋〜冬・ゆきと出会っていること）",
 mem_camp:"イベント「ホテル花月の合宿」が発生する",
 mem_fireworks:"8月の「芭蕉の里くろばね夏まつり・市民花火大会」が発生する",
 mem_kuhi:"句碑めぐり10か所をすべて制覇する",
@@ -509,3 +511,78 @@ window.SAKURA_ALBUM_DATA=ALL_MEMORIES;
 /* 句碑データの画像パス対応（句碑番号→画像） */
 const KUHI_IMGS={1:"assets/kuhi01.webp",2:"assets/kuhi02.webp",3:"assets/kuhi03.webp",4:"assets/kuhi04.webp",5:"assets/kuhi05.webp",6:"assets/kuhi06.webp",7:"assets/kuhi07.webp",8:"assets/kuhi08.webp",9:"assets/kuhi09.webp",10:"assets/kuhi10.webp"};
 
+
+/* ===== お宝動画（videos フォルダの外部ファイル。本体には含めない） ===== */
+window.SAKURA_SPECIAL_VIDEOS=[
+["さくら","date-sakura.mp4","放課後カフェデート"],
+["さくら","date-sakura-spring.mp4","春のデート・さくら"],
+["さくら","date-sakura-summer.mp4","夏のデート・さくら"],
+["さくら","date-sakura-autumn.mp4","秋のデート・さくら"],
+["さくら","date-sakura-winter.mp4","冬のデート・さくら"],
+["さくら","cm-sakura.mp4","CM・さくら編"],
+["あかり","date-akari.mp4","河原でソフトクリーム"],
+["あかり","date-akari-spring.mp4","春のデート・あかり"],
+["あかり","date-akari-summer.mp4","夏のデート・あかり"],
+["あかり","date-akari-autumn.mp4","秋のデート・あかり"],
+["あかり","date-akari-winter.mp4","冬のデート・あかり"],
+["あかり","cm-akari.mp4","CM・あかり編"],
+["ゆき","date-yuki.mp4","ブックカフェ"],
+["ゆき","date-yuki-spring.mp4","春のデート・ゆき"],
+["ゆき","date-yuki-summer.mp4","夏のデート・ゆき"],
+["ゆき","date-yuki-autumn.mp4","秋のデート・ゆき"],
+["ゆき","date-yuki-winter.mp4","冬のデート・ゆき"],
+["ゆき","cm-yuki.mp4","CM・ゆき編"],
+["りん","date-rin.mp4","水族館デート"],
+["りん","date-rin-spring.mp4","春のデート・りん"],
+["りん","date-rin-summer.mp4","夏のデート・りん"],
+["りん","date-rin-autumn.mp4","秋のデート・りん"],
+["りん","date-rin-winter.mp4","冬のデート・りん"],
+["りん","cm-rin.mp4","CM・りん編"],
+["全員","season-spring.mp4","春の黒羽"],
+["全員","season-summer.mp4","夏の黒羽"],
+["全員","season-autumn.mp4","秋の黒羽"],
+["全員","season-winter.mp4","冬の黒羽"]
+];
+
+/* 実在スポット対応表（画像ファイル名 → 地図検索ワード）。公共の名所のみ。お店・個人宅は入れない */
+window.SAKURA_PLACE_MAP={
+ "kuhi01.webp":"常念寺 大田原市","kuhi02.webp":"36.868498,140.101755","kuhi03.webp":"西教寺 大田原市",
+ "kuhi04.webp":"玉藻稲荷神社 大田原市","kuhi05.webp":"明王寺 大田原市","kuhi06.webp":"黒羽芭蕉の館",
+ "kuhi07.webp":"黒羽芭蕉の館","kuhi08.webp":"黒羽芭蕉の館","kuhi09.webp":"芭蕉の広場 大田原市",
+ "kuhi10.webp":"雲巌寺 大田原市",
+ "op01.webp":"黒羽城址公園","op04.webp":"黒羽図書館 大田原市","op06.webp":"黒羽観光やな",
+ "op08.webp":"雲巌寺 大田原市","op11.webp":"大関和記念碑 大田原市","op12.webp":"芭蕉の広場 大田原市",
+ "op14.webp":"五峰の湯 大田原市","op15.webp":"雲巌寺 大田原市","op16.webp":"旧黒羽駅 大田原市",
+ "op18.webp":"道の駅那須与一の郷","op19.webp":"那須神社 大田原市","op20.webp":"大雄寺 大田原市",
+ "op21.webp":"黒羽芭蕉の館","op22.webp":"くらしの館 大田原市",
+ "ev01.webp":"道の駅那須与一の郷","ev02.webp":"那珂川 大田原市黒羽","ev04.webp":"黒羽城址公園",
+ "ev05.webp":"なかがわ水遊園","ev09.webp":"下侍塚古墳","ev10.webp":"黒羽観光やな",
+ "basho-yakata.webp":"黒羽芭蕉の館",
+ "op03.webp":"那珂川 大田原市黒羽","nurse06.webp":"那珂川 大田原市黒羽","perfect04.webp":"那珂川 大田原市黒羽",
+ "op13.webp":"黒羽中学校 大田原市"
+};
+
+/* 聖地巡礼（観光案内）用データ：名所・句・歴史メモ。地図検索ワードは SAKURA_PLACE_MAP 側 */
+window.SAKURA_PILGRIM=[
+ {img:"assets/op21.webp",name:"黒羽芭蕉の館",note:"松尾芭蕉は『奥の細道』の旅で黒羽に14日間滞在しました（旅の中で最長）。黒羽藩家老・鹿子畑豊明（桃雪）らとの交流や、句会の様子を紹介する資料館です。"},
+ {img:"assets/op11.webp",name:"大関和記念碑",note:"大関和（おおぜき ちか、1858〜1932）は黒羽出身で、「明治のナイチンゲール」と呼ばれる日本近代看護の先駆者。看護師の育成や公衆衛生の普及に尽くしました。2026年春のNHK連続テレビ小説『風、薫る』のヒロイン・一ノ瀬りんのモチーフとなり、生家跡（黒羽小学校前）に2026年3月、記念碑が建立されました。 ※このゲームでは、保健室の先生は和の遠い親戚という設定です。"},
+ {img:"assets/kuhi06.webp",name:"芭蕉の道 入口",haiku:"行く春や 鳥啼き魚の 目は泪",note:"『奥の細道』の冒頭を飾る有名な句。芭蕉が歩いた道筋は「芭蕉の道」として整備され、句碑をたどって歩けます。"},
+ {img:"assets/kuhi10.webp",name:"雲巌寺",haiku:"木啄も 庵は破らず 夏木立",note:"芭蕉が黒羽滞在中に訪れた古刹。この句の石碑があります。秋は紅葉の名所としても知られます。"},
+ {img:"assets/op15.webp",name:"句碑「田一枚…」",haiku:"田一枚 植えて立ち去る 柳かな",note:"田植えの風景を詠んだ芭蕉の代表句のひとつ。黒羽の田園風景は今も句の世界を残しています。"},
+ {img:"assets/kuhi01.webp",name:"常念寺",haiku:"野を横に 馬牽むけよ ほととぎす",note:"黒羽の地で詠まれた句の石碑があるお寺です。"},
+ {img:"assets/kuhi02.webp",name:"光明寺跡",haiku:"夏山に 足駄を拝む 首途哉",note:"旅立ち（首途）を詠んだ句。芭蕉一行の足跡を伝えます。"},
+ {img:"assets/kuhi03.webp",name:"西教寺（曽良の句碑）",haiku:"かさねとは 八重撫子の 名成るべし",note:"芭蕉の弟子・曽良の句。少女「かさね」を詠んだと伝わる、物語のある句碑です。"},
+ {img:"assets/kuhi04.webp",name:"玉藻稲荷",haiku:"秣負う 人を枝折の 夏野哉",note:"那須の殺生石・玉藻前伝説ゆかりの地に残る句碑です。"},
+ {img:"assets/kuhi05.webp",name:"明王寺",haiku:"今日も又 朝日を拝む 石の上",note:"朝日を詠んだ句の石碑があるお寺です。"},
+ {img:"assets/kuhi07.webp",name:"桃雪邸跡",haiku:"山も庭も 動き入るるや 夏座敷",note:"芭蕉を黒羽でもてなした鹿子畑豊明（桃雪）の屋敷跡。芭蕉はここで句会を開きました。"},
+ {img:"assets/kuhi08.webp",name:"芭蕉の道 途中",haiku:"田や麦や 中にも夏の ほととぎす",note:"芭蕉の道の途中にある句碑。田園の中を歩きながら句を味わえます。"},
+ {img:"assets/kuhi09.webp",name:"芭蕉の広場",haiku:"鶴鳴くや 其声に芭蕉 やれぬべし",note:"芭蕉像のある広場。黒羽観光の拠点のひとつです。"},
+ {img:"assets/op01.webp",name:"黒羽城址公園",note:"黒羽藩・大関家の城跡の公園。約6,000株の紫陽花で知られ、初夏には紫陽花まつり（夜間ライトアップ）でにぎわいます。"},
+ {img:"assets/op19.webp",name:"那須神社",note:"扇の的を射た那須与一ゆかりの神社。立派な楼門があります。"},
+ {img:"assets/op20.webp",name:"大雄寺",note:"黒羽藩主・大関家の菩提寺。静かな境内に歴史の気配が残ります。"},
+ {img:"assets/ev09.webp",name:"下侍塚古墳",note:"なす風土記の丘にある古墳。『奥の細道』にも登場する古い墳墓として知られます。"},
+ {img:"assets/op14.webp",name:"五峰の湯",note:"那珂川のほとりの温泉。聖地巡りの休憩にどうぞ。"},
+ {img:"assets/op18.webp",name:"道の駅 那須与一の郷",note:"那須与一にちなむ道の駅。地元の特産品や鮎料理が楽しめます。"},
+ {img:"assets/ev05.webp",name:"なかがわ水遊園",note:"那珂川の魚を紹介する淡水魚の水族館。那珂川の鮎は漁獲量日本一として知られます。"},
+ {img:"assets/op06.webp",name:"黒羽観光やな",note:"夏から秋にかけて、那珂川で鮎のつかみ取りや塩焼きが楽しめる観光やなです。"}
+];

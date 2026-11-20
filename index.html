@@ -3,6 +3,12 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
+<meta name="description" content="栃木県大田原市・黒羽を舞台にした、高校3年間・全144週の育成シミュレーション。ヒロイン4人、全32章の物語、芭蕉の句碑めぐりなど実在のスポットも登場。ブラウザで無料プレイ（Snow Moon Games）。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="桜色メモリアル 〜ときめき学園物語〜">
+<meta property="og:description" content="黒羽を舞台に、高校3年間・全144週を過ごす育成シミュレーション。芭蕉の句碑めぐりなど実在スポットも登場。ブラウザで無料プレイ。">
+<meta property="og:image" content="assets/op01.webp">
+<meta name="twitter:card" content="summary_large_image">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NK2HK0RPPH"></script>
 <script>
@@ -15,7 +21,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611191955">
+<link rel="stylesheet" href="style.css?b=202611202030">
 
 </head>
 <body>
@@ -32,8 +38,11 @@
     <div class="load-choice hidden" id="load-choice">
       <p class="load-done">🌸 ローディング完了</p>
       <button class="btn primary" id="btn-opening">🎬 オープニングを見る</button>
+      <button class="btn" id="btn-pilgrim">⛩ 聖地巡礼（観光案内）</button>
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
+      <button class="btn" id="btn-refresh-loading">🔄 最新版に更新（キャッシュを消して読み直す）</button>
     </div>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261120.2.30</p>
   </div>
 </main>
 
@@ -62,6 +71,7 @@
     </div>
     <div class="menu">
       <button class="btn primary" id="btn-new">🌸 はじめから</button>
+      <button class="btn" id="btn-pilgrim-title">⛩ 聖地巡礼（観光案内）</button>
       <button class="btn hidden" id="btn-resume">⏩ さっきの画面にもどる</button>
       <button class="btn" id="btn-album-title">📖 回想アルバム</button>
       <button class="btn" id="btn-continue">💾 セーブデーターロード</button>
@@ -78,7 +88,7 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="管理メニュー（メンテナンス用）">Snow Moon Games</span> ／ 1人用・育成シミュレーション ／ セーブは端末に自動保存＋ファイル対応 ／ Ver.20261119.2.2</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="管理メニュー（メンテナンス用）">Snow Moon Games</span> Ver.20261120.2.30</div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
     <h2 class="section-title">❓ あそびかた</h2>
@@ -320,7 +330,7 @@
       <div class="text" id="novel-text"></div>
       <div class="choices hidden" id="novel-choices"></div>
       <div class="next-row"><span style="font-size:12px;color:var(--muted);font-weight:700" id="novel-hint">タップ／クリックで進む</span>
-      <button class="btn primary small" id="novel-next">つぎへ ▶</button></div>
+      <button class="btn small" id="novel-speak">🔊 読上</button> <button class="btn small" id="novel-speak-rate">速度 ×1.0</button> <button class="btn primary small" id="novel-next">つぎへ ▶</button></div>
     </div>
   </div>
   <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
@@ -367,7 +377,7 @@
           <div class="text" id="game-text"></div>
           <div class="choices hidden" id="game-choices"></div>
           <div class="next-row"><span style="font-size:12px;color:var(--muted);font-weight:700" id="game-hint"></span>
-          <button class="btn primary small hidden" id="game-next">つぎへ ▶</button> <button class="btn small hidden" id="game-skip">⏭ スキップ</button></div>
+          <button class="btn small hidden" id="game-speak">🔊 読上</button> <button class="btn small hidden" id="game-speak-rate">速度 ×1.0</button> <button class="btn small hidden" id="game-map">🗺 地図</button> <button class="btn small hidden" id="game-video">🎬 動画再生</button> <button class="btn primary small hidden" id="game-next">つぎへ ▶</button> <button class="btn small hidden" id="game-skip">⏭ スキップ</button></div>
         </div>
       </div>
       <div class="sysbox hidden" id="sys-box" aria-label="システム通知"><h4>🔔 システム通知</h4><div id="sys-list"></div></div>
@@ -416,6 +426,18 @@
 </main>
 
 <!-- ================= ALBUM ================= -->
+<main class="wrap hidden" id="screen-pilgrim">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <h2 class="mincho">⛩ 聖地巡礼 ― 黒羽・大田原 観光案内</h2>
+    <button class="btn small" id="btn-pilgrim-back-top">タイトルへ戻る</button>
+  </div>
+  <p style="font-weight:500;color:var(--muted);line-height:1.8">ゲームに登場する実在の名所を集めました。クリアしなくても見られます。各スポットの「🗺 地図」から、実際の場所を確認できます。</p>
+  <iframe title="黒羽周辺の地図" src="https://maps.google.com/maps?q=%E5%A4%A7%E7%94%B0%E5%8E%9F%E5%B8%82%E9%BB%92%E7%BE%BF&z=13&output=embed" loading="lazy" style="width:100%;height:220px;border:0;border-radius:12px;margin:6px 0 4px"></iframe>
+  <p style="font-weight:500;color:var(--muted);font-size:12px;margin:0 0 8px">※地図はオンラインの時だけ表示されます</p>
+  <div id="pilgrim-list"></div>
+  <div class="row" style="margin-top:14px"><button class="btn" id="btn-pilgrim-back">タイトルへ戻る</button></div>
+</main>
+
 <main class="wrap hidden" id="screen-album">
   <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
     <h2 class="mincho" style="margin:0;font-size:24px">📖 回想アルバム</h2>
@@ -423,8 +445,18 @@
     <button class="btn small" id="btn-album-back">← もどる</button>
   </div>
   <p style="font-weight:500;color:var(--muted);line-height:1.8;margin:0 0 12px">集めた思い出をタップすると、その場面をもう一度読めます。エンディング後に開くと、卒業アルバムとして3年間の記録がまとまります。</p>
+  <div class="row" id="album-tabs" style="gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn primary" id="tab-pic">🖼 画像</button>
+    <button class="btn" id="tab-bgm">🎵 BGM</button>
+    <button class="btn" id="tab-video">🎬 ムービー</button>
+  </div>
   <div class="card hidden" id="album-summary" style="margin-bottom:12px"></div>
   <div class="card hidden" id="album-ach" style="margin-bottom:12px"></div>
+  <div class="card" id="album-videos" style="margin-bottom:12px">
+    <h3 class="mincho" style="margin:0 0 4px">🎬 動画コレクション <span id="album-video-count"></span></h3>
+    <p style="font-weight:500;color:var(--muted);line-height:1.7;margin:0 0 8px">ヒロインたちの動画を、静止画とは別の区画に集めました。ゲームの中で一度見た動画だけが解放されます（videos フォルダの中のファイルを再生します）。</p>
+    <div id="album-video-list"></div>
+  </div>
   <div class="card" id="album-bgm" style="margin-bottom:12px">
     <h3 class="mincho" style="margin:0 0 4px">🎵 BGMコレクション（全40曲） <span id="album-bgm-count" style="font-size:14px"></span></h3>
     <p style="font-weight:500;color:var(--muted);line-height:1.7;margin:0 0 8px">思い出と同じで、ゲームの中で一度流れた曲だけ聴けます。▶で再生（管理機能でMP3に差し替えた曲は、そのMP3が流れます）。</p>
@@ -437,11 +469,34 @@
     <h3 class="mincho" id="detail-title" style="margin:4px 0 8px;font-size:20px"></h3>
     <img id="detail-img" src="assets/sakura.webp" alt="" style="width:min(260px,70%);aspect-ratio:3/4;object-fit:cover;object-position:top;border-radius:12px">
     <p id="detail-text" style="line-height:2;font-weight:500;white-space:pre-line"></p>
-    <button class="btn small" id="detail-close">閉じる</button>
+    <button class="btn small hidden" id="detail-map">🗺 実在の場所を地図で見る</button> <button class="btn small" id="detail-close">閉じる</button>
   </div>
+  <div style="margin-top:14px;text-align:left"><button class="btn" id="btn-album-to-title">タイトルへ戻る</button></div>
 </main>
 
 <!-- ================= SAVE / LOAD MODAL ================= -->
+<div class="modal-bg hidden" id="modal-video">
+ <div class="modal-card" style="max-width:760px;width:94%">
+  <h3 class="mincho" id="video-title" style="margin:0 0 8px">🎁 お宝動画</h3>
+  <video id="special-video" controls playsinline style="width:100%;max-height:70vh;border-radius:10px;background:#000"></video>
+  <div id="video-loading" style="margin-top:8px">
+   <div style="height:10px;background:#f6dbe4;border-radius:5px;overflow:hidden"><div id="video-load-bar" style="height:100%;width:0%;background:#e75480;transition:width .2s"></div></div>
+   <div id="video-load-text" style="font-size:12px;color:var(--muted);margin-top:2px">読み込み中… 0%</div>
+  </div>
+  <p id="video-msg" style="color:var(--muted);font-weight:500;margin:8px 0 0"></p>
+  <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center">
+   <div style="display:flex;gap:8px">
+    <button class="btn small" id="btn-video-prev">⏮ 戻る</button>
+    <button class="btn small" id="btn-video-next">次へ ⏭</button>
+    <button class="btn small" id="btn-video-bgm">🎵 BGM: OFF</button>
+   </div>
+   <div style="display:flex;gap:8px">
+    <button class="btn small" id="btn-video-menu">🏠 メインメニューへ</button>
+    <button class="btn small" id="btn-video-close">閉じる</button>
+   </div>
+  </div>
+ </div>
+</div>
 <div class="modal-bg hidden" id="modal-save">
   <div class="modal" role="dialog" aria-label="セーブとロード">
     <h3 class="mincho" id="modal-title" style="margin:0 0 6px;font-size:21px">💾 セーブ</h3>
@@ -530,9 +585,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611191955"></script>
-<script src="story.js?b=202611191955"></script>
-<script src="engine.js?b=202611191955"></script>
+<script src="data.js?b=202611202030"></script>
+<script src="story.js?b=202611202030"></script>
+<script src="engine.js?b=202611202030"></script>
 
 
 
