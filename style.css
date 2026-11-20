@@ -259,6 +259,28 @@ button:not(.btn):not(.cmd):not(.mem):active{transform:translateY(2px) scale(.98)
 .stage .bgimg.motion-jump{animation:v2Jump .6s ease}
 .stage .bgimg.motion-slide{animation:v2Slide .45s ease}
 @media (prefers-reduced-motion: reduce){.stage .bgimg.motion-shake,.stage .bgimg.motion-jump,.stage .bgimg.motion-slide{animation:none}}
+/* --- 2.32 1枚絵の常時モーション（ケン・バーンズ：ゆっくりズーム＆パン、scale/translate単独プロパティで既存モーションと合成） --- */
+@keyframes kburns{0%{scale:1.04;translate:-0.7% -0.5%}100%{scale:1.11;translate:0.9% 0.7%}}
+body.kb-on .stage .bgimg{animation:kburns 26s ease-in-out infinite alternate}
+body.kb-on .stage .bgimg.swap{animation:imgswap .45s ease,kburns 26s ease-in-out infinite alternate}
+body.kb-on .stage .bgimg.motion-shake{animation:v2Shake .5s ease,kburns 26s ease-in-out infinite alternate}
+body.kb-on .stage .bgimg.motion-jump{animation:v2Jump .6s ease,kburns 26s ease-in-out infinite alternate}
+body.kb-on .stage .bgimg.motion-slide{animation:v2Slide .45s ease,kburns 26s ease-in-out infinite alternate}
+@media (prefers-reduced-motion: reduce){body.kb-on .stage .bgimg{animation:none}}
+/* --- 2.34 場面に合わせた動きパターン（🎞ONの時だけ） --- */
+@keyframes transBlack{0%{opacity:0;filter:brightness(.12)}100%{opacity:.96;filter:brightness(1)}}
+@keyframes transFog{0%{opacity:.08;filter:blur(14px) brightness(2.3)}100%{opacity:.96;filter:blur(0) brightness(1)}}
+@keyframes swayWater{0%,100%{rotate:-.7deg;translate:0 0}50%{rotate:.7deg;translate:0 -.7%}}
+@keyframes shiver{0%,100%{translate:0 0}20%{translate:-.35% .2%}40%{translate:.3% -.15%}60%{translate:-.25% -.2%}80%{translate:.3% .25%}}
+@keyframes heartbeat{0%,100%{scale:1.05}12%{scale:1.09}24%{scale:1.05}36%{scale:1.085}55%{scale:1.05}}
+@keyframes pushIn{0%{scale:1.05;translate:0 0}100%{scale:1.21;translate:0 -1.6%}}
+body.kb-on .stage .bgimg.pat-water{animation:swayWater 7s ease-in-out infinite}
+body.kb-on .stage .bgimg.pat-heart{animation:heartbeat 1.6s ease-in-out infinite}
+body.kb-on .stage .bgimg.pat-push{animation:pushIn 24s ease-out forwards}
+body.kb-on .stage .bgimg.pat-snow{animation:kburns 26s ease-in-out infinite alternate,shiver 2.6s linear infinite}
+body.kb-on .stage .bgimg.trans-black{animation:transBlack 1.7s ease both}
+body.kb-on .stage .bgimg.trans-fog{animation:transFog 2.5s ease both}
+@media (prefers-reduced-motion: reduce){body.kb-on .stage .bgimg.pat-water,body.kb-on .stage .bgimg.pat-heart,body.kb-on .stage .bgimg.pat-push,body.kb-on .stage .bgimg.pat-snow,body.kb-on .stage .bgimg.trans-black,body.kb-on .stage .bgimg.trans-fog{animation:none}}
 /* --- アルバム：隠し枠（パーフェクト特典）は画像を一切見せない「？」表示 --- */
 .mem.secret-locked{border-style:dashed}
 .mem-secret{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;color:var(--pink-d);background:repeating-linear-gradient(45deg,#fbe3ea,#fbe3ea 12px,#f7c9d4 12px,#f7c9d4 24px)}

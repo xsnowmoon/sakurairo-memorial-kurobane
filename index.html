@@ -21,7 +21,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611202030">
+<link rel="stylesheet" href="style.css?b=202611210240">
 
 </head>
 <body>
@@ -42,7 +42,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 最新版に更新（キャッシュを消して読み直す）</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261120.2.30</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261121.2.40</p>
   </div>
 </main>
 
@@ -71,10 +71,11 @@
     </div>
     <div class="menu">
       <button class="btn primary" id="btn-new">🌸 はじめから</button>
+      <button class="btn" id="btn-continue">💾 セーブデーターロード</button>
       <button class="btn" id="btn-pilgrim-title">⛩ 聖地巡礼（観光案内）</button>
       <button class="btn hidden" id="btn-resume">⏩ さっきの画面にもどる</button>
       <button class="btn" id="btn-album-title">📖 回想アルバム</button>
-      <button class="btn" id="btn-continue">💾 セーブデーターロード</button>
+      <button class="btn" id="btn-minigames">🎮 ミニゲーム</button>
       <button class="btn" id="btn-howto">❓ あそびかた</button>
       <button class="btn" id="btn-intro-open" style="text-align:center">🌸 ゲーム紹介</button>
       <button class="btn" id="btn-opening-title">🎬 オープニングを見る</button>
@@ -88,7 +89,7 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="管理メニュー（メンテナンス用）">Snow Moon Games</span> Ver.20261120.2.30</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="管理メニュー（メンテナンス用）">Snow Moon Games</span> Ver.20261121.2.40</div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
     <h2 class="section-title">❓ あそびかた</h2>
@@ -330,7 +331,7 @@
       <div class="text" id="novel-text"></div>
       <div class="choices hidden" id="novel-choices"></div>
       <div class="next-row"><span style="font-size:12px;color:var(--muted);font-weight:700" id="novel-hint">タップ／クリックで進む</span>
-      <button class="btn small" id="novel-speak">🔊 読上</button> <button class="btn small" id="novel-speak-rate">速度 ×1.0</button> <button class="btn primary small" id="novel-next">つぎへ ▶</button></div>
+      <button class="btn small" id="novel-speak">🔊 読上</button> <button class="btn small" id="novel-speak-rate">速度 ×1.0</button> <button class="btn small" id="novel-kb">🎞 動きON</button> <button class="btn primary small" id="novel-next">つぎへ ▶</button></div>
     </div>
   </div>
   <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
@@ -346,12 +347,12 @@
     <h2 class="section-title mincho">✏️ 主人公の名前を決めよう</h2>
     <p style="font-weight:500;line-height:1.8;color:var(--muted)">この名前で、みんながあなたを呼びます。後から変更はできません。ヒロインの呼び方は、好感度が上がると「苗字くん → 名前くん → あだ名」と変わっていきます。</p>
     <div class="name-row">
-      <div class="field"><label>苗字（せい）</label><input type="text" id="in-last" maxlength="6" value="佐藤" autocomplete="off"></div>
-      <div class="field"><label>名前（めい）</label><input type="text" id="in-first" maxlength="6" value="健太" autocomplete="off"></div>
+      <div class="field"><label>苗字（せい）</label><input type="text" id="in-last" maxlength="6" value="黒羽" autocomplete="off"></div>
+      <div class="field"><label>名前（めい）</label><input type="text" id="in-first" maxlength="6" value="白夜" autocomplete="off"></div>
     </div>
-    <div class="field"><label>あだ名（仲良くなった子に呼ばれたい名前）</label><input type="text" id="in-nick" maxlength="6" placeholder="例：ケンちゃん" autocomplete="off"></div>
+    <div class="field"><label>あだ名（仲良くなった子に呼ばれたい名前）</label><input type="text" id="in-nick" maxlength="6" value="グレイ" placeholder="例：グレイ" autocomplete="off"></div>
     <div class="field"><label>誕生日</label>
-      <select id="in-birth"><option value="4月">4月・春生まれ（バランス型）</option><option value="7月">7月・夏生まれ（運動が伸びやすい）</option><option value="10月">10月・秋生まれ（学力が伸びやすい）</option><option value="1月">1月・冬生まれ（芸術が伸びやすい）</option></select>
+      <select id="in-birth"><option value="1月">1月・冬生まれ（芸術が伸びやすい）</option><option value="2月">2月・冬生まれ（芸術が伸びやすい）</option><option value="3月">3月・春生まれ（バランス型）</option><option value="4月" selected>4月・春生まれ（バランス型）</option><option value="5月">5月・春生まれ（バランス型）</option><option value="6月">6月・夏生まれ（運動が伸びやすい）</option><option value="7月">7月・夏生まれ（運動が伸びやすい）</option><option value="8月">8月・夏生まれ（運動が伸びやすい）</option><option value="9月">9月・秋生まれ（学力が伸びやすい）</option><option value="10月">10月・秋生まれ（学力が伸びやすい）</option><option value="11月">11月・秋生まれ（学力が伸びやすい）</option><option value="12月">12月・冬生まれ（芸術が伸びやすい）</option></select>
     </div>
     <div class="field"><label>目標（あとで変わってもOK）</label>
       <select id="in-goal"><option value="love">恋も勉強も、全部がんばる</option><option value="study">まずは勉強をがんばる</option><option value="sport">スポーツで輝きたい</option><option value="free">のんびり楽しく過ごす</option></select>
@@ -377,7 +378,7 @@
           <div class="text" id="game-text"></div>
           <div class="choices hidden" id="game-choices"></div>
           <div class="next-row"><span style="font-size:12px;color:var(--muted);font-weight:700" id="game-hint"></span>
-          <button class="btn small hidden" id="game-speak">🔊 読上</button> <button class="btn small hidden" id="game-speak-rate">速度 ×1.0</button> <button class="btn small hidden" id="game-map">🗺 地図</button> <button class="btn small hidden" id="game-video">🎬 動画再生</button> <button class="btn primary small hidden" id="game-next">つぎへ ▶</button> <button class="btn small hidden" id="game-skip">⏭ スキップ</button></div>
+          <button class="btn small hidden" id="game-speak">🔊 読上</button> <button class="btn small hidden" id="game-speak-rate">速度 ×1.0</button> <button class="btn small hidden" id="game-kb">🎞 動きON</button> <button class="btn small hidden" id="game-map">🗺 地図</button> <button class="btn small hidden" id="game-video">🎬 動画再生</button> <button class="btn primary small hidden" id="game-next">つぎへ ▶</button> <button class="btn small hidden" id="game-skip">⏭ スキップ</button></div>
         </div>
       </div>
       <div class="sysbox hidden" id="sys-box" aria-label="システム通知"><h4>🔔 システム通知</h4><div id="sys-list"></div></div>
@@ -509,6 +510,21 @@
   </div>
 </div>
 
+<div class="modal-bg hidden" id="modal-minigames">
+  <div class="modal" role="dialog" aria-label="ミニゲーム">
+    <h3 class="mincho" style="margin:0 0 6px;font-size:21px">🎮 ミニゲーム</h3>
+    <p style="font-size:13px;color:var(--muted);font-weight:700;line-height:1.7;margin:0 0 12px">Snow Moon Games のゲームが遊べます。選ぶとそのまま始まります。</p>
+    <div id="minigame-list"></div>
+    <button class="btn ghost" id="btn-minigames-close" style="width:100%;margin-top:10px">閉じる</button>
+  </div>
+</div>
+<div id="mg-overlay" class="hidden" style="position:fixed;inset:0;background:#14101c;z-index:80;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#241a30;color:#ffe9ef">
+    <span id="mg-title" style="font-weight:900;font-size:15px;flex:1">🎮 ミニゲーム</span>
+    <button class="btn" id="btn-mg-close" style="padding:8px 16px">✕ 閉じる</button>
+  </div>
+  <iframe id="mg-frame" title="ミニゲーム" style="flex:1;width:100%;border:0;background:#fff" allow="autoplay; microphone"></iframe>
+</div>
 <div class="modal-bg hidden" id="modal-profile">
   <div class="modal" role="dialog" aria-label="ヒロインプロフィール">
     <div id="profile-body"></div>
@@ -567,7 +583,7 @@
       <button class="btn small" data-dbg-end="almost">🎓 もう少しエンド</button>
       <button class="btn small" data-dbg-end="rival">🎓 ライバルエンド</button>
       <button class="btn small" data-dbg-end="friend">🎓 親友エンド</button>
-      <button class="btn small" data-dbg-end="life">🎓 人生型エンド</button>
+      <button class="btn small" data-dbg-end="life">🎓 人生型エンド</button><button class="ghost" data-dbg-end="money">🎓 億万長者エンド</button><button class="ghost" data-dbg-end="host">🎓 ホストエンド</button><button class="ghost" data-dbg-end="star">🎓 芸能人エンド</button><button class="ghost" data-dbg-end="journey">🎓 自分探しの旅エンド</button>
     </div>
     <div class="field" style="margin-top:10px"><label>週の移動（プレイ中のみ）</label><input type="number" id="adm-dbg-turn" min="1" max="144" placeholder="例：100"></div>
     <button class="btn small" id="adm-dbg-goto">その週へ移動</button>
@@ -585,9 +601,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611202030"></script>
-<script src="story.js?b=202611202030"></script>
-<script src="engine.js?b=202611202030"></script>
+<script src="data.js?b=202611210240"></script>
+<script src="story.js?b=202611210240"></script>
+<script src="engine.js?b=202611210240"></script>
 
 
 
