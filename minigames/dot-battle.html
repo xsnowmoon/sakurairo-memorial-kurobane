@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>ドットモンスターバトル</title>
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+    </style>
+    <style>
+      * { box-sizing: border-box; }
+      :root {
+        --ink: #20242a;
+        --page-bg: #dfe9f5;
+        --page-fg: #20242a;
+        --frame-bg: #f4f1e6;
+        --win-bg: #fffdf4;
+        --accent: #e0483e;
+        --accent2: #2b7de0;
+        --btn-bg: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page-bg: #141a24;
+          --page-fg: #e8ecf2;
+          --frame-bg: #232a36;
+        }
+      }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--page-bg);
+        color: var(--page-fg);
+        font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .frame {
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 10px 10px 28px;
+      }
+      .screen { display: none; }
+      .screen.active { display: block; }
+
+      /* ---------- 共通ボタン ---------- */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+        min-height: 56px; padding: 10px 18px;
+        font-size: 1.15rem; font-weight: 800; color: var(--ink);
+        background: var(--btn-bg);
+        border: 3px solid var(--ink); border-radius: 10px;
+        box-shadow: 0 4px 0 var(--ink);
+        cursor: pointer; user-select: none; touch-action: manipulation;
+        font-family: inherit;
+      }
+      .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+      .btn:disabled { opacity: .45; pointer-events: none; }
+      .btn.primary { background: var(--accent); color: #fff; }
+      .btn.blue { background: var(--accent2); color: #fff; }
+      .btn.small { min-height: 44px; font-size: .95rem; padding: 6px 12px; border-width: 2px; box-shadow: 0 3px 0 var(--ink); }
+      .btnrow { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+
+      /* ---------- タイトル ---------- */
+      .title-wrap { text-align: center; padding: 18px 6px 6px; }
+      .game-title {
+        font-size: clamp(1.9rem, 8.5vw, 3rem);
+        font-weight: 900; line-height: 1.25; margin: 6px 0 2px;
+        color: #ffd23e;
+        text-shadow: 3px 3px 0 #e0483e, 6px 6px 0 #20242a;
+        letter-spacing: .02em;
+      }
+      .game-sub { font-size: 1rem; font-weight: 700; opacity: .85; margin: 10px 0 0; }
+      .parade {
+        display: flex; justify-content: center; flex-wrap: wrap; gap: 4px;
+        margin: 16px auto 4px; max-width: 520px;
+      }
+      .parade canvas { width: 76px; height: 76px; image-rendering: pixelated; animation: bob 1.6s ease-in-out infinite; }
+      .parade canvas:nth-child(2n) { animation-delay: .3s; }
+      .parade canvas:nth-child(3n) { animation-delay: .6s; }
+      .credit { margin-top: 20px; font-size: .95rem; font-weight: 700; opacity: .75; text-align: center; }
+      @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+      /* ---------- 選択画面 ---------- */
+      h2.screen-head { font-size: 1.45rem; margin: 10px 0 4px; text-align: center; }
+      .screen-note { text-align: center; font-size: 1rem; margin: 0 0 12px; opacity: .85; }
+      .cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      @media (min-width: 560px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+      .card {
+        background: var(--win-bg); color: var(--ink);
+        border: 3px solid var(--ink); border-radius: 12px;
+        box-shadow: 0 4px 0 var(--ink);
+        padding: 12px; text-align: center; cursor: pointer;
+      }
+      .card:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ink); }
+      .card canvas { width: 120px; height: 120px; image-rendering: pixelated; }
+      .card .mname { font-size: 1.3rem; font-weight: 900; margin: 4px 0 2px; }
+      .typebadge {
+        display: inline-block; padding: 2px 12px; border-radius: 999px;
+        color: #fff; font-weight: 800; font-size: .9rem; border: 2px solid var(--ink);
+      }
+      .statgrid { margin: 10px 0 6px; text-align: left; font-size: .88rem; font-weight: 700; }
+      .statrow { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+      .statrow .slabel { width: 3.2em; flex: none; }
+      .statbar { flex: 1; height: 10px; background: #d8d4c4; border: 2px solid var(--ink); border-radius: 5px; overflow: hidden; }
+      .statbar > div { height: 100%; background: var(--accent2); }
+      .statrow .sval { width: 2em; text-align: right; flex: none; }
+      .movelist { text-align: left; font-size: .9rem; margin: 8px 0 10px; line-height: 1.55; }
+      .movelist .mt { font-weight: 800; }
+      .card .btn { width: 100%; }
+      details.chart { margin: 16px 0 0; background: var(--win-bg); color: var(--ink); border: 3px solid var(--ink); border-radius: 12px; padding: 10px 12px; }
+      details.chart summary { font-weight: 900; font-size: 1.05rem; cursor: pointer; min-height: 36px; display: flex; align-items: center; }
+      table.chart-table { border-collapse: collapse; margin: 8px auto; font-size: .82rem; }
+      table.chart-table th, table.chart-table td { border: 1px solid #9a9584; padding: 3px 5px; text-align: center; min-width: 2.1em; }
+      table.chart-table th { background: #efe9d6; }
+      .eff2 { color: #d42a1e; font-weight: 900; }
+      .eff05 { color: #2b5fd9; font-weight: 900; }
+
+      /* ---------- バトル ---------- */
+      .battle-top {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        margin: 4px 0 8px; flex-wrap: wrap;
+      }
+      .streak { font-size: 1.1rem; font-weight: 900; }
+      .streak .num { color: var(--accent); font-size: 1.35rem; }
+      .scene {
+        position: relative; height: 348px; border: 3px solid var(--ink); border-radius: 12px;
+        overflow: hidden;
+        background: linear-gradient(#8ed4f7 0%, #b8e6fb 58%, #8fce6e 58.5%, #74b956 100%);
+      }
+      @media (max-width: 480px) { .scene { height: 312px; } }
+      .platform {
+        position: absolute; border-radius: 50%;
+        background: radial-gradient(ellipse at center, #cdeeb0 0%, #9ed07e 65%, rgba(158,208,126,0) 72%);
+      }
+      .platform.enemy { width: 190px; height: 44px; right: 4%; top: 148px; }
+      .platform.player { width: 240px; height: 54px; left: 2%; bottom: 12px; }
+      .sprite {
+        position: absolute; image-rendering: pixelated;
+        transition: opacity .3s;
+      }
+      .sprite.enemy { width: 158px; height: 158px; right: 7%; top: 22px; animation: bob 2.2s ease-in-out infinite; }
+      .sprite.player { width: 188px; height: 188px; left: 5%; bottom: 26px; animation: bob 2.2s ease-in-out infinite; }
+      @media (max-width: 480px) {
+        .sprite.enemy { width: 132px; height: 132px; }
+        .sprite.player { width: 156px; height: 156px; }
+        .platform.enemy { top: 128px; }
+      }
+      .sprite.enter-r { animation: enterR .45s ease-out, bob 2.2s ease-in-out .45s infinite; }
+      .sprite.enter-l { animation: enterL .45s ease-out, bob 2.2s ease-in-out .45s infinite; }
+      @keyframes enterR { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes enterL { from { transform: translateX(-120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      .sprite.lunge-r { animation: lungeR .38s ease-in-out; }
+      .sprite.lunge-l { animation: lungeL .38s ease-in-out; }
+      @keyframes lungeR { 0% { transform: translateX(0); } 35% { transform: translateX(52px) translateY(-8px); } 100% { transform: translateX(0); } }
+      @keyframes lungeL { 0% { transform: translateX(0); } 35% { transform: translateX(-52px) translateY(8px); } 100% { transform: translateX(0); } }
+      .sprite.hurt { animation: hurt .45s linear; }
+      @keyframes hurt {
+        0%,100% { transform: translateX(0); filter: brightness(1); }
+        15% { transform: translateX(-9px); filter: brightness(2.2); }
+        30% { transform: translateX(8px); filter: brightness(.4); }
+        45% { transform: translateX(-7px); filter: brightness(2.2); }
+        60% { transform: translateX(6px); filter: brightness(.4); }
+        75% { transform: translateX(-4px); filter: brightness(1.8); }
+      }
+      .sprite.fainted { animation: faint .7s ease-in forwards; }
+      @keyframes faint { to { transform: translateY(46px); opacity: 0; } }
+      .scene.shake { animation: sceneshake .3s linear; }
+      @keyframes sceneshake {
+        0%,100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-3px); }
+      }
+      .hpbox {
+        position: absolute; width: 47%; max-width: 250px;
+        background: var(--win-bg); color: var(--ink);
+        border: 3px solid var(--ink); border-radius: 10px;
+        padding: 7px 10px 9px; box-shadow: 3px 3px 0 rgba(32,36,42,.45);
+      }
+      .hpbox.enemy { left: 10px; top: 10px; }
+      .hpbox.player { right: 10px; bottom: 10px; }
+      .hpbox .hname { font-weight: 900; font-size: 1.02rem; display: flex; justify-content: space-between; gap: 6px; }
+      .hpbox .hlv { font-size: .85rem; font-weight: 800; white-space: nowrap; }
+      .hpbar {
+        margin-top: 5px; height: 13px; background: #57534a;
+        border: 2px solid var(--ink); border-radius: 7px; overflow: hidden;
+      }
+      .hpfill { height: 100%; width: 100%; background: #3ecf4e; transition: width .55s ease; }
+      .hpfill.mid { background: #f5c81e; }
+      .hpfill.low { background: #e0483e; }
+      .hpnum { font-size: .88rem; font-weight: 800; text-align: right; margin-top: 2px; min-height: 1.1em; }
+      .msgwin {
+        margin-top: 10px; min-height: 92px;
+        background: var(--win-bg); color: var(--ink);
+        border: 3px solid var(--ink); border-radius: 12px;
+        padding: 12px 14px; font-size: 1.13rem; font-weight: 700; line-height: 1.6;
+        white-space: pre-wrap; cursor: pointer;
+      }
+      .cmdarea { margin-top: 10px; }
+      .cmdlabel { font-weight: 900; font-size: 1.05rem; margin: 2px 0 8px; }
+      .moves { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .movebtn {
+        min-height: 62px; text-align: left; padding: 8px 12px;
+        display: flex; flex-direction: column; justify-content: center; gap: 2px;
+      }
+      .movebtn .mvname { font-size: 1.08rem; font-weight: 900; }
+      .movebtn .mvinfo { font-size: .82rem; font-weight: 700; opacity: .75; }
+      @media (prefers-reduced-motion: reduce) {
+        .sprite, .parade canvas { animation: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+
+      <!-- タイトル画面 -->
+      <section id="scr-title" class="screen active">
+        <div class="title-wrap">
+          <div class="game-title">ドットモンスター<br />バトル</div>
+          <p class="game-sub">ぜんぶドット絵！ オリジナルモンスターの ターンせいバトル</p>
+          <div class="parade" id="parade"></div>
+          <div class="btnrow">
+            <button class="btn primary" id="btn-start" style="font-size:1.35rem; min-height:64px; padding:12px 34px;">▶ バトルスタート</button>
+          </div>
+          <div class="btnrow">
+            <button class="btn small" id="btn-sound-title">🔊 おと ON</button>
+            <button class="btn small" id="btn-update">🔄 最新版に更新</button>
+          </div>
+          <p class="credit">Snow Moon　Ver.20261120.1.0</p>
+        </div>
+      </section>
+
+      <!-- モンスター選択画面 -->
+      <section id="scr-select" class="screen">
+        <h2 class="screen-head">モンスターを えらぼう！</h2>
+        <p class="screen-note">タップで けってい。のこりの モンスターは てきとして あらわれるよ。</p>
+        <div class="cards" id="cards"></div>
+        <details class="chart">
+          <summary>タイプ相性ひょう をみる</summary>
+          <div id="chart-box"></div>
+          <p style="margin:6px 2px 2px; font-size:.88rem;">◎＝こうか ばつぐん（2ばい）　△＝いまひとつ（はんぶん）　―＝ふつう</p>
+        </details>
+        <div class="btnrow">
+          <button class="btn small" id="btn-back-title">← タイトルへ もどる</button>
+        </div>
+      </section>
+
+      <!-- バトル画面 -->
+      <section id="scr-battle" class="screen">
+        <div class="battle-top">
+          <div class="streak">れんしょう <span class="num" id="streak-num">0</span></div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn small" id="btn-sound-battle">🔊 おと ON</button>
+            <button class="btn small" id="btn-quit">やめる</button>
+          </div>
+        </div>
+        <div class="scene" id="scene">
+          <div class="platform enemy"></div>
+          <div class="platform player"></div>
+          <div class="hpbox enemy">
+            <div class="hname"><span id="ename">？？？</span><span class="hlv" id="elv">Lv.10</span></div>
+            <div class="hpbar"><div class="hpfill" id="ehp-fill"></div></div>
+            <div class="hpnum" id="ehp-num"></div>
+          </div>
+          <canvas class="sprite enemy" id="spr-enemy" width="160" height="160"></canvas>
+          <canvas class="sprite player" id="spr-player" width="160" height="160"></canvas>
+          <div class="hpbox player">
+            <div class="hname"><span id="pname">？？？</span><span class="hlv" id="plv">Lv.10</span></div>
+            <div class="hpbar"><div class="hpfill" id="php-fill"></div></div>
+            <div class="hpnum" id="php-num"></div>
+          </div>
+        </div>
+        <div class="msgwin" id="msg">…</div>
+        <div class="cmdarea" id="cmdarea"></div>
+      </section>
+
+    </div>
+
+    <script>
+      "use strict";
+      /* ================= データ ================= */
+      var TYPES = ["ほのお", "みず", "くさ", "でんき", "いわ", "ひこう"];
+      var TYPE_COLORS = {
+        "ほのお": "#e0483e", "みず": "#2b7de0", "くさ": "#3da33d",
+        "でんき": "#d9a400", "いわ": "#8a7a5c", "ひこう": "#6a9fd8",
+        "ノーマル": "#8d8d8d"
+      };
+      /* こうげき側 → まもり側 の ばいりつ（ない くみあわせは 1ばい） */
+      var CHART = {
+        "ほのお": { "くさ": 2, "ほのお": 0.5, "みず": 0.5, "いわ": 0.5 },
+        "みず":   { "ほのお": 2, "いわ": 2, "みず": 0.5, "くさ": 0.5 },
+        "くさ":   { "みず": 2, "いわ": 2, "ほのお": 0.5, "くさ": 0.5, "ひこう": 0.5 },
+        "でんき": { "みず": 2, "ひこう": 2, "でんき": 0.5, "くさ": 0.5, "いわ": 0.5 },
+        "いわ":   { "ほのお": 2, "ひこう": 2, "いわ": 0.5 },
+        "ひこう": { "くさ": 2, "でんき": 0.5, "いわ": 0.5 }
+      };
+      function typeEff(atkType, defType) {
+        var row = CHART[atkType];
+        if (row && row[defType] !== undefined) return row[defType];
+        return 1;
+      }
+
+      /* わざ: name, type, power(0=へんか), acc, effect(null / {kind, amt}) */
+      function MV(name, type, power, acc, effect) {
+        return { name: name, type: type, power: power, acc: acc, effect: effect || null };
+      }
+
+      var MONSTERS = [
+        {
+          id: "hinotokage", name: "ヒノトカゲ", type: "ほのお", cry: 196,
+          hp: 62, atk: 58, def: 48, spd: 55,
+          palette: { O: "#f07d1a", o: "#ffc46b", W: "#ffffff", K: "#20242a", R: "#e83a22", Y: "#ffd23e", H: "#b34a12" },
+          sprite: [
+            "................",
+            "..H..........H..",
+            "..HH........HH..",
+            "...OOOOOOOOOO...",
+            "..OOOOOOOOOOOO..",
+            "..OWKOOOOOWKOO..",
+            "..OOOOOOOOOOOO..",
+            "...OOOOOOOOOO...",
+            "....OooooooO....",
+            "....OooooooO..Y.",
+            "...OOOOOOOO.YY..",
+            "...OO.OOOO.RYY..",
+            "..OOO..OOO..R...",
+            "..OO....OO......",
+            "..KKK...KKK.....",
+            "................"
+          ],
+          moves: [
+            MV("ひのこパンチ", "ほのお", 55, 100),
+            MV("かえんほうしゃ", "ほのお", 85, 90),
+            MV("たいあたり", "ノーマル", 50, 100),
+            MV("ほのおのまい", "ノーマル", 0, 100, { kind: "atkUp" })
+          ]
+        },
+        {
+          id: "mizugame", name: "ミズガメ", type: "みず", cry: 165,
+          hp: 74, atk: 50, def: 66, spd: 38,
+          palette: { D: "#2b7de0", d: "#79bdf2", S: "#1c56a8", H: "#a8dcff", W: "#ffffff", K: "#20242a", F: "#e08a2e" },
+          sprite: [
+            "................",
+            ".....DDDDDD.....",
+            "....DDDDDDDD....",
+            "...DDdDDDDdDD...",
+            "..DDDDDDDDDDDD..",
+            "..DdDDDDDDDDdD..",
+            ".DDDDDDDDDDDDDD.",
+            ".SSSSSSSSSSSSSS.",
+            "..HHHHHHHHHHHH..",
+            "..HWKHHHHHWKHH..",
+            "..HHHHHHHHHHHH..",
+            "...HHHHHHHHHH...",
+            "...FF......FF...",
+            "..FFF......FFF..",
+            "................",
+            "................"
+          ],
+          moves: [
+            MV("みずてっぽう", "みず", 55, 100),
+            MV("ハイドロバブル", "みず", 85, 90),
+            MV("こうらアタック", "ノーマル", 55, 100),
+            MV("かたくなる", "ノーマル", 0, 100, { kind: "defUp" })
+          ]
+        },
+        {
+          id: "moriwarashi", name: "モリワラシ", type: "くさ", cry: 220,
+          hp: 70, atk: 52, def: 56, spd: 44,
+          palette: { G: "#43b04c", g: "#8fe08f", L: "#2f9e44", l: "#6fce62", S: "#7a4a21", W: "#ffffff", K: "#20242a", P: "#ff9db0" },
+          sprite: [
+            ".......LL.......",
+            "......LLlL......",
+            "......LLLL......",
+            ".......SS.......",
+            "....GGGGGGGG....",
+            "..GGGGGGGGGGGG..",
+            "..GGGGGGGGGGGG..",
+            "..GWKGGGGGWKGG..",
+            "..GGGGGGGGGGGG..",
+            ".PGGGGKKGGGGGP..",
+            "..GGGGGGGGGGGG..",
+            "...GGGGGGGGGG...",
+            "....gggggggg....",
+            "....GG....GG....",
+            "...GGG....GGG...",
+            "................"
+          ],
+          moves: [
+            MV("つるのムチ", "くさ", 55, 100),
+            MV("はっぱカッター", "くさ", 80, 95),
+            MV("たいあたり", "ノーマル", 50, 100),
+            MV("こうごうせい", "ノーマル", 0, 100, { kind: "heal" })
+          ]
+        },
+        {
+          id: "birinezumi", name: "ビリネズミ", type: "でんき", cry: 262,
+          hp: 56, atk: 55, def: 44, spd: 78,
+          palette: { Y: "#f6c90e", y: "#ffec8a", K: "#20242a", W: "#ffffff", C: "#ff7847", Z: "#fff200" },
+          sprite: [
+            "..KK........KK..",
+            "..KYY......YYK..",
+            "...YYY....YYY...",
+            "...YYYYYYYYYY...",
+            "..YYYYYYYYYYYY..",
+            "..YWKYYYYYWKYY..",
+            "..YYYYYYYYYYYY..",
+            "..YCYYYYYYYYCY..",
+            "...YYYYYYYYYY.Z.",
+            "....yyyyyyyy..Z.",
+            "...YYYYYYYYY.Z..",
+            "....YYYYYYYY.Z..",
+            "....YY....YY....",
+            "...YYY....YYY...",
+            "...KKK....KKK...",
+            "................"
+          ],
+          moves: [
+            MV("でんきショック", "でんき", 55, 100),
+            MV("10まんボルト", "でんき", 85, 90),
+            MV("スピードタックル", "ノーマル", 50, 100),
+            MV("こうそくいどう", "ノーマル", 0, 100, { kind: "spdUp" })
+          ]
+        },
+        {
+          id: "goroiwa", name: "ゴロイワ", type: "いわ", cry: 110,
+          hp: 84, atk: 64, def: 72, spd: 30,
+          palette: { G: "#9399a3", g: "#c3c9d1", D: "#62676f", K: "#20242a", E: "#ffd23e" },
+          sprite: [
+            "................",
+            "....GGGGGGGG....",
+            "..GGgGGGGGGgGG..",
+            "..GGGGGGGGGGGG..",
+            "..GEEGGGGGGEEG..",
+            "..GGGGGGGGGGGG..",
+            ".GGG.GGGGGG.GGG.",
+            ".GGG.GDDDDG.GGG.",
+            ".GGG.GGGGGG.GGG.",
+            ".GGG.GGGGGG.GGG.",
+            "..GG.GGGGGG.GG..",
+            "......GGGG......",
+            ".....GGG.GGG....",
+            ".....GG...GG....",
+            "....DDDD..DDDD..",
+            "................"
+          ],
+          moves: [
+            MV("いわなげ", "いわ", 55, 100),
+            MV("ロックブラスト", "いわ", 80, 95),
+            MV("ローリング", "ノーマル", 55, 95),
+            MV("まるくなる", "ノーマル", 0, 100, { kind: "defUp" })
+          ]
+        },
+        {
+          id: "hanekotori", name: "ハネコトリ", type: "ひこう", cry: 330,
+          hp: 58, atk: 54, def: 46, spd: 72,
+          palette: { S: "#6fc3f7", W: "#ffffff", P: "#3f8fd2", B: "#f59b23", K: "#20242a" },
+          sprite: [
+            ".......SS.......",
+            ".....SSSSSS.....",
+            "....SSSSSSSS....",
+            "....SKWSSWKS....",
+            "....SSSBBSSS....",
+            "..PPSSSSSSSSPP..",
+            ".PPPPSSSSSSPPPP.",
+            ".PPPP.SWWWS.PPPP",
+            "..PPP.SWWWS..PP.",
+            ".....SWWWWS.....",
+            ".....SSSSSS.....",
+            "......S..S......",
+            ".....BB...BB....",
+            "................",
+            "................",
+            "................"
+          ],
+          moves: [
+            MV("つばさでうつ", "ひこう", 55, 100),
+            MV("ドリルくちばし", "ひこう", 80, 95),
+            MV("つつく", "ノーマル", 45, 100),
+            MV("はねやすめ", "ノーマル", 0, 100, { kind: "heal" })
+          ]
+        }
+      ];
+    </script>
+    <script>
+      "use strict";
+      /* ================= ドット絵描画 ================= */
+      function shade(hex, f) {
+        var n = parseInt(hex.slice(1), 16);
+        var r = Math.min(255, Math.round(((n >> 16) & 255) * f));
+        var g = Math.min(255, Math.round(((n >> 8) & 255) * f));
+        var b = Math.min(255, Math.round((n & 255) * f));
+        return "rgb(" + r + "," + g + "," + b + ")";
+      }
+      /* canvas(160x160) に 16x16 ドット絵を描く。back=true で左右反転＋色を落として後ろ姿風に */
+      function drawSprite(canvas, mon, back) {
+        var ctx = canvas.getContext("2d");
+        var cell = canvas.width / 16;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var y = 0; y < 16; y++) {
+          var row = mon.sprite[y] || "";
+          for (var x = 0; x < 16; x++) {
+            var ch = row.charAt(x);
+            if (ch === "." || ch === "") continue;
+            var col = mon.palette[ch];
+            if (!col) continue;
+            var dx = back ? (15 - x) : x;
+            ctx.fillStyle = back ? shade(col, 0.68) : col;
+            ctx.fillRect(dx * cell, y * cell, cell, cell);
+          }
+        }
+      }
+
+      /* ================= サウンド (WebAudio ビープ) ================= */
+      var soundOn = true;
+      var AC = null;
+      function audio() {
+        if (!soundOn) return null;
+        try {
+          if (!AC) {
+            var Ctor = window.AudioContext || window.webkitAudioContext;
+            if (!Ctor) return null;
+            AC = new Ctor();
+          }
+          if (AC.state === "suspended") AC.resume();
+          return AC;
+        } catch (e) { return null; }
+      }
+      function tone(freq, dur, opt) {
+        var ac = audio(); if (!ac) return;
+        opt = opt || {};
+        var t0 = ac.currentTime + (opt.delay || 0);
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.type = opt.type || "square";
+        o.frequency.setValueAtTime(freq, t0);
+        if (opt.slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(30, opt.slideTo), t0 + dur);
+        var vol = opt.vol || 0.06;
+        g.gain.setValueAtTime(vol, t0);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+        o.connect(g); g.connect(ac.destination);
+        o.start(t0); o.stop(t0 + dur + 0.02);
+      }
+      function sndSelect() { tone(880, 0.06, { vol: 0.05 }); }
+      function sndCry(mon) { tone(mon.cry, 0.14, { type: "sawtooth", vol: 0.05 }); tone(mon.cry * 1.5, 0.12, { type: "sawtooth", vol: 0.04, delay: 0.13 }); }
+      function sndHit(eff) {
+        if (eff > 1) { tone(180, 0.1, { type: "sawtooth", vol: 0.09, slideTo: 70 }); tone(990, 0.09, { delay: 0.1, vol: 0.06 }); tone(1320, 0.12, { delay: 0.19, vol: 0.06 }); }
+        else if (eff < 1) { tone(140, 0.12, { type: "sawtooth", vol: 0.07, slideTo: 80 }); }
+        else { tone(200, 0.11, { type: "sawtooth", vol: 0.08, slideTo: 90 }); }
+      }
+      function sndMiss() { tone(500, 0.14, { slideTo: 900, vol: 0.04 }); }
+      function sndStat() { tone(660, 0.09, { vol: 0.05 }); tone(880, 0.12, { delay: 0.09, vol: 0.05 }); }
+      function sndHeal() { tone(523, 0.1, { vol: 0.05 }); tone(659, 0.1, { delay: 0.1, vol: 0.05 }); tone(784, 0.16, { delay: 0.2, vol: 0.05 }); }
+      function sndFaint() { tone(420, 0.55, { type: "sawtooth", vol: 0.07, slideTo: 55 }); }
+      function sndWin() { var n = [523, 659, 784, 1047]; for (var i = 0; i < n.length; i++) tone(n[i], 0.16, { delay: i * 0.13, vol: 0.06 }); }
+      function sndLose() { var n = [392, 330, 262, 196]; for (var i = 0; i < n.length; i++) tone(n[i], 0.2, { delay: i * 0.16, vol: 0.06, type: "triangle" }); }
+
+      /* ================= 画面切り替え ================= */
+      function show(id) {
+        var screens = document.querySelectorAll(".screen");
+        for (var i = 0; i < screens.length; i++) screens[i].classList.remove("active");
+        document.getElementById(id).classList.add("active");
+        window.scrollTo(0, 0);
+      }
+      function $(id) { return document.getElementById(id); }
+
+      /* ================= メッセージ表示（タイプライタ） ================= */
+      var typeTimer = null, typeSkip = false;
+      function say(text) {
+        return new Promise(function (resolve) {
+          var el = $("msg");
+          if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
+          typeSkip = false;
+          var i = 0;
+          el.textContent = "";
+          typeTimer = setInterval(function () {
+            if (typeSkip) { el.textContent = text; clearInterval(typeTimer); typeTimer = null; resolve(); return; }
+            i++;
+            el.textContent = text.slice(0, i);
+            if (i >= text.length) { clearInterval(typeTimer); typeTimer = null; resolve(); }
+          }, 24);
+        });
+      }
+      $("msg").addEventListener("click", function () { typeSkip = true; });
+      function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+      /* ================= バトル状態 ================= */
+      var playerMon = null;   /* 選んだモンスター定義 */
+      var P = null, E = null; /* 戦闘中インスタンス */
+      var streak = 0;
+      var busy = false;
+      var lastEnemyId = null;
+
+      function makeInstance(mon, lv, scale) {
+        return {
+          mon: mon, lv: lv,
+          maxHp: Math.round(mon.hp * scale),
+          hp: Math.round(mon.hp * scale),
+          atk: mon.atk * scale, def: mon.def * scale, spd: mon.spd * scale,
+          stages: { atk: 0, def: 0, spd: 0 }
+        };
+      }
+      function stageMul(s) { return s >= 0 ? (2 + s) / 2 : 2 / (2 - s); }
+      function effStat(inst, key) { return inst[key] * stageMul(inst.stages[key] || 0); }
+
+      function updateHp(side) {
+        var inst = side === "p" ? P : E;
+        var fill = $(side + "hp-fill");
+        var pct = Math.max(0, Math.round(inst.hp / inst.maxHp * 100));
+        fill.style.width = pct + "%";
+        fill.className = "hpfill" + (pct <= 20 ? " low" : pct <= 50 ? " mid" : "");
+        if (side === "p") $("php-num").textContent = inst.hp + " / " + inst.maxHp;
+      }
+
+      function setCmd(html) { $("cmdarea").innerHTML = html; }
+
+      function showMoves() {
+        var html = '<p class="cmdlabel">' + P.mon.name + ' は どうする？</p><div class="moves">';
+        P.mon.moves.forEach(function (mv, idx) {
+          var info = mv.power > 0
+            ? mv.type + "　いりょく " + mv.power + "　めいちゅう " + mv.acc
+            : mv.type + "　へんかわざ";
+          html += '<button class="btn movebtn" data-move="' + idx + '">'
+            + '<span class="mvname"><span style="color:' + TYPE_COLORS[mv.type] + '">●</span> ' + mv.name + "</span>"
+            + '<span class="mvinfo">' + info + "</span></button>";
+        });
+        html += "</div>";
+        setCmd(html);
+        var btns = document.querySelectorAll("[data-move]");
+        btns.forEach(function (b) {
+          b.addEventListener("click", function () {
+            sndSelect();
+            doTurn(parseInt(b.getAttribute("data-move"), 10));
+          });
+        });
+      }
+
+      /* ---------- 敵AI ---------- */
+      function aiChooseMove() {
+        var moves = E.mon.moves;
+        /* 回復わざ: HP半分以下なら 60% で使う */
+        for (var i = 0; i < moves.length; i++) {
+          if (moves[i].effect && moves[i].effect.kind === "heal" && E.hp <= E.maxHp * 0.5 && Math.random() < 0.6) return i;
+        }
+        /* 能力アップ: まだ上げていなければ 35% */
+        for (var j = 0; j < moves.length; j++) {
+          var ef = moves[j].effect;
+          if (ef && ef.kind !== "heal") {
+            var key = ef.kind.replace("Up", "");
+            if (E.stages[key] < 2 && Math.random() < 0.35) return j;
+          }
+        }
+        /* こうかばつぐん を ねらう */
+        var best = -1, bestScore = -1;
+        for (var k = 0; k < moves.length; k++) {
+          if (moves[k].power <= 0) continue;
+          var sc = moves[k].power * typeEff(moves[k].type, P.mon.type) * (moves[k].acc / 100);
+          if (sc > bestScore) { bestScore = sc; best = k; }
+        }
+        if (best >= 0 && Math.random() < 0.65) return best;
+        var dmgIdx = [];
+        moves.forEach(function (m, idx) { if (m.power > 0) dmgIdx.push(idx); });
+        return dmgIdx[Math.floor(Math.random() * dmgIdx.length)];
+      }
+
+      /* ---------- 1体の行動 ---------- */
+      async function act(att, def, move, attIsPlayer) {
+        var attSpr = $(attIsPlayer ? "spr-player" : "spr-enemy");
+        var defSpr = $(attIsPlayer ? "spr-enemy" : "spr-player");
+        var defSide = attIsPlayer ? "e" : "p";
+        await say(att.mon.name + " の " + move.name + "！");
+        await sleep(200);
+
+        /* へんかわざ */
+        if (move.power === 0 && move.effect) {
+          attSpr.classList.remove("lunge-r", "lunge-l");
+          void attSpr.offsetWidth;
+          attSpr.classList.add(attIsPlayer ? "lunge-r" : "lunge-l");
+          await sleep(300);
+          if (move.effect.kind === "heal") {
+            var healed = Math.min(att.maxHp - att.hp, Math.round(att.maxHp * 0.4));
+            att.hp += healed;
+            sndHeal();
+            updateHp(attIsPlayer ? "p" : "e");
+            await say(att.mon.name + " は HPを " + healed + " かいふくした！");
+          } else {
+            var key = move.effect.kind.replace("Up", "");
+            var label = key === "atk" ? "こうげき" : key === "def" ? "ぼうぎょ" : "すばやさ";
+            if (att.stages[key] >= 3) {
+              await say("しかし " + label + " は もう あがらない！");
+            } else {
+              att.stages[key] += 1;
+              sndStat();
+              await say(att.mon.name + " の " + label + " が あがった！");
+            }
+          }
+          await sleep(450);
+          return;
+        }
+
+        /* めいちゅう判定 */
+        if (Math.random() * 100 >= move.acc) {
+          attSpr.classList.remove("lunge-r", "lunge-l");
+          void attSpr.offsetWidth;
+          attSpr.classList.add(attIsPlayer ? "lunge-r" : "lunge-l");
+          sndMiss();
+          await say("しかし はずれてしまった！");
+          await sleep(450);
+          return;
+        }
+
+        /* ダメージ計算 */
+        var mult = typeEff(move.type, def.mon.type);
+        var crit = Math.random() < 1 / 16;
+        var rand = 0.85 + Math.random() * 0.15;
+        var dmg = Math.floor(move.power * (effStat(att, "atk") / effStat(def, "def")) * 0.32 * mult * rand * (crit ? 1.5 : 1));
+        if (mult === 0) dmg = 0;
+        if (dmg < 1) dmg = 1;
+        def.hp = Math.max(0, def.hp - dmg);
+
+        attSpr.classList.remove("lunge-r", "lunge-l");
+        void attSpr.offsetWidth;
+        attSpr.classList.add(attIsPlayer ? "lunge-r" : "lunge-l");
+        await sleep(210);
+        defSpr.classList.remove("hurt");
+        void defSpr.offsetWidth;
+        defSpr.classList.add("hurt");
+        var scene = $("scene");
+        scene.classList.remove("shake"); void scene.offsetWidth; scene.classList.add("shake");
+        sndHit(mult);
+        updateHp(defSide);
+        await sleep(420);
+        if (crit) { await say("きゅうしょに あたった！"); await sleep(300); }
+        if (mult > 1) { await say("こうかは ばつぐんだ！（" + dmg + " ダメージ）"); }
+        else if (mult < 1) { await say("こうかは いまひとつのようだ…（" + dmg + " ダメージ）"); }
+        else { await say(def.mon.name + " に " + dmg + " のダメージ！"); }
+        await sleep(480);
+      }
+
+      /* ---------- ターン進行 ---------- */
+      async function doTurn(playerMoveIdx) {
+        if (busy) return;
+        busy = true;
+        setCmd("");
+        var enemyMoveIdx = aiChooseMove();
+        var pMove = P.mon.moves[playerMoveIdx];
+        var eMove = E.mon.moves[enemyMoveIdx];
+        var pFirst = effStat(P, "spd") >= effStat(E, "spd");
+        /* へんかわざ（能力アップ等）は先制しやすいよう、そのまま素早さ順 */
+        var order = pFirst
+          ? [[P, E, pMove, true], [E, P, eMove, false]]
+          : [[E, P, eMove, false], [P, E, pMove, true]];
+        for (var i = 0; i < 2; i++) {
+          var att = order[i][0], def = order[i][1], mv = order[i][2], isP = order[i][3];
+          if (att.hp <= 0) continue;
+          await act(att, def, mv, isP);
+          if (def.hp <= 0) { await handleFaint(def, isP); return; }
+        }
+        busy = false;
+        showMoves();
+      }
+
+      async function handleFaint(def, defWasAttackedByPlayer) {
+        var spr = $(def === P ? "spr-player" : "spr-enemy");
+        sndFaint();
+        spr.classList.add("fainted");
+        await say(def.mon.name + " は たおれた！");
+        await sleep(650);
+        if (def === E) {
+          streak++;
+          $("streak-num").textContent = streak;
+          sndWin();
+          await say("やった！ " + E.mon.name + " を たおした！\nれんしょう " + streak + " ！");
+          setCmd('<div class="btnrow">'
+            + '<button class="btn primary" id="btn-next">▶ つぎの てきと たたかう</button>'
+            + '<button class="btn" id="btn-to-title">タイトルへ</button></div>');
+          $("btn-next").addEventListener("click", function () { sndSelect(); nextBattle(); });
+          $("btn-to-title").addEventListener("click", function () { sndSelect(); show("scr-title"); });
+        } else {
+          sndLose();
+          await say("まけてしまった…\nきみの れんしょうは " + streak + " で しゅうりょう。");
+          setCmd('<div class="btnrow">'
+            + '<button class="btn primary" id="btn-retry">▶ もういちど えらんで ちょうせん</button>'
+            + '<button class="btn" id="btn-to-title2">タイトルへ</button></div>');
+          $("btn-retry").addEventListener("click", function () { sndSelect(); streak = 0; $("streak-num").textContent = 0; buildSelect(); show("scr-select"); });
+          $("btn-to-title2").addEventListener("click", function () { sndSelect(); show("scr-title"); });
+        }
+        busy = false;
+      }
+
+      /* ---------- バトル開始 ---------- */
+      function pickEnemy() {
+        var pool = MONSTERS.filter(function (m) { return m.id !== playerMon.id; });
+        var cand = pool.filter(function (m) { return m.id !== lastEnemyId; });
+        if (!cand.length) cand = pool;
+        var mon = cand[Math.floor(Math.random() * cand.length)];
+        lastEnemyId = mon.id;
+        return mon;
+      }
+
+      async function startBattle() {
+        show("scr-battle");
+        P = makeInstance(playerMon, 10, 1);
+        var eMon = pickEnemy();
+        var eScale = 1 + streak * 0.07;
+        E = makeInstance(eMon, 10 + streak, eScale);
+        $("streak-num").textContent = streak;
+
+        var ps = $("spr-player"), es = $("spr-enemy");
+        ps.classList.remove("fainted", "hurt"); es.classList.remove("fainted", "hurt");
+        drawSprite(ps, P.mon, true);
+        drawSprite(es, E.mon, false);
+        ps.classList.remove("enter-l"); void ps.offsetWidth; ps.classList.add("enter-l");
+        es.classList.remove("enter-r"); void es.offsetWidth; es.classList.add("enter-r");
+
+        $("pname").textContent = P.mon.name;
+        $("plv").textContent = "Lv." + P.lv;
+        $("ename").textContent = E.mon.name;
+        $("elv").textContent = "Lv." + E.lv;
+        updateHp("p"); updateHp("e");
+        setCmd("");
+        busy = true;
+        await sleep(350);
+        sndCry(E.mon);
+        await say("あ！ やせいの " + E.mon.name + "（" + E.mon.type + "タイプ）が あらわれた！");
+        await sleep(350);
+        sndCry(P.mon);
+        await say("ゆけっ！ " + P.mon.name + "！");
+        await sleep(300);
+        busy = false;
+        showMoves();
+      }
+
+      function nextBattle() {
+        /* 連勝中は自分のHP全回復して次の敵へ */
+        startBattle();
+      }
+
+      /* ================= 選択画面 ================= */
+      function statRow(label, val) {
+        var pct = Math.min(100, Math.round(val / 90 * 100));
+        return '<div class="statrow"><span class="slabel">' + label + '</span>'
+          + '<div class="statbar"><div style="width:' + pct + '%"></div></div>'
+          + '<span class="sval">' + val + "</span></div>";
+      }
+      function buildSelect() {
+        var shuffled = MONSTERS.slice();
+        for (var i = shuffled.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = t;
+        }
+        var trio = shuffled.slice(0, 3);
+        var box = $("cards");
+        box.innerHTML = "";
+        trio.forEach(function (mon) {
+          var card = document.createElement("div");
+          card.className = "card";
+          var mvHtml = mon.moves.map(function (mv) {
+            var info = mv.power > 0 ? "いりょく" + mv.power : "へんか";
+            return '<div><span class="mt" style="color:' + TYPE_COLORS[mv.type] + '">●</span> ' + mv.name + "（" + mv.type + "・" + info + "）</div>";
+          }).join("");
+          card.innerHTML =
+            '<canvas width="160" height="160"></canvas>'
+            + '<div class="mname">' + mon.name + "</div>"
+            + '<span class="typebadge" style="background:' + TYPE_COLORS[mon.type] + '">' + mon.type + "タイプ</span>"
+            + '<div class="statgrid">'
+            + statRow("HP", mon.hp) + statRow("こうげき", mon.atk) + statRow("ぼうぎょ", mon.def) + statRow("すばやさ", mon.spd)
+            + "</div>"
+            + '<div class="movelist">' + mvHtml + "</div>"
+            + '<button class="btn blue">このモンスターで たたかう</button>';
+          drawSprite(card.querySelector("canvas"), mon, false);
+          card.addEventListener("click", function () {
+            sndSelect();
+            playerMon = mon;
+            streak = 0;
+            $("streak-num").textContent = 0;
+            startBattle();
+          });
+          box.appendChild(card);
+        });
+      }
+
+      /* ================= 相性表 ================= */
+      function buildChart() {
+        var html = '<table class="chart-table"><tr><th>こうげき＼まもり</th>';
+        TYPES.forEach(function (t) { html += "<th>" + t + "</th>"; });
+        html += "</tr>";
+        TYPES.forEach(function (a) {
+          html += "<tr><th>" + a + "</th>";
+          TYPES.forEach(function (d) {
+            var e = typeEff(a, d);
+            if (e === 2) html += '<td class="eff2">◎</td>';
+            else if (e === 0.5) html += '<td class="eff05">△</td>';
+            else html += "<td>―</td>";
+          });
+          html += "</tr>";
+        });
+        html += "</table>";
+        $("chart-box").innerHTML = html;
+      }
+
+      /* ================= 初期化 ================= */
+      function syncSoundButtons() {
+        var label = soundOn ? "🔊 おと ON" : "🔇 おと OFF";
+        $("btn-sound-title").textContent = label;
+        $("btn-sound-battle").textContent = label;
+      }
+      function toggleSound() {
+        soundOn = !soundOn;
+        syncSoundButtons();
+        if (soundOn) sndSelect();
+      }
+      $("btn-sound-title").addEventListener("click", toggleSound);
+      $("btn-sound-battle").addEventListener("click", toggleSound);
+      $("btn-update").addEventListener("click", function () { location.reload(); });
+      $("btn-start").addEventListener("click", function () {
+        sndSelect();
+        buildSelect();
+        show("scr-select");
+      });
+      $("btn-back-title").addEventListener("click", function () { sndSelect(); show("scr-title"); });
+      $("btn-quit").addEventListener("click", function () {
+        if (busy) return;
+        sndSelect();
+        streak = 0;
+        $("streak-num").textContent = 0;
+        show("scr-title");
+      });
+
+      /* タイトルのパレード */
+      (function () {
+        var box = $("parade");
+        MONSTERS.forEach(function (mon) {
+          var c = document.createElement("canvas");
+          c.width = 160; c.height = 160;
+          drawSprite(c, mon, false);
+          box.appendChild(c);
+        });
+      })();
+      buildChart();
+      syncSoundButtons();
+    </script>
+  </body>
+</html>

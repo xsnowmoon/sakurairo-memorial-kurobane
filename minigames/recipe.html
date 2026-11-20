@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>調理実習・手順おぼえ | Snow Moon Games</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:sans-serif;background:#503a28;color:#fdf6ea;line-height:1.6}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:22px;text-align:center;margin:8px 0 2px}
+.sub{text-align:center;color:#dcc39a;font-size:13px;margin-bottom:12px}
+.panel{background:#fffaf0;color:#3d2c1c;border-radius:12px;padding:16px}
+.status{display:flex;justify-content:space-between;font-weight:900;font-size:15px;margin-bottom:8px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.tile{border:3px solid #d9c49a;border-radius:12px;background:#fff;padding:14px 4px;font-size:16px;font-weight:900;cursor:pointer;color:#3d2c1c;transition:all .15s}
+.tile .ic{font-size:30px;display:block}
+.tile.lit{background:#ffd76a;border-color:#e75480;transform:scale(1.05)}
+.tile:active{transform:scale(.96)}
+.btn{display:block;width:100%;font-size:17px;font-weight:900;padding:14px;border:0;border-radius:10px;background:#e75480;color:#fff;cursor:pointer;margin-top:12px}
+.btn.ghost{background:transparent;color:#fdf6ea;border:2px solid #8a6a45}
+.msg{text-align:center;font-weight:900;min-height:32px;margin-top:12px;font-size:17px}
+.heart{color:#e75480}
+.credit{text-align:center;color:#b08d5a;font-size:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🍳 調理実習・手順おぼえ</h1>
+<p class="sub">さくらのホットケーキ、手順どおりに作れるかな</p>
+
+<div class="panel" id="scr-title">
+  <p>調理の手順が、1つずつ光って表示されます。よく見て覚えて、同じ順番でタイルをタップしてください。</p>
+  <p>ラウンドが進むごとに手順が1つずつ長くなります。まちがえたら失敗（3回まで）。どこまで進めるか挑戦です。</p>
+  <p id="best-line" style="font-weight:700;color:#8a6a45"></p>
+  <button class="btn" id="btn-start">実習スタート</button>
+</div>
+
+<div class="panel" id="scr-game" style="display:none">
+  <div class="status"><span id="st-round">ラウンド 1</span><span id="st-life"></span></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="msg" id="msg">手順をよく見て…</div>
+  <button class="btn" id="btn-show" style="background:#8a6a45">▶ 手順を見る</button>
+</div>
+
+<button class="btn ghost" onclick="location.href=location.href.split('?')[0]+'?b='+Date.now()">🔄 最新版に更新（キャッシュを消して読み直す）</button>
+<p class="credit">Snow Moon Games Ver.20261121.1.0</p>
+</div>
+<script>
+const STEPS=[
+ {n:"たまご",ic:"🥚"},{n:"牛乳",ic:"🥛"},{n:"小麦粉",ic:"🌾"},
+ {n:"砂糖",ic:"🍬"},{n:"バター",ic:"🧈"},{n:"まぜる",ic:"🥣"},
+ {n:"焼く",ic:"🍳"},{n:"はちみつ",ic:"🍯"},{n:"盛りつけ",ic:"🍽️"}
+];
+let seq=[],pos=0,lives=3,phase="title";
+function $(id){return document.getElementById(id)}
+function best(){try{return +localStorage.getItem("sm-recipe-best")||0}catch(e){return 0}}
+$("best-line").textContent=best()?("これまでの最高記録：ラウンド"+best()) :"";
+const tilesEl=$("tiles");
+STEPS.forEach((s,i)=>{
+ const b=document.createElement("button");b.className="tile";
+ b.innerHTML="<span class='ic'>"+s.ic+"</span>"+s.n;
+ b.onclick=()=>tap(i);tilesEl.appendChild(b);
+});
+$("btn-start").onclick=start;
+$("btn-show").onclick=playSeq;
+function start(){
+ seq=[];lives=3;$("scr-title").style.display="none";$("scr-game").style.display="block";
+ nextRound();
+}
+function upd(){
+ $("st-round").textContent="ラウンド "+seq.length;
+ $("st-life").innerHTML="失敗あと "+lives+" 回 <span class='heart'>"+"♥".repeat(lives)+"</span>";
+}
+function nextRound(){
+ seq.push(Math.floor(Math.random()*STEPS.length));pos=0;phase="show";upd();
+ $("msg").textContent="「手順を見る」を押して、光る順番を覚えてね";
+ $("btn-show").style.display="block";
+}
+function playSeq(){
+ if(phase!=="show")return;phase="playing";$("btn-show").style.display="none";
+ $("msg").textContent="よく見て…";
+ let i=0;
+ const iv=setInterval(()=>{
+  [...tilesEl.children].forEach(t=>t.classList.remove("lit"));
+  if(i>=seq.length){clearInterval(iv);phase="input";pos=0;$("msg").textContent="同じ順番でタップしてね";return}
+  tilesEl.children[seq[i]].classList.add("lit");i++;
+ },700);
+}
+function tap(i){
+ if(phase!=="input")return;
+ const t=tilesEl.children[i];
+ t.classList.add("lit");setTimeout(()=>t.classList.remove("lit"),220);
+ if(i===seq[pos]){
+  pos++;
+  if(pos>=seq.length){
+   phase="show";
+   if(seq.length>best()){try{localStorage.setItem("sm-recipe-best",seq.length)}catch(e){}}
+   $("msg").textContent="⭕ 完成！ホットケーキが1枚焼けた";
+   setTimeout(nextRound,1100);
+  }
+ }else{
+  lives--;upd();phase="show";
+  if(lives<=0){
+   $("msg").textContent="焦げちゃった… 実習おわり（ラウンド"+seq.length+"まで）";
+   $("btn-show").style.display="none";
+   setTimeout(()=>{$("scr-game").style.display="none";$("scr-title").style.display="block";$("best-line").textContent="これまでの最高記録：ラウンド"+best()},1600);
+  }else{
+   $("msg").textContent="❌ 手順がちがう… もう一度見て挑戦（残り"+lives+"回）";
+   $("btn-show").style.display="block";
+  }
+ }
+}
+</script>
+</body>
+</html>

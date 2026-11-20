@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>ドットゆうしゃの冒険</title>
+<style>
+  :root{
+    --bg:#eef3e6; --panel:#ffffff; --ink:#22301c; --sub:#5a6b52;
+    --accent:#2e7d32; --accent2:#b3541e; --line:#c9d6bd;
+    --win:#fffdf4; --win-line:#8a6d3b;
+    --btn:#ffffff; --btn-ink:#22301c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#141a12; --panel:#1e261c; --ink:#e8f0e0; --sub:#a9bda0;
+      --accent:#66bb6a; --accent2:#e08a4c; --line:#3a4a34;
+      --win:#20241a; --win-line:#a8894f;
+      --btn:#2a3527; --btn-ink:#e8f0e0;
+    }
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    padding:10px 10px 28px;
+  }
+  .wrap{ max-width:640px; margin:0 auto; }
+  .status{
+    display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center;
+    background:var(--panel); border:2px solid var(--line); border-radius:12px;
+    padding:8px 12px; font-size:17px; font-weight:700;
+  }
+  .bar{ display:inline-block; width:110px; height:14px; background:#00000022; border:1px solid var(--line); border-radius:7px; vertical-align:middle; overflow:hidden; }
+  .bar i{ display:block; height:100%; }
+  .hp i{ background:#43a047; } .hp.low i{ background:#e53935; }
+  .mp i{ background:#1e88e5; }
+  .num{ font-variant-numeric:tabular-nums; }
+  .gold{ margin-left:auto; color:var(--accent2); }
+  .screen{
+    position:relative; margin-top:10px; background:#101408;
+    border:4px solid #3a2c14; border-radius:10px; overflow:hidden;
+    box-shadow:0 4px 14px #0003;
+  }
+  canvas{ display:block; width:100%; height:auto; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .title-screen{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; justify-content:safe center; gap:13px; text-align:center;
+    background:linear-gradient(180deg,#1b2a52 0%,#274b73 55%,#3d7a4a 100%);
+    color:#fff; padding:20px 14px; overflow-y:auto;
+  }
+  .title-screen > h1{ margin-top:auto; }
+  .title-screen > .credit{ margin-bottom:auto; }
+  @media (max-width:480px){
+    .title-screen{ gap:3px; padding:5px 10px; justify-content:flex-start; }
+    .title-screen h1{ font-size:17px; line-height:1.2; }
+    .title-screen .sub{ font-size:11px; line-height:1.3; }
+    .title-screen .credit{ font-size:11px; line-height:1.2; margin-top:0; }
+    .title-screen .tbtn{ min-height:34px; font-size:15px; border-width:2px; }
+    .title-screen .tbtn.small{ min-height:28px; font-size:12px; }
+    .ending-screen{ gap:8px; padding:10px 12px; overflow-y:auto; }
+    .ending-screen h2{ font-size:24px; }
+    .ending-screen p{ font-size:14px; line-height:1.55; }
+    .ending-screen .tbtn{ min-height:44px; font-size:17px; }
+  }
+  .title-screen h1{
+    margin:0; font-size:clamp(30px,8.5vw,52px); letter-spacing:.04em;
+    text-shadow:3px 3px 0 #14213d; line-height:1.25;
+  }
+  .title-screen .sub{ font-size:16px; opacity:.92; margin:0; line-height:1.6; }
+  .title-screen .credit{ font-size:14px; opacity:.85; margin-top:4px; }
+  .tbtn{
+    width:min(320px,86%); min-height:58px; font-size:21px; font-weight:800;
+    border-radius:12px; border:3px solid #14213d; background:#fff8e1; color:#263238;
+    cursor:pointer;
+  }
+  .tbtn:disabled{ opacity:.45; }
+  .tbtn.small{ min-height:48px; font-size:16px; width:min(260px,80%); background:#e3f2fd; }
+  .ending-screen{
+    position:absolute; inset:0; display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:12px; text-align:center;
+    background:linear-gradient(180deg,#f7e08a 0%,#f3c96b 60%,#e8a94e 100%);
+    color:#4a2f10; padding:20px 16px;
+  }
+  .ending-screen h2{ margin:0; font-size:clamp(26px,7vw,40px); }
+  .ending-screen p{ margin:0; font-size:17px; line-height:1.7; max-width:30em; }
+  .msgwin{
+    margin-top:10px; background:var(--win); border:3px solid var(--win-line);
+    border-radius:10px; min-height:104px; padding:12px 14px;
+    font-size:19px; line-height:1.65; white-space:pre-wrap; cursor:pointer;
+    user-select:none;
+  }
+  .msgwin .next{ float:right; color:var(--accent2); font-weight:800; animation:blink 1s steps(2) infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .choices{ display:none; flex-direction:column; gap:8px; margin-top:8px; }
+  .choices button{
+    min-height:52px; font-size:19px; font-weight:700; text-align:left;
+    padding:8px 14px; border-radius:10px; border:2px solid var(--line);
+    background:var(--btn); color:var(--btn-ink); cursor:pointer;
+  }
+  .choices button:active{ background:var(--accent); color:#fff; }
+  .controls{ margin-top:10px; }
+  .ctrl-map{ display:flex; gap:14px; align-items:flex-start; justify-content:space-between; }
+  .dpad{
+    display:grid; grid-template-columns:repeat(3,64px); grid-template-rows:repeat(3,64px);
+    gap:4px; flex:0 0 auto;
+  }
+  .dpad button{
+    font-size:26px; font-weight:900; border-radius:12px; cursor:pointer;
+    border:2px solid var(--line); background:var(--btn); color:var(--btn-ink);
+    touch-action:none; user-select:none; -webkit-user-select:none; min-height:2rem;
+  }
+  .dpad button:active{ background:var(--accent); color:#fff; }
+  .dpad .blank{ visibility:hidden; }
+  .actions{ display:flex; flex-direction:column; gap:10px; flex:1 1 auto; max-width:300px; }
+  .actions button{
+    min-height:56px; font-size:19px; font-weight:800; border-radius:12px; cursor:pointer;
+    border:2px solid var(--line); background:var(--btn); color:var(--btn-ink);
+  }
+  .actions button.main{ background:var(--accent); border-color:var(--accent); color:#fff; font-size:21px; min-height:64px; }
+  .ctrl-battle{ display:none; grid-template-columns:1fr 1fr; gap:10px; }
+  .ctrl-battle button{
+    min-height:64px; font-size:21px; font-weight:800; border-radius:12px; cursor:pointer;
+    border:2px solid var(--line); background:var(--btn); color:var(--btn-ink);
+  }
+  .ctrl-battle button:active{ background:var(--accent2); color:#fff; }
+  .ctrl-battle button:disabled{ opacity:.4; }
+  .hint{ margin-top:12px; font-size:14px; color:var(--sub); line-height:1.6; }
+  @media (max-width:420px){
+    .dpad{ grid-template-columns:repeat(3,58px); grid-template-rows:repeat(3,58px); }
+    .bar{ width:84px; }
+    .status{ font-size:15px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="status">
+    <span>ゆうしゃ</span>
+    <span>Lv <span class="num" id="stLv">1</span></span>
+    <span>HP <span class="bar hp" id="hpBar"><i style="width:100%"></i></span> <span class="num" id="stHp">24/24</span></span>
+    <span>MP <span class="bar mp" id="mpBar"><i style="width:100%"></i></span> <span class="num" id="stMp">6/6</span></span>
+    <span class="gold"><span class="num" id="stGold">30</span> G</span>
+  </div>
+
+  <div class="screen">
+    <canvas id="game" width="480" height="360"></canvas>
+    <div class="title-screen" id="titleScreen">
+      <h1>ドットゆうしゃの<br>冒険</h1>
+      <p class="sub">まおうに うばわれた『ひかりのたま』を とりもどせ！</p>
+      <button class="tbtn" id="btnNew">▶ はじめから</button>
+      <button class="tbtn" id="btnContinue">📖 つづきから</button>
+      <button class="tbtn small" id="btnUpdate">🔄 最新版に更新</button>
+      <p class="credit">Snow Moon　Ver.20261120.1.0</p>
+    </div>
+    <div class="ending-screen" id="endingScreen">
+      <h2>🎉 クリア！ 🎉</h2>
+      <p id="endingText"></p>
+      <button class="tbtn" id="btnToTitle">タイトルへ もどる</button>
+      <p style="font-size:14px;">Snow Moon　Ver.20261120.1.0</p>
+    </div>
+  </div>
+
+  <div class="msgwin" id="msgWin">タイトル画面で「はじめから」を おしてください。</div>
+  <div class="choices" id="choices"></div>
+
+  <div class="controls">
+    <div class="ctrl-map" id="ctrlMap">
+      <div class="dpad">
+        <span class="blank"></span>
+        <button data-dir="up" aria-label="うえ">▲</button>
+        <span class="blank"></span>
+        <button data-dir="left" aria-label="ひだり">◀</button>
+        <span class="blank"></span>
+        <button data-dir="right" aria-label="みぎ">▶</button>
+        <span class="blank"></span>
+        <button data-dir="down" aria-label="した">▼</button>
+        <span class="blank"></span>
+      </div>
+      <div class="actions">
+        <button class="main" id="btnTalk">💬 はなす・しらべる</button>
+        <button id="btnSave">💾 セーブする</button>
+        <button id="btnSound">🔊 おと：ON</button>
+      </div>
+    </div>
+    <div class="ctrl-battle" id="ctrlBattle">
+      <button id="cmdFight">⚔️ たたかう</button>
+      <button id="cmdSpell">✨ じゅもん</button>
+      <button id="cmdItem">🎒 どうぐ</button>
+      <button id="cmdRun">🏃 にげる</button>
+    </div>
+  </div>
+
+  <p class="hint">あそびかた：十字ボタン（長押しでも移動できます）か、キーボードの矢印キー／WASDで移動します。人の正面に立って「はなす・しらべる」を押すと会話できます。建物のドアに進むと宿屋・道具屋に入れます。草むら・森・洞窟ではモンスターが現れます。</p>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   ドットゆうしゃの冒険 Ver.20261120.1.0 / Snow Moon
+   完全オリジナル作品。絵はすべてコード描画（ドットマップ＋図形）。
+   ============================================================ */
+
+/* ---------- 音（WebAudio ビープ） ---------- */
+var audioCtx = null, soundOn = true;
+function beep(freq, dur, type, vol, when){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime + (when || 0);
+    var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = type || "square"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || 0.06, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + dur);
+  }catch(e){ /* 無音環境でも進行する */ }
+}
+function sfx(name){
+  if(name==="talk"){ beep(660,.07,"square",.05); beep(880,.07,"square",.05,.07); }
+  else if(name==="encounter"){ beep(196,.12,"sawtooth",.07); beep(147,.12,"sawtooth",.07,.12); beep(98,.2,"sawtooth",.07,.24); }
+  else if(name==="hit"){ beep(160,.1,"square",.08); beep(90,.14,"square",.08,.05); }
+  else if(name==="crit"){ beep(120,.08,"square",.09); beep(60,.2,"square",.09,.06); }
+  else if(name==="ehit"){ beep(300,.08,"triangle",.07); beep(200,.1,"triangle",.07,.06); }
+  else if(name==="spell"){ beep(523,.08,"sine",.07); beep(784,.08,"sine",.07,.08); beep(1046,.14,"sine",.07,.16); }
+  else if(name==="heal"){ beep(659,.09,"sine",.06); beep(880,.09,"sine",.06,.09); beep(1318,.16,"sine",.06,.18); }
+  else if(name==="win"){ [523,659,784,1046].forEach(function(f,i){ beep(f,.13,"square",.06,i*.11); }); }
+  else if(name==="level"){ [523,659,784,1046,784,1046,1318].forEach(function(f,i){ beep(f,.13,"square",.06,i*.1); }); }
+  else if(name==="gold"){ beep(988,.07,"square",.05); beep(1318,.12,"square",.05,.07); }
+  else if(name==="die"){ [392,330,262,196].forEach(function(f,i){ beep(f,.18,"sawtooth",.06,i*.16); }); }
+  else if(name==="run"){ beep(440,.06,"square",.05); beep(554,.06,"square",.05,.06); beep(659,.06,"square",.05,.12); }
+  else if(name==="boss"){ [98,98,147,98,196,147].forEach(function(f,i){ beep(f,.16,"sawtooth",.08,i*.15); }); }
+  else if(name==="save"){ beep(784,.08,"square",.05); beep(1174,.12,"square",.05,.08); }
+}
+
+/* ---------- ドット絵スプライト ---------- */
+function drawSprite(ctx, map, pal, x, y, px){
+  for(var r=0; r<map.length; r++){
+    var row = map[r];
+    for(var c=0; c<row.length; c++){
+      var col = pal[row[c]];
+      if(!col) continue;
+      ctx.fillStyle = col;
+      ctx.fillRect(x + c*px, y + r*px, px, px);
+    }
+  }
+}
+/* 人間（ゆうしゃ・村人 共通マップ、色ちがい） */
+var HUMAN_MAP = [
+"................",
+".....oooooo.....",
+"....oooooooo....",
+"....oooooooo....",
+"....ssssssss....",
+"....skssksks....",
+"....ssssssss....",
+".....ssssss.....",
+"...bbbbbbbbbb...",
+"..sbbbbbbbbbbs..",
+"..sbbbbbbbbbbs..",
+"....bbbbbbbb....",
+"....wwwwwwww....",
+"....ppp..ppp....",
+"....ppp..ppp....",
+"...nnnn..nnnn..."
+];
+var PAL_HERO  = { o:"#f0b429", s:"#f2c09a", k:"#263238", b:"#2b5fc7", w:"#f2c230", p:"#33415e", n:"#6d4520" };
+var PAL_ELDER = { o:"#e8e8e8", s:"#f2c09a", k:"#263238", b:"#7a4a8c", w:"#c9a227", p:"#4a3550", n:"#4a2f18" };
+var PAL_WOMAN = { o:"#c75146", s:"#f2c09a", k:"#263238", b:"#d96c8a", w:"#f2e3c9", p:"#7a3b52", n:"#6d4520" };
+var PAL_KID   = { o:"#3d7a44", s:"#f2c09a", k:"#263238", b:"#e0a52e", w:"#8a5a20", p:"#5a6e46", n:"#6d4520" };
+var PAL_MAN   = { o:"#4a3220", s:"#e8b088", k:"#263238", b:"#3d7a4a", w:"#8a5a20", p:"#4a4a55", n:"#4a2f18" };
+
+/* モンスターのドット絵 */
+var MON_MAPS = {
+  marupuni: [
+  "................",
+  "................",
+  ".....tttttt.....",
+  "...tttttttttt...",
+  "..tttttttttttt..",
+  "..twwttttttttt..",
+  "..tttttttttttt..",
+  "..ttkttttttktt..",
+  "..ttkttttttktt..",
+  "..tttttttttttt..",
+  "...ttttmmtttt...",
+  "...tttttttttt...",
+  "....tttttttt....",
+  "..ttt.tttt.ttt..",
+  "................",
+  "................"],
+  piyohane: [
+  "................",
+  "......yyyy......",
+  ".....yyyyyy.....",
+  "....yykyykyy....",
+  "....yyyyyyyy....",
+  ".....yyoooy.....",
+  "..w.yyyyyyyy.w..",
+  "...wwyyyyyyww...",
+  "....wyyyyyyw....",
+  ".....yyyyyy.....",
+  "......yyyy......",
+  ".....oooooo.....",
+  "................",
+  ".....o....o.....",
+  "....ooo..ooo....",
+  "................"],
+  morikaeru: [
+  "................",
+  "..ww........ww..",
+  ".wkkw......wkkw.",
+  ".wwww......wwww.",
+  "..gg........gg..",
+  "....gggggggg....",
+  "..gggggggggggg..",
+  ".gggggggggggggg.",
+  ".ggwwggggggwwgg.",
+  ".gggggggggggggg.",
+  ".gggggmmmmggggg.",
+  "..gggggggggggg..",
+  "..gggggggggggg..",
+  "...gg..gg..gg...",
+  "..ggg..gg..ggg..",
+  "................"],
+  kinopon: [
+  "................",
+  ".....rrrrrr.....",
+  "...rrrrrrrrrr...",
+  "..rrwwrrrrwwrr..",
+  "..rrrrrrrrrrrr..",
+  "..rrrwrrrrwrrr..",
+  "...rrrrrrrrrr...",
+  ".....cccccc.....",
+  "....cccccccc....",
+  "....ckcccckc....",
+  "....cccccccc....",
+  ".....cmmmmc.....",
+  "....cccccccc....",
+  ".....cccccc.....",
+  "....ccc..ccc....",
+  "................"],
+  iwamaru: [
+  "................",
+  "................",
+  "....gggggggg....",
+  "..gggggggggggg..",
+  ".gggggggggggggg.",
+  ".ggdggggggggdgg.",
+  ".gggggggggggggg.",
+  ".ggwwggggggwwgg.",
+  ".ggkkkggggkkkgg.",
+  ".gggggggggggggg.",
+  ".gggggddddggggg.",
+  "..gggggggggggg..",
+  "..ggdgggggggdgg.",
+  "...gggggggggg...",
+  "..ggg..gggg..ggg",
+  "................"],
+  yorubatto: [
+  "................",
+  ".pp..........pp.",
+  ".pppp......pppp.",
+  ".ppppp.pp.ppppp.",
+  "..pppppppppppp..",
+  "...ppuuuuuupp...",
+  "....puuuuuuup...",
+  "....pukukuuup...",
+  "....puuuuuuup...",
+  ".....umumuum....",
+  ".....uuuuuu.....",
+  "......uuuu......",
+  "......u..u......",
+  ".....uu..uu.....",
+  "................",
+  "................"],
+  garzon: [
+  "................",
+  ".hh..........hh.",
+  ".hhh........hhh.",
+  "..hhh......hhh..",
+  "...dd......dd...",
+  "....dddddddd....",
+  "..dddddddddddd..",
+  ".ddrrddddddrrdd.",
+  ".dddddddddddddd.",
+  ".pddddddddddddp.",
+  ".ppdddkkkkdd dpp",
+  "..ppddddddddpp..",
+  "...dddddddddd...",
+  "....dddddddd....",
+  "....ddd..ddd....",
+  "...nnn....nnn..."]
+};
+var MON_PALS = {
+  marupuni: { t:"#37b8a5", w:"#ffffff", k:"#173a35", m:"#c75146" },
+  piyohane: { y:"#ffd94a", k:"#263238", o:"#f28c28", w:"#f2a03c" },
+  morikaeru:{ g:"#58b04c", w:"#ffffff", k:"#1d3319", m:"#2c5e28" },
+  kinopon:  { r:"#d94f3d", w:"#ffffff", c:"#f2e3c9", k:"#263238", m:"#c75146" },
+  iwamaru:  { g:"#9a9aa2", d:"#6e6e78", w:"#ffffff", k:"#26262e" },
+  yorubatto:{ p:"#5b4a8a", u:"#8a76c2", k:"#ffd94a", m:"#ffffff" },
+  garzon:   { h:"#f2c230", d:"#6b3fa0", r:"#ff5252", p:"#4a2a6e", k:"#ffd94a", n:"#2c1a45" }
+};
+/* モンスターのデータ */
+var MONSTERS = {
+  marupuni: { name:"まるぷに",   hp:14,  atk:6,  def:1, exp:8,   gold:7  },
+  piyohane: { name:"ぴよはね",   hp:18,  atk:8,  def:2, exp:12,  gold:10 },
+  morikaeru:{ name:"もりかえる", hp:25,  atk:9,  def:3, exp:18,  gold:13 },
+  kinopon:  { name:"きのぽん",   hp:29,  atk:12, def:3, exp:24,  gold:16 },
+  iwamaru:  { name:"いわまる",   hp:40,  atk:13, def:6, exp:32,  gold:19 },
+  yorubatto:{ name:"よるばっと", hp:31,  atk:15, def:4, exp:36,  gold:22 },
+  garzon:   { name:"まおうガルゾン", hp:125, atk:18, def:5, exp:200, gold:300, boss:true }
+};
+/* じゅもん（すべてオリジナル名） */
+var SPELLS = [
+  { id:"hoshi",  name:"ほしあかり",     mp:3, lv:2, kind:"attack", min:12, max:20, desc:"星の光で攻撃" },
+  { id:"iyashi", name:"いやしのひかり", mp:4, lv:3, kind:"heal",   min:26, max:36, desc:"HPを回復" },
+  { id:"ryusei", name:"りゅうせいバースト", mp:8, lv:5, kind:"attack", min:30, max:46, desc:"流れ星の大攻撃" }
+];
+var LEVEL_EXP = [0, 0, 15, 40, 80, 140, 220, 320]; /* 添字=レベル、そのレベルに必要な累計EXP */
+var MAX_LEVEL = 7;
+
+/* ---------- マップ（20×15タイル） ----------
+   T:木  .:広場(村)  R:屋根  W:壁  I:宿屋ドア  P:道具屋ドア  h:家のドア
+   ~:水  f:花  g:草原  F:森  ,:小道  C:洞窟入口  V:村入口
+   #:洞窟の壁  _:洞窟の床  E:洞窟の出口  B:ボス  t:宝箱  X:村の出口 */
+var MAPS = {
+  village: [
+  "TTTTTTTTTTTTTTTTTTTT",
+  "T..................T",
+  "T.RRRR....RRRR..f..T",
+  "T.WIWW....WPWW.....T",
+  "T..................T",
+  "T..f....~~~~....f..T",
+  "T.......~~~~.......T",
+  "T..................T",
+  "T..................T",
+  "T.RRRR..........f..T",
+  "T.WhWW.............T",
+  "T..................T",
+  "T....f.......f.....T",
+  "T..................T",
+  "TTTTTTTTTXXTTTTTTTTT"
+  ],
+  field: [
+  "TTFFTTTTTCTTTTTTTTTT",
+  "TFFgggggg,,gggFFgggT",
+  "TFggggggg,,gggggggFT",
+  "Tgggggggg,,gggwwwwgT",
+  "TgFFggggg,,ggwwwwwgT",
+  "TgFFggggg,,ggggwwwgT",
+  "Tgggggggg,,ggggggggT",
+  "TggFFgggg,,gFFgggggT",
+  "TggFFgggg,,gFFgggggT",
+  "Tgggggggg,,ggggggggT",
+  "TgFFggggg,,gggFFgggT",
+  "Tgggggggg,,ggggggggT",
+  "TFFgggggg,,gggggFFgT",
+  "TFFgggggg,,gggggFFgT",
+  "TTTTTTTTTVVTTTTTTTTT"
+  ],
+  cave: [
+  "####################",
+  "#________BB________#",
+  "#________BB________#",
+  "#________,,________#",
+  "#___t____,,____#___#",
+  "#________,,________#",
+  "###__#####,,#####__#",
+  "#________,,________#",
+  "#________,,________#",
+  "#__##____,,____##__#",
+  "#________,,________#",
+  "#________,,________#",
+  "#________,,________#",
+  "#________EE________#",
+  "####################"
+  ]
+};
+/* field/cave の出口タイル表記ゆれ対策（X/V/E はそのまま使う） */
+var NPCS = {
+  village: [
+    { x:9,  y:8,  pal:"ELDER", name:"村長", lines:[
+      "村長「おお、ゆうしゃよ。まおうガルゾンが 村の宝『ひかりのたま』を うばって 北の洞窟へ 逃げたのじゃ。",
+      "村長「たまを とりもどしてくれれば、村は 元の平和を とりもどせる。たのんだぞ！",
+      "村長「洞窟へは 村を出て、北へ まっすぐ進むのじゃ。森の敵は 強いから 気をつけるのじゃぞ。」"
+    ]},
+    { x:4,  y:7,  pal:"WOMAN", name:"村の女性", lines:[
+      "女性「宿屋は 左の建物、道具屋は 右の建物よ。ドアに 進めば 入れるわ。",
+      "女性「宿屋に 泊まれば HPとMPが 全回復するの。旅の前に やくそうも 買っておくと 安心よ。」"
+    ]},
+    { x:15, y:12, pal:"KID", name:"子ども", lines:[
+      "子ども「ゆうしゃ、がんばれー！　ボク、大きくなったら ゆうしゃに なるんだ！",
+      "子ども「レベルが 上がると 新しい じゅもんを 覚えるんだって。かっこいいなあ。」"
+    ]},
+    { x:16, y:6,  pal:"MAN", name:"村の男性", lines:[
+      "男性「草むらより 森のほうが 強い敵が 出る。洞窟の敵は もっと強いぞ。",
+      "男性「ボスの ガルゾンには 光の じゅもんが よく効くらしい。レベル5の『りゅうせいバースト』が 決め手だな。」"
+    ]}
+  ],
+  field: [], cave: []
+};
+var PALS = { HERO:PAL_HERO, ELDER:PAL_ELDER, WOMAN:PAL_WOMAN, KID:PAL_KID, MAN:PAL_MAN };
+/* タイルの性質 */
+function tileAt(mapName, x, y){
+  var m = MAPS[mapName];
+  if(y < 0 || y >= m.length || x < 0 || x >= m[0].length) return "#";
+  return m[y][x];
+}
+var SOLID = { "T":1, "R":1, "W":1, "~":1, "F":0, "#":1, "h":1, "B":1, "t":1 };
+/* F(森)は歩ける。B(ボス)とt(宝箱)は調べる対象なので進入不可 */
+
+/* ---------- ゲームの状態 ---------- */
+var SAVE_KEY = "dotHeroAdventureSaveV1";
+var P = null;         /* プレイヤー */
+var mode = "title";   /* title | map | battle | ending */
+var busy = false;     /* 会話・演出中は入力を止める */
+var startTime = 0;
+
+function newPlayer(){
+  return {
+    lv:1, exp:0, gold:30,
+    maxhp:24, hp:24, maxmp:6, mp:6, baseAtk:8, baseDef:3,
+    sword:false, armor:false,
+    yakusou:1, mizu:0,
+    map:"village", x:9, y:12, dir:"up",
+    chest:false, bossDown:false
+  };
+}
+function atkOf(){ return P.baseAtk + (P.sword ? 6 : 0); }
+function defOf(){ return P.baseDef + (P.armor ? 4 : 0); }
+function knownSpells(){ return SPELLS.filter(function(s){ return P.lv >= s.lv; }); }
+
+function saveGame(){
+  try{
+    var d = JSON.parse(JSON.stringify(P)); d.soundOn = soundOn;
+    localStorage.setItem(SAVE_KEY, JSON.stringify(d));
+    return true;
+  }catch(e){ return false; }
+}
+function loadGame(){
+  try{
+    var raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function hasSave(){ return !!loadGame(); }
+
+/* ---------- 画面部品 ---------- */
+var cv = document.getElementById("game");
+var ctx = cv.getContext("2d");
+var msgWin = document.getElementById("msgWin");
+var choicesEl = document.getElementById("choices");
+var ctrlMap = document.getElementById("ctrlMap");
+var ctrlBattle = document.getElementById("ctrlBattle");
+
+function updateStatus(){
+  document.getElementById("stLv").textContent = P ? P.lv : 1;
+  document.getElementById("stHp").textContent = P ? (P.hp + "/" + P.maxhp) : "24/24";
+  document.getElementById("stMp").textContent = P ? (P.mp + "/" + P.maxmp) : "6/6";
+  document.getElementById("stGold").textContent = P ? P.gold : 30;
+  var hpBar = document.getElementById("hpBar"), mpBar = document.getElementById("mpBar");
+  if(P){
+    hpBar.firstElementChild.style.width = Math.max(0, P.hp / P.maxhp * 100) + "%";
+    hpBar.className = "bar hp" + (P.hp / P.maxhp <= 0.25 ? " low" : "");
+    mpBar.firstElementChild.style.width = Math.max(0, P.mp / P.maxmp * 100) + "%";
+  }
+}
+/* メッセージ表示（タップで送るキュー） */
+var msgQueue = [], msgDone = null, msgWaiting = false;
+function showMessages(lines, done){
+  msgQueue = lines.slice(); msgDone = done || null;
+  nextMessage();
+}
+function nextMessage(){
+  if(msgQueue.length === 0){
+    msgWaiting = false;
+    var d = msgDone; msgDone = null;
+    if(d) d();
+    return;
+  }
+  var line = msgQueue.shift();
+  msgWin.innerHTML = "";
+  msgWin.appendChild(document.createTextNode(line));
+  if(msgQueue.length > 0){
+    var s = document.createElement("span"); s.className = "next"; s.textContent = "▼";
+    msgWin.appendChild(s);
+  }
+  msgWaiting = msgQueue.length > 0;
+  if(!msgWaiting){
+    var d2 = msgDone; msgDone = null;
+    if(d2) d2();
+  }
+}
+msgWin.addEventListener("click", function(){
+  if(mode === "map" && msgWaiting && !choiceOpen) nextMessage();
+});
+/* 選択肢 */
+var choiceOpen = false;
+function showChoices(items, onPick){
+  choiceOpen = true;
+  choicesEl.innerHTML = "";
+  choicesEl.style.display = "flex";
+  items.forEach(function(it){
+    var b = document.createElement("button");
+    b.textContent = it.label;
+    if(it.disabled) b.disabled = true;
+    b.addEventListener("click", function(){
+      hideChoices();
+      sfx("talk");
+      onPick(it);
+    });
+    choicesEl.appendChild(b);
+  });
+}
+function hideChoices(){
+  choiceOpen = false;
+  choicesEl.style.display = "none";
+  choicesEl.innerHTML = "";
+}
+function setControls(){
+  if(mode === "battle"){ ctrlMap.style.display = "none"; ctrlBattle.style.display = "grid"; }
+  else { ctrlMap.style.display = "flex"; ctrlBattle.style.display = "none"; }
+}
+function sleep(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+function rand(a, b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+function hash2(x, y){ var n = (x * 374761393 + y * 668265263) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967295; }
+
+/* ---------- マップ描画 ---------- */
+var TILE = 24;
+function drawTile(x, y, t){
+  var px = x * TILE, py = y * TILE, h = hash2(x, y);
+  function rect(c, rx, ry, rw, rh){ ctx.fillStyle = c; ctx.fillRect(px + rx, py + ry, rw, rh); }
+  var inCave = (P && P.map === "cave");
+  if(t === "T"){ /* 木 */
+    rect("#3f9e4d", 0, 0, 24, 24);
+    if(h > .5) rect("#359544", 3, 14, 3, 3);
+    rect("#6d4520", 10, 15, 4, 7);
+    ctx.fillStyle = "#2c7a38"; ctx.fillRect(px + 3, py + 2, 18, 14);
+    ctx.fillStyle = "#359544"; ctx.fillRect(px + 5, py + 4, 8, 6);
+    ctx.fillStyle = "#2c7a38"; ctx.fillRect(px + 12, py + 9, 8, 6);
+    return;
+  }
+  if(t === "F"){ /* 森（濃い緑＋木） */
+    rect("#2c7a38", 0, 0, 24, 24);
+    rect("#6d4520", 10, 15, 4, 7);
+    ctx.fillStyle = "#1f5c2a"; ctx.fillRect(px + 2, py + 1, 20, 15);
+    ctx.fillStyle = "#2c7a38"; ctx.fillRect(px + 5, py + 3, 8, 6);
+    return;
+  }
+  if(t === "g" || t === ","){ /* 草原・小道 */
+    if(t === "g"){ rect("#57b34c", 0, 0, 24, 24); if(h > .4){ rect("#4aa840", 4, 5, 2, 5); rect("#4aa840", 16, 13, 2, 5); } if(h > .8){ rect("#6cc261", 10, 17, 3, 3); } }
+    else { rect("#d9c084", 0, 0, 24, 24); if(h > .5){ rect("#c9ae6e", 5, 6, 4, 3); rect("#c9ae6e", 15, 15, 4, 3); } }
+    return;
+  }
+  if(t === "."){ /* 村の広場 */
+    rect("#ddd0a4", 0, 0, 24, 24);
+    rect("#d0c08e", 0, 11, 24, 1); rect("#d0c08e", 11, 0, 1, 24);
+    if(h > .6) rect("#cbbd8a", 4, 4, 3, 3);
+    return;
+  }
+  if(t === "f"){ /* 花 */
+    rect("#57b34c", 0, 0, 24, 24);
+    ctx.fillStyle = "#e86a9a"; ctx.fillRect(px + 5, py + 5, 4, 4); ctx.fillRect(px + 15, py + 13, 4, 4);
+    ctx.fillStyle = "#ffd94a"; ctx.fillRect(px + 13, py + 4, 4, 4);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(px + 6, py + 15, 3, 3);
+    return;
+  }
+  if(t === "~"){ /* 水 */
+    rect("#3d7bd6", 0, 0, 24, 24);
+    ctx.fillStyle = "#6ea3e8";
+    ctx.fillRect(px + 3, py + 6, 8, 2); ctx.fillRect(px + 13, py + 14, 8, 2);
+    if(h > .5) ctx.fillRect(px + 6, py + 18, 6, 2);
+    return;
+  }
+  if(t === "R"){ /* 屋根 */
+    rect("#b3541e", 0, 0, 24, 24);
+    rect("#9c4718", 0, 7, 24, 2); rect("#9c4718", 0, 15, 24, 2);
+    rect("#c96a33", 0, 0, 24, 3);
+    return;
+  }
+  if(t === "W"){ /* 壁 */
+    rect("#f2e3c9", 0, 0, 24, 24);
+    rect("#d9c8a4", 0, 21, 24, 3);
+    return;
+  }
+  if(t === "I" || t === "P" || t === "h"){ /* ドア */
+    rect("#f2e3c9", 0, 0, 24, 24);
+    rect("#7a4a21", 6, 4, 12, 20);
+    rect("#5f3a18", 6, 4, 12, 3);
+    ctx.fillStyle = "#f2c230"; ctx.fillRect(px + 15, py + 13, 2, 2);
+    if(t === "I"){ ctx.fillStyle = "#2b5fc7"; ctx.fillRect(px + 4, py - 0, 16, 0); ctx.fillStyle = "#fff"; ctx.font = "bold 9px sans-serif"; ctx.fillText("やど", px + 3, py + 0 + 0); }
+    return;
+  }
+  if(t === "#"){ /* 洞窟の壁 */
+    rect("#3a3444", 0, 0, 24, 24);
+    rect("#4a4258", 2, 3, 9, 6); rect("#2e2838", 13, 12, 9, 7);
+    rect("#554c66", 5, 16, 4, 3);
+    return;
+  }
+  if(t === "_" || t === "E"){ /* 洞窟の床・出口 */
+    rect("#5c5468", 0, 0, 24, 24);
+    if(h > .5) rect("#524a5e", 4, 5, 4, 3);
+    if(h > .75) rect("#6a6278", 15, 15, 4, 3);
+    if(t === "E"){ ctx.fillStyle = "#8a7f9c"; ctx.fillRect(px + 2, py + 16, 20, 4); ctx.fillStyle = "#a89abc"; ctx.fillRect(px + 5, py + 10, 14, 4); }
+    return;
+  }
+  if(t === "B"){ /* ボスの間 */
+    rect("#4a2438", 0, 0, 24, 24);
+    rect("#5c2c46", 0, 20, 24, 4);
+    return;
+  }
+  if(t === "t"){ /* 宝箱 */
+    rect("#5c5468", 0, 0, 24, 24);
+    if(P && P.chest){ rect("#6a6278", 7, 12, 10, 7); return; }
+    rect("#a5672a", 5, 9, 14, 10); rect("#7a4a21", 5, 9, 14, 4);
+    ctx.fillStyle = "#f2c230"; ctx.fillRect(px + 10, py + 11, 4, 4);
+    return;
+  }
+  if(t === "X" || t === "V" || t === "C"){ /* 出入口 */
+    if(P && P.map === "field" && t !== "C"){ rect("#57b34c", 0, 0, 24, 24); }
+    else if(P && P.map === "field"){ rect("#4a4258", 2, 4, 20, 20); rect("#241f30", 6, 9, 12, 15); return; }
+    else rect("#ddd0a4", 0, 0, 24, 24);
+    ctx.fillStyle = "#b3541e";
+    ctx.fillRect(px + 4, py + 8, 16, 4); ctx.fillRect(px + 4, py + 14, 16, 4);
+    return;
+  }
+  rect("#57b34c", 0, 0, 24, 24);
+}
+/* 建物の看板（ドアの上に文字） */
+function drawSigns(){
+  if(!P || P.map !== "village") return;
+  ctx.font = "bold 10px sans-serif"; ctx.textAlign = "center";
+  ctx.fillStyle = "#2b5fc7"; ctx.fillRect(3 * TILE + 1, 2 * TILE + 2, 22, 12);
+  ctx.fillStyle = "#ffffff"; ctx.fillText("やど", 3 * TILE + 12, 2 * TILE + 12);
+  ctx.fillStyle = "#b3541e"; ctx.fillRect(11 * TILE + 1, 2 * TILE + 2, 22, 12);
+  ctx.fillStyle = "#ffffff"; ctx.fillText("みせ", 11 * TILE + 12, 2 * TILE + 12);
+  ctx.textAlign = "left";
+}
+function drawMap(){
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 480, 360);
+  var m = MAPS[P.map];
+  for(var y = 0; y < m.length; y++)
+    for(var x = 0; x < m[y].length; x++)
+      drawTile(x, y, m[y][x]);
+  drawSigns();
+  /* ボス本体（洞窟） */
+  if(P.map === "cave" && !P.bossDown){
+    drawSprite(ctx, MON_MAPS.garzon, MON_PALS.garzon, 9 * TILE, 1 * TILE, 3);
+  }
+  /* 村人 */
+  NPCS[P.map].forEach(function(n){
+    drawSprite(ctx, HUMAN_MAP, PALS[n.pal], n.x * TILE + 4, n.y * TILE + 4, 1);
+  });
+  /* ゆうしゃ */
+  drawSprite(ctx, HUMAN_MAP, PAL_HERO, P.x * TILE + 4, P.y * TILE + 4, 1);
+  /* 向きマーカー（足元の小さな三角） */
+  ctx.fillStyle = "#fff8";
+  var cx = P.x * TILE + 12, cy = P.y * TILE + 12;
+  ctx.beginPath();
+  if(P.dir === "up"){ ctx.moveTo(cx, cy - 13); ctx.lineTo(cx - 4, cy - 7); ctx.lineTo(cx + 4, cy - 7); }
+  if(P.dir === "down"){ ctx.moveTo(cx, cy + 13); ctx.lineTo(cx - 4, cy + 7); ctx.lineTo(cx + 4, cy + 7); }
+  if(P.dir === "left"){ ctx.moveTo(cx - 13, cy); ctx.lineTo(cx - 7, cy - 4); ctx.lineTo(cx - 7, cy + 4); }
+  if(P.dir === "right"){ ctx.moveTo(cx + 13, cy); ctx.lineTo(cx + 7, cy - 4); ctx.lineTo(cx + 7, cy + 4); }
+  ctx.fill();
+}
+
+/* ---------- 移動と遷移 ---------- */
+var DIRS = { up:[0,-1], down:[0,1], left:[-1,0], right:[1,0] };
+function npcAt(x, y){
+  return NPCS[P.map].find(function(n){ return n.x === x && n.y === y; }) || null;
+}
+function tryMove(dir){
+  if(mode !== "map" || busy || choiceOpen || msgWaiting) return;
+  P.dir = dir;
+  var d = DIRS[dir], nx = P.x + d[0], ny = P.y + d[1];
+  var t = tileAt(P.map, nx, ny);
+  if(npcAt(nx, ny)){ drawMap(); return; }
+  if(SOLID[t]){ drawMap(); return; }
+  P.x = nx; P.y = ny;
+  drawMap();
+  onStep(t);
+}
+function onStep(t){
+  /* 建物 */
+  if(t === "I") return enterInn();
+  if(t === "P") return enterShop();
+  /* マップ遷移 */
+  if(P.map === "village" && t === "X"){ goMap("field", 9, 13); msgWin.textContent = "フィールドに出た。北へ進むと 洞窟が ある。"; return; }
+  if(P.map === "field" && t === "V"){ goMap("village", 9, 13); msgWin.textContent = "村に もどった。"; return; }
+  if(P.map === "field" && t === "C"){ goMap("cave", 9, 12); msgWin.textContent = "洞窟に 入った。奥から 強い気配が する…。"; return; }
+  if(P.map === "cave" && t === "E"){ goMap("field", 9, 1); msgWin.textContent = "洞窟を 出た。"; return; }
+  /* エンカウント */
+  var rate = 0, table = null;
+  if(P.map === "field" && t === "g"){ rate = .12; table = ["marupuni","marupuni","piyohane","piyohane","morikaeru"]; }
+  if(P.map === "field" && t === "F"){ rate = .20; table = ["morikaeru","morikaeru","kinopon","piyohane"]; }
+  if(P.map === "field" && t === ","){ rate = .06; table = ["marupuni","piyohane"]; }
+  if(P.map === "cave" && (t === "_" || t === ",")){ rate = .15; table = ["iwamaru","yorubatto","iwamaru","yorubatto","kinopon"]; }
+  if(table && Math.random() < rate){
+    var key = table[Math.floor(Math.random() * table.length)];
+    startBattle(key, false);
+  }
+}
+function goMap(map, x, y){
+  P.map = map; P.x = x; P.y = y;
+  drawMap();
+}
+
+/* ---------- 会話・調べる ---------- */
+function frontPos(){
+  var d = DIRS[P.dir];
+  return { x: P.x + d[0], y: P.y + d[1] };
+}
+function interact(){
+  if(mode !== "map" || busy || choiceOpen || msgWaiting) return;
+  var f = frontPos();
+  var npc = npcAt(f.x, f.y);
+  if(npc){
+    busy = true; sfx("talk");
+    showMessages(npc.lines, function(){ busy = false; });
+    return;
+  }
+  var t = tileAt(P.map, f.x, f.y);
+  if(t === "B" && P.map === "cave" && !P.bossDown){ startBoss(); return; }
+  if(t === "t" && P.map === "cave"){
+    if(P.chest){ showMessages(["宝箱は からっぽだ。"]); return; }
+    busy = true; P.chest = true; P.mizu += 2; sfx("gold"); drawMap();
+    showMessages(["宝箱を あけた！", "『まほうのみず』を 2こ 手に入れた！（MPが 回復する どうぐ）"], function(){ busy = false; });
+    return;
+  }
+  if(t === "h"){ showMessages(["村人の家だ。ドアには かぎが かかっている。"]); return; }
+  if(t === "~"){ showMessages(["泉の水は つめたくて きれいだ。"]); return; }
+  if(t === "T" || t === "F"){ showMessages(["木が しげっている。"]); return; }
+  showMessages(["とくに 何も ない。"]);
+}
+
+/* ---------- 宿屋 ---------- */
+function stepBack(){
+  var d = DIRS[P.dir];
+  P.x -= d[0]; P.y -= d[1];
+  drawMap();
+}
+function enterInn(){
+  busy = true;
+  msgWin.textContent = "宿屋「いらっしゃい。1泊 8G です。泊まりますか？」";
+  showChoices([
+    { label: "🛏️ はい（8G）", disabled: P.gold < 8 },
+    { label: "やめる" }
+  ], function(it){
+    if(it.label.indexOf("はい") >= 0){
+      P.gold -= 8; P.hp = P.maxhp; P.mp = P.maxmp;
+      updateStatus(); sfx("heal"); stepBack();
+      saveGame();
+      showMessages(["ぐっすり 眠った。HPとMPが 全回復した！", "（ついでに セーブも しておいた）"], function(){ busy = false; });
+    } else {
+      stepBack();
+      showMessages(["宿屋「また いつでも どうぞ。」"], function(){ busy = false; });
+    }
+  });
+}
+/* ---------- 道具屋 ---------- */
+var SHOP_ITEMS = [
+  { id:"yakusou", name:"やくそう", price:10, desc:"HPを 30 回復" },
+  { id:"mizu",    name:"まほうのみず", price:15, desc:"MPを 10 回復" },
+  { id:"sword",   name:"てつのつるぎ", price:120, desc:"攻撃力 +6", once:true },
+  { id:"armor",   name:"てつのよろい", price:100, desc:"防御力 +4", once:true }
+];
+function enterShop(){
+  busy = true;
+  shopMenu();
+}
+function shopMenu(){
+  msgWin.textContent = "道具屋「いらっしゃい！　何を 買いますか？（所持金 " + P.gold + "G）";
+  var items = SHOP_ITEMS.map(function(it){
+    var owned = (it.id === "sword" && P.sword) || (it.id === "armor" && P.armor);
+    return {
+      label: (owned ? "✔ " : "") + it.name + "　" + it.price + "G（" + it.desc + "）",
+      disabled: owned || P.gold < it.price,
+      item: it
+    };
+  });
+  items.push({ label: "店を 出る", item: null });
+  showChoices(items, function(pick){
+    if(!pick.item){
+      stepBack();
+      showMessages(["道具屋「まいど ありがとう！　気をつけて 行くんだよ。」"], function(){ busy = false; });
+      return;
+    }
+    var it = pick.item;
+    P.gold -= it.price;
+    if(it.id === "yakusou") P.yakusou++;
+    if(it.id === "mizu") P.mizu++;
+    if(it.id === "sword") P.sword = true;
+    if(it.id === "armor") P.armor = true;
+    updateStatus(); sfx("gold");
+    msgWin.textContent = "『" + it.name + "』を 買った！";
+    setTimeout(shopMenu, 650);
+  });
+}
+
+/* ---------- バトル ---------- */
+var B = null; /* バトル状態 */
+function startBattle(key, isBoss){
+  var base = MONSTERS[key];
+  B = {
+    key: key, name: base.name, boss: !!base.boss,
+    maxhp: base.hp, hp: base.hp, atk: base.atk, def: base.def,
+    exp: base.exp, gold: base.gold, turn: 0, over: false
+  };
+  mode = "battle"; setControls();
+  sfx(isBoss ? "boss" : "encounter");
+  drawBattle(0, false);
+  msgWin.textContent = isBoss
+    ? "まおうガルゾン「よくぞ 来た、ゆうしゃ。『ひかりのたま』は わが力の源。かえして ほしくば、わたしを 倒してみせよ！」"
+    : B.name + " が あらわれた！";
+  setBattleCmds(true);
+}
+function startBoss(){
+  busy = true;
+  showMessages([
+    "洞窟の最奥に、巨大な影が うごめいた…。",
+    "まおうガルゾン あらわる！"
+  ], function(){
+    busy = false;
+    startBattle("garzon", true);
+  });
+}
+function drawBattle(shakeX, flash){
+  /* 背景 */
+  var grad = ctx.createLinearGradient(0, 0, 0, 360);
+  if(P.map === "cave"){ grad.addColorStop(0, "#241f30"); grad.addColorStop(.7, "#3a3444"); grad.addColorStop(.71, "#2e2838"); grad.addColorStop(1, "#2e2838"); }
+  else { grad.addColorStop(0, "#7ec3ee"); grad.addColorStop(.7, "#a8d88a"); grad.addColorStop(.71, "#57b34c"); grad.addColorStop(1, "#57b34c"); }
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, 480, 360);
+  if(P.map !== "cave"){
+    ctx.fillStyle = "#fff"; ctx.fillRect(40, 36, 60, 14); ctx.fillRect(330, 60, 80, 16);
+    ctx.fillStyle = "#2c7a38"; ctx.fillRect(0, 226, 90, 30); ctx.fillRect(400, 216, 80, 40);
+  } else {
+    ctx.fillStyle = "#554c66"; ctx.fillRect(30, 20, 40, 90); ctx.fillRect(410, 20, 40, 110);
+  }
+  if(!B) return;
+  var scale = B.boss ? 9 : 7;
+  var w = 16 * scale;
+  var ex = 240 - w / 2 + (shakeX || 0), ey = B.boss ? 60 : 92;
+  if(flash){
+    ctx.save(); ctx.globalAlpha = .55; ctx.fillStyle = "#fff";
+    ctx.fillRect(ex, ey, w, w); ctx.restore();
+  }
+  drawSprite(ctx, MON_MAPS[B.key], MON_PALS[B.key], ex, ey, scale);
+  /* 敵HPバー */
+  ctx.fillStyle = "#000a"; ctx.fillRect(140, 300, 200, 26);
+  ctx.fillStyle = "#fff"; ctx.font = "bold 13px sans-serif"; ctx.textAlign = "center";
+  ctx.fillText(B.name, 240, 318);
+  ctx.fillStyle = "#e53935"; ctx.fillRect(150, 322, 180 * Math.max(0, B.hp / B.maxhp), 3);
+  ctx.textAlign = "left";
+}
+function setBattleCmds(on){
+  ["cmdFight","cmdSpell","cmdItem","cmdRun"].forEach(function(id){
+    document.getElementById(id).disabled = !on;
+  });
+  if(B && B.boss) document.getElementById("cmdRun").disabled = true;
+}
+async function fxHit(){
+  sfx("hit");
+  for(var i = 0; i < 3; i++){ drawBattle(i % 2 ? -8 : 8, true); await sleep(70); }
+  drawBattle(0, false);
+}
+async function fxEnemyHit(){
+  sfx("ehit");
+  for(var i = 0; i < 2; i++){ drawBattle(0, false); cv.style.transform = "translateX(-5px)"; await sleep(70); cv.style.transform = ""; await sleep(50); }
+}
+function battleLog(t){ msgWin.textContent = t; }
+
+async function playerAttack(){
+  setBattleCmds(false);
+  var crit = Math.random() < 0.1;
+  var dmg = Math.max(1, atkOf() - Math.floor(B.def / 2) + rand(0, 4));
+  if(crit) dmg = Math.floor(dmg * 1.6);
+  B.hp -= dmg;
+  await fxHit();
+  if(crit) sfx("crit");
+  battleLog(crit ? "かいしんの いちげき！　" + B.name + " に " + dmg + " のダメージ！" : "ゆうしゃの こうげき！　" + B.name + " に " + dmg + " のダメージ！");
+  await sleep(950);
+  afterPlayerAction();
+}
+async function playerSpell(sp){
+  setBattleCmds(false);
+  P.mp -= sp.mp; updateStatus();
+  if(sp.kind === "attack"){
+    sfx("spell");
+    var dmg = rand(sp.min, sp.max);
+    B.hp -= dmg;
+    await fxHit();
+    battleLog("じゅもん『" + sp.name + "』！　" + B.name + " に " + dmg + " のダメージ！");
+  } else {
+    sfx("heal");
+    var heal = rand(sp.min, sp.max);
+    P.hp = Math.min(P.maxhp, P.hp + heal);
+    updateStatus(); drawBattle(0, false);
+    battleLog("じゅもん『" + sp.name + "』！　HPが " + heal + " 回復した！");
+  }
+  await sleep(950);
+  afterPlayerAction();
+}
+async function playerItem(kind){
+  setBattleCmds(false);
+  if(kind === "yakusou"){
+    P.yakusou--; sfx("heal");
+    var h = 30; P.hp = Math.min(P.maxhp, P.hp + h);
+    battleLog("やくそうを 使った。HPが " + h + " 回復した！");
+  } else {
+    P.mizu--; sfx("heal");
+    var m = 10; P.mp = Math.min(P.maxmp, P.mp + m);
+    battleLog("まほうのみずを 飲んだ。MPが " + m + " 回復した！");
+  }
+  updateStatus();
+  await sleep(950);
+  afterPlayerAction();
+}
+async function playerRun(){
+  setBattleCmds(false);
+  if(Math.random() < 0.6){
+    sfx("run");
+    battleLog("ゆうしゃは 逃げ出した！");
+    await sleep(800);
+    endBattleToMap();
+  } else {
+    battleLog("逃げられなかった！");
+    await sleep(800);
+    enemyTurn();
+  }
+}
+async function afterPlayerAction(){
+  if(B.hp <= 0){ winBattle(); return; }
+  enemyTurn();
+}
+async function enemyTurn(){
+  B.turn++;
+  await sleep(350);
+  var strong = B.boss && B.turn % 3 === 0;
+  var dmg = Math.max(1, B.atk - Math.floor(defOf() / 2) + rand(0, 3));
+  if(strong) dmg = Math.floor(dmg * 1.5);
+  P.hp -= dmg;
+  await fxEnemyHit();
+  updateStatus();
+  battleLog(strong
+    ? "ガルゾンの『あんこくのほのお』！　ゆうしゃは " + dmg + " のダメージを 受けた！"
+    : B.name + " の こうげき！　ゆうしゃは " + dmg + " のダメージを 受けた！");
+  await sleep(950);
+  if(P.hp <= 0){ gameOver(); return; }
+  battleLog(B.name + " HP " + Math.max(0, B.hp) + " / " + B.maxhp + "　どうする？");
+  setBattleCmds(true);
+}
+async function winBattle(){
+  B.over = true;
+  sfx("win");
+  drawBattle(0, false);
+  /* 敵が消える演出 */
+  ctx.fillStyle = P.map === "cave" ? "#3a3444" : "#a8d88a";
+  var scale = B.boss ? 9 : 7, w = 16 * scale;
+  ctx.fillRect(240 - w / 2, B.boss ? 60 : 92, w, w);
+  P.exp += B.exp; P.gold += B.gold;
+  var wasBoss = B.boss, gotExp = B.exp, gotGold = B.gold, ename = B.name;
+  B = null;
+  updateStatus();
+  await sleep(500);
+  var lines = [ename + " を たおした！", "経験値 " + gotExp + " と " + gotGold + "G を 手に入れた！"];
+  /* レベルアップ判定 */
+  var leveled = false, newSpellNames = [];
+  while(P.lv < MAX_LEVEL && P.exp >= LEVEL_EXP[P.lv + 1]){
+    var before = knownSpells().length;
+    P.lv++; leveled = true;
+    P.maxhp += 7; P.maxmp += 3; P.baseAtk += 3; P.baseDef += 2;
+    P.hp = P.maxhp; P.mp = P.maxmp;
+    knownSpells().slice(before).forEach(function(s){ newSpellNames.push(s.name); });
+  }
+  if(leveled){
+    sfx("level");
+    lines.push("🎉 レベルが " + P.lv + " に 上がった！　HP・MPも 全回復した！");
+    newSpellNames.forEach(function(n){ lines.push("✨ 新しい じゅもん『" + n + "』を 覚えた！"); });
+  }
+  updateStatus();
+  mode = "map"; setControls();
+  busy = true;
+  showMessages(lines, function(){
+    busy = false;
+    if(wasBoss){ bossCleared(); return; }
+    drawMap();
+    msgWin.textContent = "たたかいは 終わった。";
+  });
+}
+function endBattleToMap(){
+  B = null;
+  mode = "map"; setControls();
+  drawMap();
+}
+async function gameOver(){
+  B = null;
+  sfx("die");
+  mode = "map"; setControls();
+  busy = true;
+  var lost = Math.floor(P.gold / 2);
+  P.gold -= lost;
+  P.hp = P.maxhp; P.mp = P.maxmp;
+  P.map = "village"; P.x = 9; P.y = 12;
+  updateStatus(); drawMap();
+  showMessages([
+    "ゆうしゃは 力つきた…。",
+    "村の人が 助けてくれた。所持金が 半分（" + lost + "G）に なったけど、HP・MPは 全回復した。"
+  ], function(){ busy = false; });
+}
+function bossCleared(){
+  P.bossDown = true;
+  saveGame();
+  var mins = Math.max(1, Math.round((Date.now() - startTime) / 60000));
+  mode = "ending"; setControls();
+  document.getElementById("endingText").textContent =
+    "まおうガルゾンは 倒れ、『ひかりのたま』が ゆうしゃの手に もどった。村に 平和が もどり、みんなの笑顔が 戻った。" +
+    "冒険クリア！（レベル " + P.lv + "／クリアまで 約" + mins + "分）　あそんでくれて ありがとう！";
+  document.getElementById("endingScreen").style.display = "flex";
+  sfx("level");
+}
+
+/* ---------- バトルのコマンド ---------- */
+document.getElementById("cmdFight").addEventListener("click", function(){ if(B && !B.over) playerAttack(); });
+document.getElementById("cmdRun").addEventListener("click", function(){ if(B && !B.over && !B.boss) playerRun(); });
+document.getElementById("cmdSpell").addEventListener("click", function(){
+  if(!B || B.over) return;
+  var spells = knownSpells();
+  if(spells.length === 0){
+    battleLog("まだ じゅもんを 覚えていない。（レベル2で 覚えます）");
+    return;
+  }
+  setBattleCmds(false);
+  var items = spells.map(function(sp){
+    return { label: "✨ " + sp.name + "（MP" + sp.mp + "）" + sp.desc, disabled: P.mp < sp.mp, sp: sp };
+  });
+  items.push({ label: "もどる", sp: null });
+  battleLog("どの じゅもんを 使いますか？");
+  showChoices(items, function(pick){
+    if(!pick.sp){ battleLog(B.name + " が こちらを 見ている。どうする？"); setBattleCmds(true); return; }
+    playerSpell(pick.sp);
+  });
+});
+document.getElementById("cmdItem").addEventListener("click", function(){
+  if(!B || B.over) return;
+  if(P.yakusou <= 0 && P.mizu <= 0){
+    battleLog("どうぐを 持っていない。");
+    return;
+  }
+  setBattleCmds(false);
+  var items = [];
+  if(P.yakusou > 0) items.push({ label: "🌿 やくそう ×" + P.yakusou + "（HP 30回復）", kind: "yakusou" });
+  if(P.mizu > 0) items.push({ label: "💧 まほうのみず ×" + P.mizu + "（MP 10回復）", kind: "mizu" });
+  items.push({ label: "もどる", kind: null });
+  battleLog("どの どうぐを 使いますか？");
+  showChoices(items, function(pick){
+    if(!pick.kind){ battleLog(B.name + " が こちらを 見ている。どうする？"); setBattleCmds(true); return; }
+    playerItem(pick.kind);
+  });
+});
+
+/* ---------- タイトル・その他ボタン ---------- */
+function startGame(fromSave){
+  var data = fromSave ? loadGame() : null;
+  if(data){
+    P = Object.assign(newPlayer(), data);
+    soundOn = data.soundOn !== false;
+  } else {
+    P = newPlayer();
+  }
+  startTime = Date.now();
+  mode = "map"; setControls();
+  document.getElementById("titleScreen").style.display = "none";
+  document.getElementById("endingScreen").style.display = "none";
+  document.getElementById("btnSound").textContent = soundOn ? "🔊 おと：ON" : "🔇 おと：OFF";
+  updateStatus(); drawMap();
+  if(data){
+    msgWin.textContent = "つづきから はじめます。がんばってください！";
+  } else {
+    busy = true;
+    showMessages([
+      "ここは 平和な むら、ヒカリ村。",
+      "ある日、まおうガルゾンが 現れ、村の宝『ひかりのたま』を うばって 北の洞窟へ 逃げてしまった。",
+      "若き ゆうしゃは、たまを とりもどす 旅に 出る。まずは 村長に 話を 聞いてみよう。（村長は 泉の南に います）"
+    ], function(){ busy = false; });
+  }
+}
+document.getElementById("btnNew").addEventListener("click", function(){
+  sfx("talk");
+  if(hasSave()){
+    msgWin.textContent = "セーブデータが あります。はじめから始めると 上書きされます。";
+    showChoices([
+      { label: "新しく はじめる" },
+      { label: "やめる" }
+    ], function(it){
+      if(it.label.indexOf("新しく") === 0) startGame(false);
+    });
+    return;
+  }
+  startGame(false);
+});
+document.getElementById("btnContinue").addEventListener("click", function(){ sfx("talk"); startGame(true); });
+document.getElementById("btnUpdate").addEventListener("click", function(){ location.reload(); });
+document.getElementById("btnToTitle").addEventListener("click", function(){
+  document.getElementById("endingScreen").style.display = "none";
+  document.getElementById("titleScreen").style.display = "flex";
+  mode = "title"; setControls();
+  document.getElementById("btnContinue").disabled = !hasSave();
+  msgWin.textContent = "タイトル画面です。";
+});
+document.getElementById("btnTalk").addEventListener("click", interact);
+document.getElementById("btnSave").addEventListener("click", function(){
+  if(mode !== "map" || busy) return;
+  if(saveGame()){ sfx("save"); msgWin.textContent = "💾 セーブしました。タイトルの『つづきから』で 再開できます。"; }
+  else msgWin.textContent = "セーブに 失敗しました（この環境では 保存できないようです）。";
+});
+document.getElementById("btnSound").addEventListener("click", function(){
+  soundOn = !soundOn;
+  this.textContent = soundOn ? "🔊 おと：ON" : "🔇 おと：OFF";
+  if(soundOn) sfx("talk");
+});
+
+/* ---------- 入力（十字ボタン長押し・キーボード） ---------- */
+var holdTimer = null;
+document.querySelectorAll(".dpad button[data-dir]").forEach(function(btn){
+  var dir = btn.getAttribute("data-dir");
+  function start(e){
+    e.preventDefault();
+    tryMove(dir);
+    clearInterval(holdTimer);
+    holdTimer = setInterval(function(){ tryMove(dir); }, 190);
+  }
+  function stop(){ clearInterval(holdTimer); }
+  btn.addEventListener("pointerdown", start);
+  btn.addEventListener("pointerup", stop);
+  btn.addEventListener("pointerleave", stop);
+  btn.addEventListener("pointercancel", stop);
+  btn.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+});
+var KEYMAP = { ArrowUp:"up", ArrowDown:"down", ArrowLeft:"left", ArrowRight:"right", w:"up", s:"down", a:"left", d:"right", W:"up", S:"down", A:"left", D:"right" };
+document.addEventListener("keydown", function(e){
+  if(KEYMAP[e.key]){ e.preventDefault(); tryMove(KEYMAP[e.key]); }
+  else if((e.key === "Enter" || e.key === " ") && mode === "map"){
+    e.preventDefault();
+    if(msgWaiting && !choiceOpen) nextMessage(); else interact();
+  }
+});
+
+/* ---------- 初期化 ---------- */
+(function init(){
+  document.getElementById("btnContinue").disabled = !hasSave();
+  P = newPlayer(); /* 背景描画用 */
+  updateStatus();
+  drawMap();
+  P = null;
+  updateStatus();
+})();
+</script>
+</body>
+</html>

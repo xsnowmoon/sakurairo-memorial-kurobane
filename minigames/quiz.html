@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>期末テストクイズ | Snow Moon Games</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:sans-serif;background:#f4f1e6;color:#26303e;line-height:1.6}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:22px;text-align:center;margin:8px 0 2px}
+.sub{text-align:center;color:#7a7260;font-size:13px;margin-bottom:14px}
+.paper{background:#fffdf4;border:2px solid #d8d2ba;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.meta{display:flex;justify-content:space-between;font-weight:700;font-size:14px;color:#7a7260;margin-bottom:8px}
+.q{font-size:19px;font-weight:900;margin:6px 0 14px;min-height:56px}
+.choices{display:grid;gap:10px}
+.choices button{font-size:17px;font-weight:700;text-align:left;padding:14px 16px;border:2px solid #c9c2a4;border-radius:10px;background:#fff;cursor:pointer;color:#26303e}
+.choices button:active{transform:scale(.98)}
+.choices button.right{background:#dff3df;border-color:#4caf50}
+.choices button.wrong{background:#fbe3e3;border-color:#e57373}
+.fb{margin-top:12px;font-weight:900;min-height:28px;text-align:center}
+.btn{display:block;width:100%;font-size:17px;font-weight:900;padding:14px;border:0;border-radius:10px;background:#e75480;color:#fff;cursor:pointer;margin-top:12px}
+.btn.ghost{background:#fff;color:#26303e;border:2px solid #c9c2a4}
+.center{text-align:center}
+.big{font-size:30px;font-weight:900}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+td,th{border-bottom:1px solid #e3ddc8;padding:6px 8px;font-size:15px}
+.me{font-weight:900;color:#e75480}
+.credit{text-align:center;color:#9a927c;font-size:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>📝 期末テストクイズ</h1>
+<p class="sub">桜丘黒羽学園・期末テスト（全20問）</p>
+
+<div class="paper" id="scr-title">
+  <p>国語・数学・英語・理科・社会の5教科に、黒羽のご当地問題をまぜた期末テストです。1問5点、全20問で100点満点。クラス順位も出ます。</p>
+  <p id="best-line" style="font-weight:700;color:#7a7260"></p>
+  <button class="btn" id="btn-start">テスト開始</button>
+</div>
+
+<div class="paper" id="scr-quiz" style="display:none">
+  <div class="meta"><span id="q-no">第1問</span><span id="q-cat">国語</span><span id="q-score">0点</span></div>
+  <div class="q" id="q-text"></div>
+  <div class="choices" id="q-choices"></div>
+  <div class="fb" id="q-fb"></div>
+</div>
+
+<div class="paper" id="scr-result" style="display:none">
+  <div class="center">
+    <div>あなたの点数</div>
+    <div class="big"><span id="r-score">0</span>点</div>
+    <div id="r-rank" style="font-weight:900;font-size:18px"></div>
+    <div id="r-msg" style="margin-top:6px"></div>
+  </div>
+  <table id="r-table"></table>
+  <button class="btn" id="btn-retry">もう一度受ける</button>
+</div>
+
+<button class="btn ghost" onclick="location.href=location.href.split('?')[0]+'?b='+Date.now()">🔄 最新版に更新（キャッシュを消して読み直す）</button>
+<p class="credit">Snow Moon Games Ver.20261121.1.0</p>
+</div>
+<script>
+const BANK=[
+ // 国語
+ {c:"国語",q:"「傍若無人」の読み方は？",a:["ぼうじゃくぶじん","ぼうわくむじん","ほうじゃくぶにん","ぼうじゃくむにん"],t:0},
+ {c:"国語",q:"「雨降って地固まる」の意味は？",a:["もめごとの後は、かえって物事が落ち着く","雨の日は地面が固い","準備が大切だということ","運は天に任せるべきだということ"],t:0},
+ {c:"国語",q:"松尾芭蕉の代表作は？",a:["奥の細道","源氏物語","枕草子","方丈記"],t:0},
+ {c:"国語",q:"「月日は百代の過客にして」の続きは？",a:["行きかう年もまた旅人なり","花の色は移りにけりな","祇園精舎の鐘の声","心こそ心まよわす心なれ"],t:0},
+ {c:"国語",q:"次の中で季語が「夏」のものは？",a:["蛍","雪景色","紅葉","初詣"],t:0},
+ {c:"国語",q:"「石の上にも三年」で言いたいことは？",a:["辛抱すれば成果が出る","石は3年で割れる","三年寝太郎の話","何事も3日で飽きる"],t:0},
+ // 数学
+ {c:"数学",q:"17 + 25 = ?",a:["42","41","43","40"],t:0},
+ {c:"数学",q:"6 × 8 = ?",a:["48","46","52","44"],t:0},
+ {c:"数学",q:"144 ÷ 12 = ?",a:["12","14","11","16"],t:0},
+ {c:"数学",q:"三角形の内角の和は？",a:["180度","90度","270度","360度"],t:0},
+ {c:"数学",q:"半径3cmの円の面積はおよそ？（円周率3.14）",a:["28.26cm²","18.84cm²","9.42cm²","37.68cm²"],t:0},
+ {c:"数学",q:"2の5乗は？",a:["32","16","25","64"],t:0},
+ // 英語
+ {c:"英語",q:"「library」の意味は？",a:["図書館","本屋","実験室","体育館"],t:0},
+ {c:"英語",q:"「Wednesday」は何曜日？",a:["水曜日","月曜日","金曜日","土曜日"],t:0},
+ {c:"英語",q:"「I ___ a student.」に入るのは？",a:["am","is","are","be"],t:0},
+ {c:"英語",q:"「beautiful」の反対の意味に近いのは？",a:["ugly","pretty","lovely","kind"],t:0},
+ {c:"英語",q:"「駅」を英語で言うと？",a:["station","airport","hospital","museum"],t:0},
+ // 理科
+ {c:"理科",q:"水の化学式は？",a:["H2O","CO2","O2","H2"],t:0},
+ {c:"理科",q:"植物が光合成で出す気体は？",a:["酸素","二酸化炭素","窒素","水素"],t:0},
+ {c:"理科",q:"地球から一番近い星は？",a:["太陽","月","火星","金星"],t:0},
+ {c:"理科",q:"音が伝わる速さ（空気中・およそ）は？",a:["秒速340m","秒速30万km","秒速100m","秒速1000km"],t:0},
+ {c:"理科",q:"昆虫の足は何本？",a:["6本","8本","4本","10本"],t:0},
+ // 社会
+ {c:"社会",q:"日本の都道府県の数は？",a:["47","45","43","50"],t:0},
+ {c:"社会",q:"江戸幕府を開いたのは？",a:["徳川家康","織田信長","豊臣秀吉","源頼朝"],t:0},
+ {c:"社会",q:"日本で一番長い川は？",a:["信濃川","利根川","石狩川","那珂川"],t:0},
+ {c:"社会",q:"憲法が公布されたのは何年？",a:["1946年","1945年","1868年","1989年"],t:0},
+ {c:"社会",q:"世界で一番面積の大きい国は？",a:["ロシア","カナダ","中国","アメリカ"],t:0},
+ // 黒羽・ご当地
+ {c:"黒羽",q:"松尾芭蕉が黒羽に滞在した日数は？",a:["14日間","3日間","30日間","7日間"],t:0},
+ {c:"黒羽",q:"芭蕉が黒羽を訪れたのは何年？",a:["1689年","1603年","1777年","1901年"],t:0},
+ {c:"黒羽",q:"黒羽城址公園で有名な花は？",a:["紫陽花","桜だけ","バラ","ひまわり"],t:0},
+ {c:"黒羽",q:"那珂川の名産で、漁獲量が日本有数なのは？",a:["鮎","うなぎ","わかさぎ","鮭"],t:0},
+ {c:"黒羽",q:"「明治のナイチンゲール」と呼ばれた黒羽出身の看護の先駆者は？",a:["大関和","樋口一葉","与謝野晶子","津田梅子"],t:0},
+ {c:"黒羽",q:"羽田沼にいることで知られる鳥は？",a:["黒い白鳥","丹頂鶴","白鳥はいない","フラミンゴ"],t:0},
+ {c:"黒羽",q:"黒羽にある、芭蕉も訪れた古刹は？",a:["雲巌寺","日光東照宮","中禅寺","輪王寺"],t:0}
+];
+const CLASSMATES=[["桜井 さくら",0],["星野 あかり",0],["月島 ゆき",0],["藤原 りん",0],["蒼井 翼",0],["クラスメイトA",0],["クラスメイトB",0],["クラスメイトC",0]];
+let qs=[],idx=0,score=0,lock=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function $(id){return document.getElementById(id)}
+function show(id){["scr-title","scr-quiz","scr-result"].forEach(s=>$(s).style.display=s===id?"block":"none")}
+function best(){try{return +localStorage.getItem("sm-quiz-best")||0}catch(e){return 0}}
+function setBest(v){try{localStorage.setItem("sm-quiz-best",v)}catch(e){}}
+$("best-line").textContent=best()?("これまでの最高点："+best()+"点"):"";
+$("btn-start").onclick=start;$("btn-retry").onclick=start;
+function start(){
+ qs=shuffle(BANK.slice()).slice(0,20);idx=0;score=0;show("scr-quiz");next();
+}
+function next(){
+ lock=false;const q=qs[idx];
+ $("q-no").textContent="第"+(idx+1)+"問／20";
+ $("q-cat").textContent=q.c;$("q-score").textContent=score+"点";
+ $("q-text").textContent=q.q;$("q-fb").textContent="";
+ const order=shuffle(q.a.map((t,i)=>({t,ok:i===q.t})));
+ const box=$("q-choices");box.innerHTML="";
+ order.forEach(o=>{
+  const b=document.createElement("button");b.textContent=o.t;
+  b.onclick=()=>{
+   if(lock)return;lock=true;
+   if(o.ok){b.classList.add("right");score+=5;$("q-fb").textContent="⭕ 正解！ +5点";$("q-fb").style.color="#2e7d32"}
+   else{b.classList.add("wrong");$("q-fb").textContent="❌ 不正解… 正解は「"+q.a[q.t]+"」";$("q-fb").style.color="#c62828";
+    [...box.children].forEach(x=>{if(x.textContent===q.a[q.t])x.classList.add("right")})}
+   $("q-score").textContent=score+"点";
+   setTimeout(()=>{idx++;idx<qs.length?next():result()},1300);
+  };
+  box.appendChild(b);
+ });
+}
+function result(){
+ show("scr-result");
+ if(score>best())setBest(score);
+ $("r-score").textContent=score;
+ const rows=CLASSMATES.map(([n])=>({n,s:Math.max(5,Math.min(100,Math.round((35+Math.random()*60)/5)*5))}));
+ rows.push({n:"あなた",s:score,me:true});
+ rows.sort((a,b)=>b.s-a.s);
+ const rank=rows.findIndex(r=>r.me)+1;
+ $("r-rank").textContent="クラス順位："+rank+"位／"+rows.length+"人";
+ $("r-msg").textContent=score>=90?"すごい！学年トップクラスの出来です。":score>=70?"よくできました。この調子！":score>=50?"まずまず。復習してもう一歩。":"赤点すれすれ…補習で挽回しましょう。";
+ $("r-table").innerHTML=rows.map(r=>"<tr class='"+(r.me?"me":"")+"'><td>"+r.n+"</td><td style='text-align:right'>"+r.s+"点</td></tr>").join("");
+}
+</script>
+</body>
+</html>

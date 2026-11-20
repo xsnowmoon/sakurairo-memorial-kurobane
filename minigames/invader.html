@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>ドットインベーダー</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: #04070a;
+        color: #e8f5e9;
+        font-family: "Courier New", ui-monospace, monospace;
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
+      }
+      .wrap {
+        max-width: 540px;
+        margin: 0 auto;
+        padding: 10px 10px 18px;
+      }
+      /* ===== HUD ===== */
+      .hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 8px;
+        padding: 4px 2px 8px;
+      }
+      .hud .cell { min-width: 0; }
+      .hud .label {
+        font-size: 11px;
+        letter-spacing: .18em;
+        color: #7fd08c;
+      }
+      .hud .value {
+        font-size: 24px;
+        font-weight: bold;
+        line-height: 1.1;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+      }
+      .hud .right { text-align: right; }
+      .hud .lives { font-size: 20px; color: #3dff6e; letter-spacing: .1em; }
+      /* ===== Stage ===== */
+      .stage {
+        position: relative;
+        border: 2px solid #2c5b38;
+        border-radius: 6px;
+        background: #020604;
+        box-shadow: 0 0 0 4px #0a140c, 0 0 24px rgba(61,255,110,.12) inset;
+        overflow: hidden;
+      }
+      canvas#game {
+        display: block;
+        width: 100%;
+        height: auto;
+        touch-action: none;
+      }
+      /* ===== Overlays ===== */
+      .overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 12px 14px;
+        background: rgba(2, 8, 4, .88);
+        z-index: 5;
+        overflow-y: auto;
+      }
+      .overlay > * { flex-shrink: 0; }
+      .overlay.hidden { display: none; }
+      .game-title {
+        font-size: clamp(25px, 7.6vw, 42px);
+        font-weight: bold;
+        letter-spacing: .04em;
+        color: #3dff6e;
+        text-shadow: 3px 3px 0 #0d3a1a, 6px 6px 0 rgba(0,0,0,.6);
+        margin: 0 0 2px;
+        line-height: 1.15;
+        white-space: nowrap;
+      }
+      .game-sub {
+        color: #ffd94d;
+        font-size: 13px;
+        letter-spacing: .3em;
+        margin: 0 0 10px;
+      }
+      .legend {
+        margin: 0 auto 10px;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      .legend td { padding: 2px 8px; vertical-align: middle; }
+      .legend canvas { display: block; }
+      .legend .pts { color: #fff; font-weight: bold; text-align: left; }
+      .hi-line { font-size: 16px; color: #ffd94d; margin: 0 0 10px; font-weight: bold; }
+      .credit { font-size: 12px; color: #8fae97; margin-top: 10px; letter-spacing: .08em; }
+      .big-msg {
+        font-size: clamp(26px, 8vw, 38px);
+        font-weight: bold;
+        color: #ff5d5d;
+        text-shadow: 3px 3px 0 rgba(0,0,0,.7);
+        margin: 0 0 10px;
+        letter-spacing: .08em;
+      }
+      .big-msg.clear { color: #3dff6e; }
+      .final-score { font-size: 20px; color: #fff; margin: 0 0 6px; }
+      .new-record { font-size: 16px; color: #ffd94d; font-weight: bold; margin: 0 0 10px; }
+      .howto {
+        font-size: 12px;
+        color: #b9d6c0;
+        line-height: 1.6;
+        margin: 10px 0 0;
+      }
+      /* ===== Buttons ===== */
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        min-height: 48px;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .btn-start {
+        background: #1fae4e;
+        color: #fff;
+        font-size: 22px;
+        font-weight: bold;
+        padding: 14px 34px;
+        letter-spacing: .1em;
+        box-shadow: 0 4px 0 #0d6b2c;
+      }
+      .btn-start:active { transform: translateY(3px); box-shadow: 0 1px 0 #0d6b2c; }
+      .btn-sub {
+        background: #17351f;
+        color: #c9ecd2;
+        font-size: 15px;
+        padding: 10px 20px;
+        margin-top: 10px;
+        border: 1px solid #2c5b38;
+      }
+      .btn-row { display: flex; flex-direction: column; align-items: center; }
+      /* ===== Controls ===== */
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .move-group { display: flex; gap: 12px; }
+      .btn-move {
+        width: 84px;
+        height: 72px;
+        font-size: 34px;
+        background: #14301c;
+        color: #3dff6e;
+        border: 2px solid #2c5b38;
+        box-shadow: 0 4px 0 #08130b;
+      }
+      .btn-move.pressed, .btn-move:active { background: #1fae4e; color: #fff; transform: translateY(3px); box-shadow: 0 1px 0 #08130b; }
+      .btn-fire {
+        flex: 0 0 128px;
+        height: 72px;
+        font-size: 22px;
+        font-weight: bold;
+        letter-spacing: .12em;
+        background: #c22f2f;
+        color: #fff;
+        border: 2px solid #7c1d1d;
+        box-shadow: 0 4px 0 #4d1010;
+      }
+      .btn-fire.pressed, .btn-fire:active { background: #e84545; transform: translateY(3px); box-shadow: 0 1px 0 #4d1010; }
+      .toggle-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      .btn-toggle {
+        flex: 1 1 auto;
+        min-height: 48px;
+        font-size: 15px;
+        font-weight: bold;
+        background: #101c13;
+        color: #9fc7aa;
+        border: 1px solid #2c5b38;
+        padding: 8px 6px;
+      }
+      .btn-toggle.on { background: #1fae4e; color: #fff; border-color: #1fae4e; }
+      .note {
+        font-size: 12px;
+        color: #6f8f78;
+        text-align: center;
+        margin: 12px 0 0;
+        line-height: 1.6;
+      }
+      @media (max-width: 380px) {
+        .btn-move { width: 72px; }
+        .btn-fire { flex-basis: 108px; font-size: 19px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <!-- HUD -->
+      <div class="hud" aria-hidden="true">
+        <div class="cell">
+          <div class="label">SCORE</div>
+          <div class="value" id="hudScore">0</div>
+        </div>
+        <div class="cell">
+          <div class="label">HI-SCORE</div>
+          <div class="value" id="hudHi">0</div>
+        </div>
+        <div class="cell">
+          <div class="label">LEVEL</div>
+          <div class="value" id="hudLevel">1</div>
+        </div>
+        <div class="cell right">
+          <div class="label">LIVES</div>
+          <div class="lives" id="hudLives">▲▲▲</div>
+        </div>
+      </div>
+
+      <!-- Stage -->
+      <div class="stage" id="stage">
+        <canvas id="game" width="480" height="560"></canvas>
+
+        <!-- Title -->
+        <div class="overlay" id="titleScreen">
+          <h1 class="game-title">ドットインベーダー</h1>
+          <p class="game-sub">DOT INVADER</p>
+          <table class="legend" aria-label="得点表">
+            <tr>
+              <td><canvas id="legendUfo" width="48" height="21"></canvas></td>
+              <td class="pts">= ? 点</td>
+            </tr>
+            <tr>
+              <td><canvas id="legendA" width="33" height="24"></canvas></td>
+              <td class="pts">= 30 点</td>
+            </tr>
+            <tr>
+              <td><canvas id="legendB" width="33" height="24"></canvas></td>
+              <td class="pts">= 20 点</td>
+            </tr>
+            <tr>
+              <td><canvas id="legendC" width="33" height="24"></canvas></td>
+              <td class="pts">= 10 点</td>
+            </tr>
+          </table>
+          <p class="hi-line">ハイスコア：<span id="titleHi">0</span> 点</p>
+          <div class="btn-row">
+            <button class="btn-start" id="btnStart" type="button">▶ ゲームスタート</button>
+            <button class="btn-sub" id="btnUpdate" type="button">🔄 最新版に更新</button>
+          </div>
+          <p class="howto">
+            ◀ ▶ ボタン／ドラッグ／矢印キーで移動<br />
+            発射ボタン／スペースキーで攻撃
+          </p>
+          <p class="credit">Snow Moon　Ver.20261120.1.0</p>
+        </div>
+
+        <!-- Game over -->
+        <div class="overlay hidden" id="overScreen">
+          <p class="big-msg">GAME OVER</p>
+          <p class="final-score">スコア：<span id="finalScore">0</span> 点</p>
+          <p class="new-record" id="newRecord" style="display:none">★ ハイスコア更新！ ★</p>
+          <p class="hi-line">ハイスコア：<span id="overHi">0</span> 点</p>
+          <div class="btn-row">
+            <button class="btn-start" id="btnRetry" type="button">▶ もう一度</button>
+            <button class="btn-sub" id="btnToTitle" type="button">タイトルへ戻る</button>
+          </div>
+          <p class="credit">Snow Moon　Ver.20261120.1.0</p>
+        </div>
+
+        <!-- Level clear -->
+        <div class="overlay hidden" id="clearScreen" style="background:rgba(2,8,4,.55)">
+          <p class="big-msg clear">LEVEL <span id="clearLevel">1</span> CLEAR!</p>
+          <p class="final-score">次のレベルへ…</p>
+        </div>
+      </div>
+
+      <!-- Touch controls -->
+      <div class="controls">
+        <div class="move-group">
+          <button class="btn-move" id="btnLeft" type="button" aria-label="左へ移動">◀</button>
+          <button class="btn-move" id="btnRight" type="button" aria-label="右へ移動">▶</button>
+        </div>
+        <button class="btn-fire" id="btnFire" type="button" aria-label="発射">発射</button>
+      </div>
+
+      <div class="toggle-row">
+        <button class="btn-toggle on" id="btnSound" type="button">🔊 音 ON</button>
+        <button class="btn-toggle" id="btnAuto" type="button">オート連射 OFF</button>
+        <button class="btn-toggle" id="btnPause" type="button">⏸ 一時停止</button>
+      </div>
+
+      <p class="note">宇宙人を全滅させると次のレベルへ。宇宙人が一番下まで来たら終わりです。</p>
+    </main>
+
+    <script>
+      "use strict";
+      /* ============================================================
+         ドットインベーダー Ver.20261120.1.0 / Snow Moon
+         絵はすべてコード内のピクセルマップから描画（画像ファイルなし）
+         ============================================================ */
+
+      var W = 480, H = 560;
+      var GROUND_Y = H - 46;          // 地面ライン
+      var PLAYER_Y = H - 78;          // 自機の表示位置
+
+      var canvas = document.getElementById("game");
+      var ctx = canvas.getContext("2d");
+
+      /* ---------- ピクセルマップ（オリジナル） ---------- */
+      // 自機（大砲）13×8
+      var SPR_PLAYER = [
+        "......X......",
+        ".....XXX.....",
+        ".....XXX.....",
+        ".XXXXXXXXXXX.",
+        "XXXXXXXXXXXXX",
+        "XXXXXXXXXXXXX",
+        "XXXXXXXXXXXXX",
+        "XXXXXXXXXXXXX"
+      ];
+      // 宇宙人A（上段）11×8 ×2フレーム
+      var SPR_A = [
+        [
+          "..X.....X..",
+          "...X...X...",
+          "..XXXXXXX..",
+          ".XX.XXX.XX.",
+          "XXXXXXXXXXX",
+          "X.XXXXXXX.X",
+          "X.X.....X.X",
+          "...XX.XX..."
+        ],
+        [
+          "..X.....X..",
+          "X..X...X..X",
+          "X.XXXXXXX.X",
+          "X.XX.XXX.XX",
+          ".XXXXXXXXX.",
+          "..XXXXXXX..",
+          "..X.....X..",
+          ".X.......X."
+        ]
+      ];
+      // 宇宙人B（中段）11×8 ×2フレーム
+      var SPR_B = [
+        [
+          "....XXX....",
+          "..XXXXXXX..",
+          ".XXXXXXXXX.",
+          "XXX..X..XXX",
+          "XXXXXXXXXXX",
+          "...XX.XX...",
+          "..XX.X.XX..",
+          "XX.......XX"
+        ],
+        [
+          "....XXX....",
+          "..XXXXXXX..",
+          ".XXXXXXXXX.",
+          "XXX..X..XXX",
+          "XXXXXXXXXXX",
+          "..XX.X.XX..",
+          ".XX.....XX.",
+          ".XX.....XX."
+        ]
+      ];
+      // 宇宙人C（下段）11×8 ×2フレーム
+      var SPR_C = [
+        [
+          ".....X.....",
+          "....XXX....",
+          "...XXXXX...",
+          "..XX.X.XX..",
+          "..XXXXXXX..",
+          "....X.X....",
+          "...X...X...",
+          "..X.....X.."
+        ],
+        [
+          ".....X.....",
+          "....XXX....",
+          "...XXXXX...",
+          "..XX.X.XX..",
+          "..XXXXXXX..",
+          "...X.X.X...",
+          "...X.X.X...",
+          "....X.X...."
+        ]
+      ];
+      // 謎のUFO 16×7
+      var SPR_UFO = [
+        ".....XXXXXX.....",
+        "...XXXXXXXXXX...",
+        "..XXXXXXXXXXXX..",
+        ".XX.XX.XX.XX.XX.",
+        "XXXXXXXXXXXXXXXX",
+        "..XXX..XX..XXX..",
+        "...X........X..."
+      ];
+
+      /* スプライトをオフスクリーンCanvasに焼く */
+      function bakeSprite(map, scale, color) {
+        var h = map.length, w = map[0].length;
+        var c = document.createElement("canvas");
+        c.width = w * scale; c.height = h * scale;
+        var g = c.getContext("2d");
+        g.fillStyle = color;
+        for (var y = 0; y < h; y++) {
+          for (var x = 0; x < w; x++) {
+            if (map[y].charAt(x) === "X") g.fillRect(x * scale, y * scale, scale, scale);
+          }
+        }
+        return c;
+      }
+
+      var IMG = {
+        player: bakeSprite(SPR_PLAYER, 4, "#3dff6e"),
+        playerHit: bakeSprite(SPR_PLAYER, 4, "#ff5d5d"),
+        A: [bakeSprite(SPR_A[0], 3, "#ff5dd2"), bakeSprite(SPR_A[1], 3, "#ff5dd2")],
+        B: [bakeSprite(SPR_B[0], 3, "#39d5ff"), bakeSprite(SPR_B[1], 3, "#39d5ff")],
+        C: [bakeSprite(SPR_C[0], 3, "#8dff57"), bakeSprite(SPR_C[1], 3, "#8dff57")],
+        ufo: bakeSprite(SPR_UFO, 3, "#ff4040")
+      };
+      var INV_W = 33, INV_H = 24;
+
+      /* 凡例（タイトル画面）にスプライトを描く */
+      function drawLegend(id, img) {
+        var c = document.getElementById(id);
+        if (c) c.getContext("2d").drawImage(img, 0, 0);
+      }
+      drawLegend("legendA", IMG.A[0]);
+      drawLegend("legendB", IMG.B[0]);
+      drawLegend("legendC", IMG.C[0]);
+      drawLegend("legendUfo", IMG.ufo);
+
+      /* ---------- 効果音（WebAudioビープ） ---------- */
+      var audioCtx = null;
+      var soundOn = true;
+      function ensureAudio() {
+        if (!audioCtx) {
+          try {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) audioCtx = new AC();
+          } catch (e) { audioCtx = null; }
+        }
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+      }
+      function beep(freq, dur, type, vol, slideTo) {
+        if (!soundOn || !audioCtx) return;
+        try {
+          var t = audioCtx.currentTime;
+          var o = audioCtx.createOscillator();
+          var g = audioCtx.createGain();
+          o.type = type || "square";
+          o.frequency.setValueAtTime(freq, t);
+          if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+          g.gain.setValueAtTime(vol || 0.06, t);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o.connect(g); g.connect(audioCtx.destination);
+          o.start(t); o.stop(t + dur);
+        } catch (e) { /* 無音でも進行する */ }
+      }
+      var sfx = {
+        shoot: function () { beep(880, 0.12, "square", 0.05, 220); },
+        boom: function () { beep(160, 0.18, "sawtooth", 0.09, 40); },
+        hit: function () { beep(300, 0.4, "sawtooth", 0.1, 50); },
+        step: function (i) { beep([130, 125, 120, 115][i % 4], 0.07, "triangle", 0.07); },
+        ufo: function () { beep(1200, 0.15, "sine", 0.06, 1800); },
+        clear: function () {
+          beep(523, 0.12, "square", 0.06);
+          setTimeout(function () { beep(659, 0.12, "square", 0.06); }, 120);
+          setTimeout(function () { beep(784, 0.22, "square", 0.06); }, 240);
+        }
+      };
+
+      /* ---------- ゲーム状態 ---------- */
+      var HI_KEY = "dotInvaderHighScore";
+      var hiScore = 0;
+      try { hiScore = parseInt(localStorage.getItem(HI_KEY) || "0", 10) || 0; } catch (e) { hiScore = 0; }
+      function saveHi() {
+        try { localStorage.setItem(HI_KEY, String(hiScore)); } catch (e) { /* 保存できなくても進行 */ }
+      }
+
+      var state = "title"; // title / playing / clear / over
+      var paused = false;
+      var score = 0, lives = 3, level = 1;
+      var isNewRecord = false;
+
+      var player = { x: W / 2, w: 52, h: 32, invUntil: 0, deadUntil: 0 };
+      var invaders = [];       // {col,row,type,alive}
+      var formX = 0, formY = 0, formDir = 1, formFrame = 0;
+      var stepTimer = 0, stepCount = 0;
+      var pBullets = [], eBullets = [], particles = [];
+      var fireCooldown = 0, enemyTimer = 0;
+      var ufo = null, ufoTimer = 0;
+      var clearTimer = 0;
+      var stars = [];
+      for (var si = 0; si < 70; si++) {
+        stars.push({ x: Math.random() * W, y: Math.random() * H, s: Math.random() < 0.3 ? 2 : 1, tw: Math.random() * 6.28 });
+      }
+
+      var COLS = 8, ROWS = 5, PITCH_X = 52, PITCH_Y = 42;
+      var FORM_W = (COLS - 1) * PITCH_X + INV_W;
+
+      function typeOfRow(r) { return r === 0 ? "A" : (r <= 2 ? "B" : "C"); }
+      function scoreOf(t) { return t === "A" ? 30 : (t === "B" ? 20 : 10); }
+
+      function buildFormation() {
+        invaders = [];
+        for (var r = 0; r < ROWS; r++) {
+          for (var c = 0; c < COLS; c++) {
+            invaders.push({ col: c, row: r, type: typeOfRow(r), alive: true });
+          }
+        }
+        formX = (W - FORM_W) / 2;
+        formY = 64 + Math.min(24, (level - 1) * 8);
+        formDir = 1; formFrame = 0;
+        stepTimer = 0; stepCount = 0;
+        eBullets = []; pBullets = [];
+        ufo = null; ufoTimer = 8 + Math.random() * 10;
+      }
+
+      function aliveCount() {
+        var n = 0;
+        for (var i = 0; i < invaders.length; i++) if (invaders[i].alive) n++;
+        return n;
+      }
+      function invPos(inv) {
+        return { x: formX + inv.col * PITCH_X, y: formY + inv.row * PITCH_Y };
+      }
+      function formationBounds() {
+        var minX = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (var i = 0; i < invaders.length; i++) {
+          var inv = invaders[i];
+          if (!inv.alive) continue;
+          var p = invPos(inv);
+          if (p.x < minX) minX = p.x;
+          if (p.x + INV_W > maxX) maxX = p.x + INV_W;
+          if (p.y + INV_H > maxY) maxY = p.y + INV_H;
+        }
+        return { minX: minX, maxX: maxX, maxY: maxY };
+      }
+
+      /* ---------- 入力 ---------- */
+      var input = { left: false, right: false, fire: false };
+      var autoFire = false;
+      var dragX = null;
+
+      function bindHold(el, on, off) {
+        function start(e) { e.preventDefault(); ensureAudio(); el.classList.add("pressed"); on(); }
+        function end(e) { if (e) e.preventDefault(); el.classList.remove("pressed"); off(); }
+        el.addEventListener("pointerdown", start);
+        el.addEventListener("pointerup", end);
+        el.addEventListener("pointercancel", end);
+        el.addEventListener("pointerleave", end);
+        el.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      }
+      bindHold(document.getElementById("btnLeft"),
+        function () { input.left = true; }, function () { input.left = false; });
+      bindHold(document.getElementById("btnRight"),
+        function () { input.right = true; }, function () { input.right = false; });
+      bindHold(document.getElementById("btnFire"),
+        function () { input.fire = true; }, function () { input.fire = false; });
+
+      function canvasPos(e) {
+        var rect = canvas.getBoundingClientRect();
+        return { x: (e.clientX - rect.left) * (W / rect.width), y: (e.clientY - rect.top) * (H / rect.height) };
+      }
+      canvas.addEventListener("pointerdown", function (e) {
+        ensureAudio();
+        dragX = canvasPos(e).x;
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+      canvas.addEventListener("pointermove", function (e) {
+        if (dragX !== null) dragX = canvasPos(e).x;
+      });
+      function endDrag() { dragX = null; }
+      canvas.addEventListener("pointerup", endDrag);
+      canvas.addEventListener("pointercancel", endDrag);
+
+      document.addEventListener("keydown", function (e) {
+        if (e.code === "ArrowLeft") { input.left = true; e.preventDefault(); }
+        else if (e.code === "ArrowRight") { input.right = true; e.preventDefault(); }
+        else if (e.code === "Space") {
+          input.fire = true; ensureAudio();
+          if (state === "title") startGame();
+          e.preventDefault();
+        }
+        else if (e.code === "Enter") {
+          if (state === "title" || state === "over") startGame();
+        }
+        else if (e.code === "KeyP") { togglePause(); }
+      });
+      document.addEventListener("keyup", function (e) {
+        if (e.code === "ArrowLeft") input.left = false;
+        else if (e.code === "ArrowRight") input.right = false;
+        else if (e.code === "Space") input.fire = false;
+      });
+
+      /* ---------- 画面遷移 ---------- */
+      var titleScreen = document.getElementById("titleScreen");
+      var overScreen = document.getElementById("overScreen");
+      var clearScreen = document.getElementById("clearScreen");
+      function show(el) { el.classList.remove("hidden"); }
+      function hide(el) { el.classList.add("hidden"); }
+
+      function startGame() {
+        ensureAudio();
+        score = 0; lives = 3; level = 1; isNewRecord = false;
+        player.x = W / 2; player.invUntil = 0; player.deadUntil = 0;
+        paused = false; updatePauseBtn();
+        buildFormation();
+        state = "playing";
+        hide(titleScreen); hide(overScreen); hide(clearScreen);
+        updateHud();
+      }
+      function gameOver() {
+        state = "over";
+        if (score > hiScore) { hiScore = score; isNewRecord = true; saveHi(); }
+        document.getElementById("finalScore").textContent = score;
+        document.getElementById("overHi").textContent = hiScore;
+        document.getElementById("newRecord").style.display = isNewRecord ? "block" : "none";
+        show(overScreen);
+        updateHud();
+      }
+      function levelClear() {
+        state = "clear";
+        clearTimer = 2.2;
+        document.getElementById("clearLevel").textContent = level;
+        show(clearScreen);
+        sfx.clear();
+        if (score > hiScore) { hiScore = score; saveHi(); }
+        updateHud();
+      }
+      function nextLevel() {
+        level++;
+        hide(clearScreen);
+        player.invUntil = performance.now() / 1000 + 1.5;
+        buildFormation();
+        state = "playing";
+        updateHud();
+      }
+
+      document.getElementById("btnStart").addEventListener("click", startGame);
+      document.getElementById("btnRetry").addEventListener("click", startGame);
+      document.getElementById("btnToTitle").addEventListener("click", function () {
+        state = "title";
+        hide(overScreen); hide(clearScreen);
+        document.getElementById("titleHi").textContent = hiScore;
+        show(titleScreen);
+        buildFormation();
+      });
+      document.getElementById("btnUpdate").addEventListener("click", function () {
+        var base = window.location.href.split("#")[0].split("?")[0];
+        window.location.href = base + "?v=" + Date.now();
+      });
+
+      var btnSound = document.getElementById("btnSound");
+      btnSound.addEventListener("click", function () {
+        soundOn = !soundOn;
+        btnSound.textContent = soundOn ? "🔊 音 ON" : "🔇 音 OFF";
+        btnSound.classList.toggle("on", soundOn);
+        if (soundOn) ensureAudio();
+      });
+      var btnAuto = document.getElementById("btnAuto");
+      btnAuto.addEventListener("click", function () {
+        autoFire = !autoFire;
+        btnAuto.textContent = autoFire ? "オート連射 ON" : "オート連射 OFF";
+        btnAuto.classList.toggle("on", autoFire);
+      });
+      var btnPause = document.getElementById("btnPause");
+      function updatePauseBtn() { btnPause.textContent = paused ? "▶ 再開" : "⏸ 一時停止"; }
+      function togglePause() {
+        if (state !== "playing") return;
+        paused = !paused;
+        updatePauseBtn();
+      }
+      btnPause.addEventListener("click", togglePause);
+
+      /* ---------- HUD ---------- */
+      var hudScore = document.getElementById("hudScore");
+      var hudHi = document.getElementById("hudHi");
+      var hudLevel = document.getElementById("hudLevel");
+      var hudLives = document.getElementById("hudLives");
+      function updateHud() {
+        hudScore.textContent = score;
+        hudHi.textContent = hiScore;
+        hudLevel.textContent = level;
+        var s = "";
+        for (var i = 0; i < lives; i++) s += "▲";
+        hudLives.textContent = s || "—";
+      }
+
+      /* ---------- 爆発パーティクル ---------- */
+      function explode(x, y, color, n) {
+        for (var i = 0; i < (n || 14); i++) {
+          particles.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * 220,
+            vy: (Math.random() - 0.5) * 220 - 40,
+            life: 0.45 + Math.random() * 0.3,
+            color: color,
+            size: 2 + Math.random() * 3
+          });
+        }
+      }
+
+      /* ---------- 更新 ---------- */
+      function stepFormation(dt) {
+        var alive = aliveCount();
+        if (alive === 0) return;
+        // 残りが少ないほど速く、レベルでも速くなる
+        var interval = (0.09 + 0.62 * (alive / (COLS * ROWS))) * Math.pow(0.88, level - 1);
+        stepTimer += dt;
+        if (stepTimer < interval) return;
+        stepTimer = 0;
+        stepCount++;
+        sfx.step(stepCount);
+
+        var dx = 9 * formDir;
+        var b = formationBounds();
+        if ((formDir > 0 && b.maxX + dx > W - 8) || (formDir < 0 && b.minX + dx < 8)) {
+          formDir *= -1;
+          formY += 18;
+        } else {
+          formX += dx;
+        }
+        formFrame = 1 - formFrame;
+
+        if (formationBounds().maxY >= PLAYER_Y + 6) {
+          explode(player.x, PLAYER_Y + 16, "#ff5d5d", 30);
+          sfx.hit();
+          gameOver();
+        }
+      }
+
+      function shootPlayer(now) {
+        if (pBullets.length >= 3) return;
+        pBullets.push({ x: player.x - 1.5, y: PLAYER_Y - 12, w: 3, h: 12 });
+        sfx.shoot();
+        fireCooldown = 0.19;
+      }
+
+      function enemyShoot(dt) {
+        enemyTimer -= dt;
+        if (enemyTimer > 0) return;
+        enemyTimer = Math.max(0.28, (0.55 + Math.random() * 0.6) - level * 0.04);
+        // 各列の一番下に生きている宇宙人から発射候補を選ぶ
+        var shooters = [];
+        for (var c = 0; c < COLS; c++) {
+          var best = null;
+          for (var i = 0; i < invaders.length; i++) {
+            var inv = invaders[i];
+            if (inv.alive && inv.col === c && (!best || inv.row > best.row)) best = inv;
+          }
+          if (best) shooters.push(best);
+        }
+        if (!shooters.length) return;
+        if (eBullets.length >= 3 + level) return;
+        var s = shooters[Math.floor(Math.random() * shooters.length)];
+        var p = invPos(s);
+        eBullets.push({ x: p.x + INV_W / 2 - 1.5, y: p.y + INV_H, w: 3, h: 12, ph: Math.random() * 6.28 });
+      }
+
+      function update(dt, now) {
+        // 星空
+        for (var i = 0; i < stars.length; i++) {
+          stars[i].y += 12 * dt;
+          if (stars[i].y > H) { stars[i].y = -2; stars[i].x = Math.random() * W; }
+        }
+        // パーティクル
+        for (var pi = particles.length - 1; pi >= 0; pi--) {
+          var pt = particles[pi];
+          pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+          pt.vy += 300 * dt; pt.life -= dt;
+          if (pt.life <= 0) particles.splice(pi, 1);
+        }
+
+        if (state === "clear") {
+          clearTimer -= dt;
+          if (clearTimer <= 0) nextLevel();
+          return;
+        }
+        if (state !== "playing" || paused) return;
+
+        // 自機移動
+        var spd = 300;
+        if (input.left) player.x -= spd * dt;
+        if (input.right) player.x += spd * dt;
+        if (dragX !== null) {
+          var diff = dragX - player.x;
+          player.x += diff * Math.min(1, dt * 14);
+        }
+        if (player.x < player.w / 2 + 4) player.x = player.w / 2 + 4;
+        if (player.x > W - player.w / 2 - 4) player.x = W - player.w / 2 - 4;
+
+        // 発射
+        fireCooldown -= dt;
+        if ((input.fire || autoFire) && fireCooldown <= 0 && now > player.deadUntil) shootPlayer(now);
+
+        // 軍団移動＆敵弾
+        stepFormation(dt);
+        if (state !== "playing") return;
+        enemyShoot(dt);
+
+        // UFO
+        ufoTimer -= dt;
+        if (!ufo && ufoTimer <= 0) {
+          ufo = { x: -50, dir: 1 };
+          if (Math.random() < 0.5) { ufo.x = W + 50; ufo.dir = -1; }
+          sfx.ufo();
+        }
+        if (ufo) {
+          ufo.x += ufo.dir * 110 * dt;
+          if (ufo.x < -60 || ufo.x > W + 60) { ufo = null; ufoTimer = 12 + Math.random() * 14; }
+        }
+
+        // 自機弾
+        for (var bi = pBullets.length - 1; bi >= 0; bi--) {
+          var b = pBullets[bi];
+          b.y -= 540 * dt;
+          var dead = false;
+          if (b.y + b.h < 0) dead = true;
+          // UFO命中
+          if (!dead && ufo && b.x + b.w > ufo.x && b.x < ufo.x + 48 && b.y < 40 + 21 && b.y + b.h > 40) {
+            score += 100;
+            explode(ufo.x + 24, 50, "#ff4040", 22);
+            sfx.boom();
+            ufo = null; ufoTimer = 14 + Math.random() * 14;
+            dead = true;
+          }
+          // 宇宙人命中
+          if (!dead) {
+            for (var ii = 0; ii < invaders.length; ii++) {
+              var inv = invaders[ii];
+              if (!inv.alive) continue;
+              var ip = invPos(inv);
+              if (b.x + b.w > ip.x && b.x < ip.x + INV_W && b.y < ip.y + INV_H && b.y + b.h > ip.y) {
+                inv.alive = false;
+                score += scoreOf(inv.type);
+                explode(ip.x + INV_W / 2, ip.y + INV_H / 2,
+                  inv.type === "A" ? "#ff5dd2" : (inv.type === "B" ? "#39d5ff" : "#8dff57"), 14);
+                sfx.boom();
+                dead = true;
+                break;
+              }
+            }
+          }
+          if (dead) pBullets.splice(bi, 1);
+        }
+
+        // 敵弾
+        var eSpeed = 185 + level * 18;
+        for (var ei = eBullets.length - 1; ei >= 0; ei--) {
+          var eb = eBullets[ei];
+          eb.y += eSpeed * dt;
+          eb.ph += dt * 18;
+          if (eb.y > GROUND_Y) { eBullets.splice(ei, 1); continue; }
+          // 自機命中
+          if (now > player.invUntil && now > player.deadUntil &&
+              eb.x + eb.w > player.x - player.w / 2 && eb.x < player.x + player.w / 2 &&
+              eb.y + eb.h > PLAYER_Y && eb.y < PLAYER_Y + player.h) {
+            eBullets.splice(ei, 1);
+            lives--;
+            explode(player.x, PLAYER_Y + 16, "#3dff6e", 26);
+            sfx.hit();
+            updateHud();
+            if (lives <= 0) { gameOver(); return; }
+            player.invUntil = now + 2;
+            player.deadUntil = now + 0.7;
+            eBullets = [];
+            break;
+          }
+        }
+
+        // 弾同士の相殺（たまに気持ちいい）
+        for (var a = pBullets.length - 1; a >= 0; a--) {
+          for (var c2 = eBullets.length - 1; c2 >= 0; c2--) {
+            var pb = pBullets[a], eb2 = eBullets[c2];
+            if (pb && eb2 && pb.x + pb.w > eb2.x && pb.x < eb2.x + eb2.w &&
+                pb.y < eb2.y + eb2.h && pb.y + pb.h > eb2.y) {
+              explode(pb.x, pb.y, "#ffffff", 5);
+              pBullets.splice(a, 1);
+              eBullets.splice(c2, 1);
+              break;
+            }
+          }
+        }
+
+        if (aliveCount() === 0) { levelClear(); return; }
+        if (score > hiScore) { hiScore = score; }
+        updateHud();
+      }
+
+      /* ---------- 描画 ---------- */
+      function draw(now) {
+        ctx.fillStyle = "#020604";
+        ctx.fillRect(0, 0, W, H);
+
+        // 星
+        ctx.fillStyle = "#9db8a4";
+        for (var i = 0; i < stars.length; i++) {
+          var st = stars[i];
+          if (Math.sin(now * 2 + st.tw) > -0.3) ctx.fillRect(st.x, st.y, st.s, st.s);
+        }
+
+        // UFO
+        if (ufo) ctx.drawImage(IMG.ufo, ufo.x, 40);
+
+        // 宇宙人軍団
+        for (var ii = 0; ii < invaders.length; ii++) {
+          var inv = invaders[ii];
+          if (!inv.alive) continue;
+          var p = invPos(inv);
+          ctx.drawImage(IMG[inv.type][formFrame], p.x, p.y);
+        }
+
+        // 敵弾（ジグザグ風ドット）
+        ctx.fillStyle = "#ffd94d";
+        for (var ei = 0; ei < eBullets.length; ei++) {
+          var eb = eBullets[ei];
+          var off = Math.sin(eb.ph) > 0 ? 0 : 2;
+          ctx.fillRect(eb.x + off, eb.y, 3, 4);
+          ctx.fillRect(eb.x + (2 - off), eb.y + 4, 3, 4);
+          ctx.fillRect(eb.x + off, eb.y + 8, 3, 4);
+        }
+        // 自機弾
+        ctx.fillStyle = "#ffffff";
+        for (var bi = 0; bi < pBullets.length; bi++) {
+          ctx.fillRect(pBullets[bi].x, pBullets[bi].y, 3, 12);
+        }
+
+        // 自機（被弾直後は非表示、無敵中は点滅）
+        var showPlayer = state !== "over";
+        if (now < player.deadUntil) showPlayer = false;
+        else if (now < player.invUntil && Math.floor(now * 10) % 2 === 0) showPlayer = false;
+        if (showPlayer && state !== "title") {
+          ctx.drawImage(IMG.player, player.x - player.w / 2, PLAYER_Y);
+        }
+        if (state === "title") {
+          ctx.drawImage(IMG.player, W / 2 - player.w / 2, PLAYER_Y);
+        }
+
+        // パーティクル
+        for (var pi = 0; pi < particles.length; pi++) {
+          var pt = particles[pi];
+          ctx.globalAlpha = Math.max(0, pt.life * 2);
+          ctx.fillStyle = pt.color;
+          ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
+        }
+        ctx.globalAlpha = 1;
+
+        // 地面ライン
+        ctx.fillStyle = "#1fae4e";
+        ctx.fillRect(0, GROUND_Y, W, 2);
+
+        if (paused && state === "playing") {
+          ctx.fillStyle = "rgba(0,0,0,.6)";
+          ctx.fillRect(0, 0, W, H);
+          ctx.fillStyle = "#fff";
+          ctx.font = "bold 30px 'Courier New', monospace";
+          ctx.textAlign = "center";
+          ctx.fillText("一時停止中", W / 2, H / 2);
+          ctx.textAlign = "left";
+        }
+      }
+
+      /* ---------- メインループ ---------- */
+      var lastT = performance.now();
+      function loop(tms) {
+        var now = tms / 1000;
+        var dt = Math.min(0.05, (tms - lastT) / 1000);
+        lastT = tms;
+        update(dt, now);
+        draw(now);
+        requestAnimationFrame(loop);
+      }
+
+      /* ---------- 初期化 ---------- */
+      buildFormation();
+      document.getElementById("titleHi").textContent = hiScore;
+      updateHud();
+      requestAnimationFrame(loop);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>いつも隣にいた君</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2.25rem; }
+      * { box-sizing: border-box; }
+      :root{
+        --bg:#f4efe6; --panel:#fffdf7; --ink:#2c2620; --ink-soft:#6b5f4e;
+        --line:#ddd2bd; --accent:#3f6d8e; --accent-ink:#ffffff;
+        --warm:#c96f2e; --good:#4d7c4d; --bad:#b0483e; --gold:#a8842c;
+        --chip:#efe7d6; --shadow:0 6px 24px rgba(60,45,20,.16);
+        --bar-track:#e7ddc9;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#171a20; --panel:#22262f; --ink:#ece5d8; --ink-soft:#b3a893;
+          --line:#3d434f; --accent:#7fb0d1; --accent-ink:#12202c;
+          --warm:#e09a54; --good:#8fbf8f; --bad:#e08a80; --gold:#d9b45c;
+          --chip:#2c313c; --shadow:0 6px 24px rgba(0,0,0,.5);
+          --bar-track:#333947;
+        }
+      }
+      html,body{ margin:0; padding:0; }
+      body{
+        background:var(--bg); color:var(--ink);
+        font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;
+        -webkit-text-size-adjust:100%;
+      }
+      .wrap{ max-width:860px; margin:0 auto; padding:10px 12px 40px; }
+      /* ===== ステータスバー ===== */
+      .statusbar{
+        display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center;
+        background:var(--panel); border:1px solid var(--line); border-radius:10px;
+        padding:8px 14px; box-shadow:var(--shadow); font-size:.95rem;
+      }
+      .statusbar .date{ font-family:"Shippori Mincho",serif; font-weight:700; font-size:1.08rem; }
+      .statusbar .phase{ background:var(--chip); border-radius:999px; padding:2px 10px; font-size:.82rem; color:var(--ink-soft); }
+      .statusbar .spacer{ flex:1; }
+      .iconbtn{
+        border:1px solid var(--line); background:var(--chip); color:var(--ink);
+        border-radius:8px; padding:4px 12px; font:inherit; font-size:.88rem; cursor:pointer; min-height:2.25rem;
+      }
+      .iconbtn:active{ transform:translateY(1px); }
+      /* ===== シーン ===== */
+      .scene{
+        position:relative; margin-top:10px; border-radius:14px; overflow:hidden;
+        border:1px solid var(--line); box-shadow:var(--shadow);
+        aspect-ratio:16/10; background:#20242e;
+      }
+      @media (min-width:700px){ .scene{ aspect-ratio:16/8.2; } }
+      .scene img.bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+      .scene .grad{ position:absolute; inset:0; }
+      .scene .place{
+        position:absolute; top:10px; left:12px; z-index:3;
+        background:rgba(20,18,14,.62); color:#f5eedd; border-radius:8px;
+        padding:4px 12px; font-size:.9rem; letter-spacing:.04em;
+      }
+      .scene .tachie{
+        position:absolute; bottom:0; z-index:2; height:94%;
+        aspect-ratio:9/14; object-fit:cover; object-position:top center;
+        border-radius:14px 14px 0 0; border:2px solid rgba(255,255,255,.65); border-bottom:none;
+        box-shadow:0 6px 22px rgba(0,0,0,.45);
+      }
+      .scene .tachie.left{ left:2%; }
+      .scene .tachie.right{ right:2%; }
+      .scene .tachie.center{ left:50%; transform:translateX(-50%); }
+      @media (max-width:560px){ .scene .tachie{ height:82%; } }
+      /* ===== ギャラリー ===== */
+      .gal-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:8px; margin-top:10px; }
+      .gal-grid figure{ margin:0; }
+      .gal-grid img{ width:100%; aspect-ratio:1/1.15; object-fit:cover; object-position:top center; border-radius:8px; border:1px solid var(--line); display:block; }
+      .gal-grid figcaption{ font-size:.72rem; color:var(--ink-soft); text-align:center; margin-top:2px; line-height:1.4; }
+      /* ===== 会話ウィンドウ ===== */
+      .dialogue{
+        margin-top:10px; background:var(--panel); border:1px solid var(--line);
+        border-radius:14px; box-shadow:var(--shadow); padding:16px 18px 14px; min-height:158px;
+        display:flex; flex-direction:column;
+      }
+      .speaker{ font-weight:900; color:var(--accent); font-size:1rem; min-height:1.2em; }
+      .speaker.ren{ color:var(--warm); }
+      .text{ font-size:1.06rem; line-height:1.85; white-space:pre-wrap; flex:1; margin-top:2px; }
+      .next-hint{ text-align:right; color:var(--ink-soft); font-size:.85rem; animation:blink 1.4s infinite; }
+      @keyframes blink{ 0%,100%{opacity:.25} 50%{opacity:1} }
+      @media (prefers-reduced-motion: reduce){ .next-hint{ animation:none; } }
+      /* ===== 選択肢・コマンド ===== */
+      .choices{ margin-top:10px; display:grid; gap:8px; }
+      .choices button, .cmd-grid button{
+        font:inherit; font-size:1rem; text-align:left; cursor:pointer;
+        background:var(--panel); color:var(--ink); border:1.5px solid var(--line);
+        border-radius:12px; padding:12px 16px; min-height:3rem; box-shadow:var(--shadow);
+      }
+      .choices button:hover, .cmd-grid button:hover{ border-color:var(--accent); }
+      .choices button small, .cmd-grid button small{ display:block; color:var(--ink-soft); font-size:.8rem; margin-top:2px; }
+      .cmd-title{ margin:14px 2px 6px; font-family:"Shippori Mincho",serif; font-weight:700; font-size:1.05rem; }
+      .cmd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+      @media (max-width:520px){ .cmd-grid{ grid-template-columns:1fr; } }
+      .cmd-grid button:disabled{ opacity:.45; cursor:not-allowed; }
+      /* ===== パラメータ ===== */
+      .panel{
+        margin-top:10px; background:var(--panel); border:1px solid var(--line);
+        border-radius:14px; box-shadow:var(--shadow); padding:14px 18px;
+      }
+      .panel h3{ margin:0 0 10px; font-family:"Shippori Mincho",serif; font-size:1.02rem; }
+      .bars{ display:grid; grid-template-columns:1fr 1fr; gap:6px 22px; }
+      @media (max-width:560px){ .bars{ grid-template-columns:1fr; } }
+      .bar-row{ display:flex; align-items:center; gap:8px; font-size:.92rem; }
+      .bar-row .name{ width:5.2em; flex:none; }
+      .bar-row .val{ width:2.4em; text-align:right; font-weight:700; flex:none; }
+      .bar{ flex:1; height:10px; background:var(--bar-track); border-radius:99px; overflow:hidden; }
+      .bar i{ display:block; height:100%; border-radius:99px; background:var(--accent); transition:width .5s; }
+      .bar i.warm{ background:var(--warm); } .bar i.good{ background:var(--good); }
+      .bar i.bad{ background:var(--bad); } .bar i.gold{ background:var(--gold); }
+      .fx-note{ font-size:.9rem; color:var(--ink-soft); margin-top:8px; white-space:pre-wrap; line-height:1.7; }
+      .fx-note .up{ color:var(--good); font-weight:700; } .fx-note .down{ color:var(--bad); font-weight:700; }
+      /* ===== タイトル ===== */
+      .title-screen{ text-align:center; padding:12px 4px 0; }
+      .title-screen .cover{ border-radius:14px; overflow:hidden; border:1px solid var(--line); box-shadow:var(--shadow); }
+      .title-screen .cover img{ width:100%; display:block; aspect-ratio:16/9; object-fit:cover; }
+      .title-screen h1{
+        font-family:"Shippori Mincho",serif; font-size:clamp(1.9rem,6vw,3rem);
+        margin:18px 0 4px; letter-spacing:.06em;
+      }
+      .title-screen .sub{ color:var(--ink-soft); margin:0 0 16px; line-height:1.8; }
+      .title-menu{ display:grid; gap:8px; max-width:420px; margin:0 auto; }
+      .title-menu button{
+        font:inherit; font-size:1.05rem; font-weight:700; cursor:pointer; min-height:3.1rem;
+        background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px; padding:12px;
+      }
+      .title-menu button.sub-btn{ background:var(--panel); color:var(--ink); border:1.5px solid var(--line); }
+      .name-row{ display:flex; gap:8px; justify-content:center; align-items:center; margin:0 auto 14px; max-width:420px; flex-wrap:wrap; }
+      .name-row input{
+        font:inherit; font-size:1rem; padding:8px 12px; border-radius:10px;
+        border:1.5px solid var(--line); background:var(--panel); color:var(--ink); width:11em; min-height:2.6rem;
+      }
+      /* ===== エンディング ===== */
+      .ending-badge{
+        display:inline-block; background:var(--gold); color:#fff; border-radius:999px;
+        padding:4px 18px; font-weight:900; letter-spacing:.08em; margin-bottom:8px;
+      }
+      /* ===== モーダル ===== */
+      .modal-back{
+        position:fixed; inset:0; background:rgba(15,12,8,.55); z-index:50;
+        display:flex; align-items:center; justify-content:center; padding:16px;
+      }
+      .modal{
+        background:var(--panel); color:var(--ink); border-radius:14px; max-width:520px; width:100%;
+        max-height:86vh; overflow:auto; padding:20px; box-shadow:var(--shadow);
+      }
+      .modal h2{ font-family:"Shippori Mincho",serif; margin:0 0 10px; font-size:1.2rem; }
+      .modal p, .modal li{ line-height:1.8; font-size:.95rem; }
+      .modal .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+      .modal button{
+        font:inherit; cursor:pointer; border-radius:10px; padding:10px 16px; min-height:2.8rem;
+        background:var(--accent); color:var(--accent-ink); border:none; font-weight:700;
+      }
+      .modal button.sub-btn{ background:var(--chip); color:var(--ink); border:1px solid var(--line); }
+      .slot{ border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; }
+      .slot .meta{ font-size:.85rem; color:var(--ink-soft); }
+      .hidden{ display:none !important; }
+      .log-line{ font-size:.9rem; color:var(--ink-soft); line-height:1.7; }
+      footer{ text-align:center; color:var(--ink-soft); font-size:.82rem; margin-top:22px; line-height:1.8; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- ステータスバー -->
+      <div class="statusbar hidden" id="statusbar">
+        <span class="date" id="sb-date">―</span>
+        <span class="phase" id="sb-phase">―</span>
+        <span id="sb-job">―</span>
+        <span class="spacer"></span>
+        <span id="sb-money">所持金 ―</span>
+        <button class="iconbtn" id="btn-bgm" type="button">♪ BGM オン</button>
+        <button class="iconbtn" id="btn-status" type="button">関係値</button>
+        <button class="iconbtn" id="btn-save" type="button">セーブ／ロード</button>
+      </div>
+
+      <!-- タイトル画面 -->
+      <section id="screen-title" class="title-screen">
+        <div class="cover"><img src="assets/roomshare.webp" alt="ルームシェアのリビングで笑い合う二人" /></div>
+        <h1>いつも隣にいた君</h1>
+        <p class="sub">小学生の頃から、ずっと隣にいた幼なじみ。<br />
+        大学、社会人、そしてルームシェア――<br />
+        「親友」のまま終わるのか、それとも……。</p>
+        <div class="name-row">
+          <label for="player-name">主人公の名前</label>
+          <input id="player-name" type="text" value="悠真" maxlength="8" />
+        </div>
+        <div class="title-menu">
+          <button type="button" id="btn-start">はじめから</button>
+          <button type="button" class="sub-btn" id="btn-load-title">セーブ／ロード</button>
+          <button type="button" class="sub-btn" id="btn-howto">遊び方・登場人物</button>
+          <button type="button" class="sub-btn" id="btn-gallery">グラフィックギャラリー（全60枚）</button>
+        </div>
+        <p class="sub" style="margin-top:16px; font-size:.85rem;">育成期間：大学4年4月 〜 社会人1年目3月（全48ターン）<br />エンディングは関係値で分岐します。</p>
+      </section>
+
+      <!-- ゲーム画面 -->
+      <section id="screen-game" class="hidden">
+        <div class="scene" id="scene">
+          <img class="bg" id="scene-bg" src="assets/flashback.webp" alt="" />
+          <div class="grad" id="scene-grad"></div>
+          <div class="place" id="scene-place">回想</div>
+          <img class="tachie left hidden" id="tachie-left" src="assets/yuma-smile.webp" alt="" />
+          <img class="tachie right hidden" id="tachie-ren" src="assets/ren.webp" alt="蓮" />
+        </div>
+
+        <div class="dialogue" id="dialogue">
+          <div class="speaker" id="dlg-speaker"></div>
+          <div class="text" id="dlg-text"></div>
+          <div class="next-hint" id="dlg-next"><button type="button" id="btn-next" class="iconbtn">次へ ▼</button></div>
+        </div>
+
+        <div class="choices hidden" id="choices"></div>
+
+        <div id="command-area" class="hidden">
+          <p class="cmd-title" id="cmd-title">今週の行動を選んでください</p>
+          <div class="cmd-grid" id="cmd-grid"></div>
+        </div>
+
+        <div class="panel hidden" id="fx-panel">
+          <h3>今週の結果</h3>
+          <div class="fx-note" id="fx-note"></div>
+        </div>
+
+        <div class="panel" id="status-panel">
+          <h3>パラメータ</h3>
+          <div class="bars" id="stat-bars"></div>
+          <h3 style="margin-top:16px;">蓮との関係</h3>
+          <div class="bars" id="rel-bars"></div>
+          <div class="fx-note" id="rel-hint"></div>
+        </div>
+
+        <div class="panel hidden" id="log-panel">
+          <h3>これまでの記録</h3>
+          <div id="log-body"></div>
+        </div>
+      </section>
+
+      <footer>
+        いつも隣にいた君 ― 育成シミュレーション<br />
+        作：Snow Moon
+      </footer>
+    </div>
+
+    <!-- モーダル -->
+    <div class="modal-back hidden" id="modal-back">
+      <div class="modal" id="modal"></div>
+    </div>
+
+    <script>
+    "use strict";
+    /* ============================================================
+       BGMエンジン（WebAudio合成・場面ごとに別の作曲）
+       - title   : ハ長調 4/4 ゆったりした主題
+       - daily   : ト長調 4/4 軽い日常の旋律
+       - memory  : ヘ長調 3/4 ワルツ調の回想
+       - drink   : ニ長調 2拍子 跳ねる飲み会の旋律
+       - sad     : イ短調 4/4 下行する切ない旋律
+       - ending  : 変ホ長調 4/4 ロングトーンの感動系
+       旋律・和音・リズム・拍子すべて別々に作曲してある。
+       ============================================================ */
+    const BGM = (() => {
+      let ctx = null, timer = null, on = true, current = null, step = 0;
+      const N = { C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, B4:493.88,
+        C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99, A5:880.00, B5:987.77, C6:1046.50,
+        G3:196.00, A3:220.00, B3:246.94, E3:164.81, F3:174.61, D3:146.83, C3:130.81,
+        Eb4:311.13, Bb3:233.08, Bb4:466.16, Eb5:622.25, G5x:783.99, Ab3:207.65, Ab4:415.30,
+        Fs4:369.99, A4x:440.00, Cs5:554.37, E5x:659.25, B4x:493.88, Fs5:739.99, D5x:587.33, A3x:220.00, E4x:329.63, B3x:246.94, D4x:293.66, Fs3:185.00, Cs4:277.18 };
+      // 各曲: bpm, 波形, 旋律[音名,拍数]..., 和音[根音,拍数]（長3度の和音を簡易構成）
+      const TRACKS = {
+        title: { bpm: 76, wave: "triangle", vol: .20,
+          mel: [["E4",1],["G4",1],["C5",2],["B4",1],["A4",1],["G4",2],["A4",1],["B4",1],["C5",3],["R",1],["D5",1],["C5",1],["B4",1],["A4",1],["G4",2],["E4",2],["D4",4]],
+          bass: [["C3",4],["G3",4],["A3",4],["F3",4],["C3",4],["G3",4],["F3",2],["G3",2],["C3",4]] },
+        daily: { bpm: 104, wave: "sine", vol: .17,
+          mel: [["D5",.5],["B4",.5],["G4",1],["A4",.5],["B4",.5],["D5",1],["E5",.5],["D5",.5],["B4",1],["A4",2],["R",1],["B4",.5],["D5",.5],["G5",1],["E5",.5],["D5",.5],["B4",1],["A4",1],["G4",2]],
+          bass: [["G3",2],["D3",2],["E3",2],["C3",2],["G3",2],["D3",2],["C3",2],["D3",2],["G3",2]] },
+        memory: { bpm: 92, wave: "triangle", vol: .18,
+          mel: [["F4",1],["A4",1],["C5",1],["F5",1.5],["E5",.5],["D5",1],["C5",1],["A4",1],["Bb4",1],["A4",1],["G4",1],["F4",3],["R",1],["A4",1],["G4",1],["F4",1],["E4",1],["F4",2]],
+          bass: [["F3",3],["Bb3",3],["F3",3],["C3",3],["F3",3],["C3",3]] },
+        drink: { bpm: 132, wave: "square", vol: .10,
+          mel: [["Fs4",.5],["A4x",.5],["D5x",.5],["A4x",.5],["Fs5",1],["E5x",.5],["D5x",.5],["Cs5",.5],["E5x",.5],["A4x",1],["R",.5],["B4x",.5],["Cs5",.5],["D5x",.5],["E5x",.5],["Fs5",.5],["E5x",.5],["D5x",.5],["Cs5",.5],["B4x",.5],["A4x",2]],
+          bass: [["D3",1],["A3x",1],["B3x",1],["Fs3",1],["G3",1],["D3",1],["A3x",1],["A3x",1],["D3",2]] },
+        sad: { bpm: 66, wave: "sine", vol: .20,
+          mel: [["A4",2],["G4",1],["E4",1],["F4",2],["E4",2],["D4",2],["C4",1],["D4",1],["E4",3],["R",1],["E4",2],["F4",1],["G4",1],["A4",2],["G4",2],["E4",4]],
+          bass: [["A3",4],["F3",4],["C3",4],["E3",4],["A3",4],["F3",4],["E3",4],["A3",4]] },
+        ending: { bpm: 70, wave: "triangle", vol: .20,
+          mel: [["Eb4",2],["G4",2],["Bb4",3],["Eb5",1],["D5",2],["Bb4",2],["C5",4],["Bb4",2],["Ab4",2],["G4",3],["Eb4",1],["F4",2],["G4",2],["Eb4",4],["R",2]],
+          bass: [["Eb4",0],["C3",4],["Ab3",4],["Eb3",4],["Bb3",4],["C3",4],["Ab3",4],["Eb3",4],["Eb3",4]] }
+      };
+      function freq(name){ return name === "R" ? 0 : (N[name] || 0); }
+      function tone(f, t, dur, wave, vol){
+        if(!f) return;
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = wave; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.95);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t); o.stop(t + dur);
+      }
+      function playBar(){
+        const tr = TRACKS[current]; if(!tr) return;
+        const beat = 60 / tr.bpm;
+        // 旋律を1小節分（最大4拍）ずつ進める簡易スケジューラ：全体をループ再生
+        let t = ctx.currentTime + 0.06;
+        let mt = t;
+        for(const [n, d] of tr.mel){ tone(freq(n), mt, d * beat, tr.wave, tr.vol); mt += d * beat; }
+        let bt = t;
+        for(const [n, d] of tr.bass){ if(d > 0){ tone(freq(n), bt, d * beat, "sine", tr.vol * 0.8); tone(freq(n) * 1.5, bt, d * beat, "sine", tr.vol * 0.25);} bt += d * beat; }
+        const total = Math.max(mt, bt) - t;
+        timer = setTimeout(playBar, total * 1000);
+      }
+      function start(name){
+        if(!on) { current = name; return; }
+        if(current === name && timer) return;
+        stop();
+        current = name;
+        if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if(ctx.state === "suspended") ctx.resume();
+        playBar();
+      }
+      function stop(){ if(timer){ clearTimeout(timer); timer = null; } }
+      function setOn(v){
+        on = v;
+        if(!on) stop();
+        else if(current) { const c = current; current = null; start(c); }
+      }
+      return { start, stop, setOn, isOn: () => on };
+    })();
+
+    /* ============================================================
+       ゲーム状態
+       t: 0..47（半月単位） 0=大学4年4月前半 〜 47=社会人1年目3月後半
+       ============================================================ */
+    const CAL = [];
+    for(let y = 0; y < 2; y++) for(let m = 0; m < 12; m++) CAL.push({ year: y, month: (4 + m - 1) % 12 + 1 });
+    // CAL[i].month: i=0→4月 ... i=8→12月, i=9→1月 ...
+    function dateLabel(t){
+      const c = CAL[Math.floor(t / 2)];
+      const era = c.year === 0 ? "大学4年" : "社会人1年目";
+      return era + " " + c.month + "月" + (t % 2 === 0 ? "前半" : "後半");
+    }
+    function calMonth(t){ return CAL[Math.floor(t / 2)].month; }
+
+    let S = null;
+    function newState(name){
+      return {
+        name: name || "悠真",
+        t: 0,
+        hp: 80, stress: 10, money: 42000, skill: 15, charm: 15,
+        rel: { friend: 45, trust: 35, close: 25, love: 0, jealous: 0, guard: 15 },
+        shiori: 15, misaki: 0,
+        job: "student",           // student / worker / freeter / none
+        company: "",               // 就職先
+        share: false,              // ルームシェア中
+        gfKnown: false,            // 蓮に彼女がいることを知っている
+        gfGone: false,             // 蓮と美咲が別れた
+        confessed: false,
+        certs: 0,                  // 資格の数
+        fired: false, quitDone: false,
+        seen: {},                  // 既出イベント
+        log: [],
+        over: false
+      };
+    }
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    function fxLog(s){ S.log.push(dateLabel(S.t) + "：" + s); }
+    function applyFx(fx){
+      const notes = [];
+      const names = { hp:"体力", stress:"ストレス", money:"所持金", skill:"実力", charm:"魅力",
+        friend:"友情", trust:"信頼", close:"親密", love:"恋愛感情", jealous:"嫉妬", guard:"警戒",
+        shiori:"栞の好意", misaki:"美咲との仲" };
+      for(const k in fx){
+        const d = fx[k]; if(!d) continue;
+        if(k in S.rel){ S.rel[k] = clamp(S.rel[k] + d, 0, 100); }
+        else if(k === "shiori"){ S.shiori = clamp(S.shiori + d, 0, 100); }
+        else if(k === "misaki"){ S.misaki = clamp(S.misaki + d, 0, 100); }
+        else if(k === "money"){ S.money = Math.max(0, S.money + d); }
+        else if(k === "hp"){ S.hp = clamp(S.hp + d, 0, 100); }
+        else if(k === "stress"){ S.stress = clamp(S.stress + d, 0, 100); }
+        else if(k === "skill"){ S.skill = clamp(S.skill + d, 0, 100); }
+        else if(k === "charm"){ S.charm = clamp(S.charm + d, 0, 100); }
+        const nm = names[k] || k;
+        const cls = (k === "stress" || k === "jealous" || k === "guard") ? (d > 0 ? "down" : "up") : (d > 0 ? "up" : "down");
+        notes.push(nm + " <span class=\"" + cls + "\">" + (d > 0 ? "+" : "") + (k === "money" ? d.toLocaleString() + "円" : d) + "</span>");
+      }
+      return notes;
+    }
+
+    /* ============================================================
+       画面制御
+       ============================================================ */
+    const $ = id => document.getElementById(id);
+    const SCENES = {
+      flashback: { img: "assets/flashback.webp", grad: "linear-gradient(180deg, rgba(255,170,60,.10), rgba(40,20,0,.25))" },
+      river:     { img: "assets/flashback-river.webp", grad: "linear-gradient(180deg, rgba(255,170,60,.08), rgba(40,20,0,.22))" },
+      soccer:    { img: "assets/flashback-soccer.webp", grad: "linear-gradient(180deg, rgba(255,170,60,.08), rgba(40,20,0,.22))" },
+      highschool:{ img: "assets/flashback-highschool.webp", grad: "linear-gradient(180deg, rgba(255,150,60,.08), rgba(40,20,0,.22))" },
+      room:      { img: "assets/roomshare.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.05), rgba(20,10,0,.20))" },
+      festival:  { img: "assets/festival.webp",  grad: "linear-gradient(180deg, rgba(10,10,40,.05), rgba(10,5,30,.25))" },
+      mensetsu:  { img: "assets/mensetsu.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.05), rgba(10,10,20,.20))" },
+      office:    { img: "assets/office.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(10,10,20,.18))" },
+      izakaya:   { img: "assets/izakaya.webp", grad: "linear-gradient(180deg, rgba(30,10,0,.05), rgba(20,5,0,.25))" },
+      shrine:    { img: "assets/hatsumode.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(20,10,0,.18))" },
+      christmas: { img: "assets/christmas.webp", grad: "linear-gradient(180deg, rgba(10,10,40,.05), rgba(10,5,20,.22))" },
+      snow:      { img: "assets/christmas.webp", grad: "linear-gradient(180deg, rgba(10,10,40,.05), rgba(10,5,20,.22))" },
+      hospital:  { img: "assets/hospital.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(10,15,10,.18))" },
+      sick:      { img: "assets/hospital.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(10,15,10,.18))" },
+      graduation:{ img: "assets/graduation.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(20,10,0,.16))" },
+      park:      { img: "assets/park.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(10,20,0,.16))" },
+      wedding:   { img: "assets/wedding.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(20,10,0,.16))" },
+      nightfail: { img: "assets/night-fail.webp", grad: "linear-gradient(180deg, rgba(5,5,20,.10), rgba(5,5,15,.30))" },
+      night:     { img: "assets/night-fail.webp", grad: "linear-gradient(180deg, rgba(5,5,20,.10), rgba(5,5,15,.30))" },
+      station:   { img: "assets/station-night.webp", grad: "linear-gradient(180deg, rgba(5,5,20,.08), rgba(5,5,15,.25))" },
+      tenkin:    { img: "assets/tenkin-night.webp", grad: "linear-gradient(180deg, rgba(5,5,20,.08), rgba(5,5,15,.25))" },
+      naitei:    { img: "assets/naitei-celebration.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(20,10,0,.16))" },
+      moving:    { img: "assets/moving-in.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.05), rgba(20,10,0,.20))" },
+      trip:      { img: "assets/company-trip.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(20,10,0,.18))" },
+      running:   { img: "assets/running.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(10,20,0,.16))" },
+      reunion:   { img: "assets/reunion.webp", grad: "linear-gradient(180deg, rgba(30,10,0,.05), rgba(20,5,0,.22))" },
+      freeter:   { img: "assets/freeter-work.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.05), rgba(10,10,20,.20))" },
+      endinglove:{ img: "assets/ending-love.webp", grad: "linear-gradient(180deg, rgba(20,5,0,.05), rgba(20,5,0,.22))" },
+      endingfriend:{ img: "assets/ending-friend.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(20,10,0,.16))" },
+      town:      { img: "assets/park.webp", grad: "linear-gradient(180deg, rgba(0,0,0,.04), rgba(10,20,0,.16))" },
+      sunset:    { img: "assets/flashback-highschool.webp", grad: "linear-gradient(180deg, rgba(255,150,60,.08), rgba(40,20,0,.22))" }
+    };
+    /* 登場人物の立ち絵（アバター廃止・全て実画像） */
+    const FACES = {
+      "蓮": "assets/ren.webp",
+      "美咲": "assets/misaki.webp",
+      "栞": "assets/shiori.webp",
+      "圭介": "assets/keisuke.webp",
+      "沙織": "assets/saori.webp",
+      "佐伯": "assets/saori.webp",
+      "黒田課長": "assets/kuroda.webp",
+      "母": "assets/mother.webp"
+    };
+    function showFace(file, side){
+      const el = side === "left" ? $("tachie-left") : $("tachie-ren");
+      if(!file){ el.classList.add("hidden"); return; }
+      el.src = (file.indexOf("/") >= 0 || file.indexOf(":") >= 0) ? file : "assets/" + file;
+      el.classList.remove("hidden");
+      el.className = "tachie " + (side === "left" ? "left" : "right");
+    }
+    function setScene(key, place, who){
+      const sc = SCENES[key] || SCENES.town;
+      const bg = $("scene-bg");
+      bg.src = sc.img; bg.style.display = ""; $("scene-grad").style.background = sc.grad;
+      $("scene-place").textContent = place || "";
+      $("tachie-ren").classList.add("hidden"); $("tachie-left").classList.add("hidden");
+      if(who && FACES[who]) showFace(FACES[who], "right");
+    }
+
+    /* 会話キュー */
+    let queue = [], queueDone = null, waitingChoice = false;
+    function playScene(pages, done){
+      queue = pages.slice(); queueDone = done || null; waitingChoice = false;
+      $("choices").classList.add("hidden");
+      $("command-area").classList.add("hidden");
+      $("fx-panel").classList.add("hidden");
+      nextPage();
+    }
+    function nextPage(){
+      if(waitingChoice) return;
+      if(queue.length === 0){
+        const d = queueDone; queueDone = null;
+        if(d) d();
+        return;
+      }
+      const p = queue.shift();
+      if(p.scene) setScene(p.scene, p.place, p.who);
+      if(p.bgm) BGM.start(p.bgm);
+      if(p.choices){
+        showText(p.who || "", p.text || "");
+        if(p.face) showFace(p.face, "right");
+        if(p.faceLeft) showFace(p.faceLeft, "left");
+        waitingChoice = true;
+        const box = $("choices"); box.innerHTML = ""; box.classList.remove("hidden");
+        $("dlg-next").style.visibility = "hidden";
+        p.choices.forEach(c => {
+          const b = document.createElement("button");
+          b.type = "button"; b.textContent = c.label;
+          b.addEventListener("click", () => {
+            box.classList.add("hidden"); waitingChoice = false;
+            $("dlg-next").style.visibility = "";
+            let notes = [];
+            if(c.fx) notes = applyFx(c.fx);
+            if(c.flag) c.flag();
+            if(c.log) fxLog(c.log);
+            const after = () => { showFx(notes); nextPage(); };
+            if(c.pages) { queue = c.pages.concat(queue); after(); }
+            else after();
+          });
+          box.appendChild(b);
+        });
+        return;
+      }
+      showText(p.who || "", p.text || "");
+      if(p.face) showFace(p.face, "right");
+      if(p.faceLeft) showFace(p.faceLeft, "left"); else if(!p.face) $("tachie-left").classList.add("hidden");
+    }
+    function showText(who, text){
+      const sp = $("dlg-speaker");
+      sp.textContent = who;
+      sp.className = "speaker" + (who === "蓮" ? " ren" : "");
+      $("dlg-text").textContent = text.replaceAll("{name}", S ? S.name : "悠真");
+      if(who === "蓮") setWhoOnly("蓮");
+      else if(who && FACES[who]) setWhoOnly(who);
+    }
+    function setWhoOnly(who){
+      if(who && FACES[who]) showFace(FACES[who], "right");
+    }
+    $("dialogue").addEventListener("click", () => { if(!$("screen-game").classList.contains("hidden")) nextPage(); });
+    $("btn-next").addEventListener("click", e => { e.stopPropagation(); nextPage(); });
+
+    function showFx(notes){
+      if(!notes || notes.length === 0) return;
+      $("fx-note").innerHTML = notes.join("　");
+      $("fx-panel").classList.remove("hidden");
+    }
+
+    /* ステータス描画 */
+    function barHTML(label, val, cls){
+      return "<div class=\"bar-row\"><span class=\"name\">" + label + "</span><span class=\"bar\"><i class=\"" + (cls||"") + "\" style=\"width:" + clamp(val,0,100) + "%\"></i></span><span class=\"val\">" + Math.round(val) + "</span></div>";
+    }
+    function renderStatus(){
+      if(!S) return;
+      $("sb-date").textContent = dateLabel(S.t);
+      $("sb-phase").textContent = S.t < 24 ? "大学編" : (S.share ? "ルームシェア編" : "社会人編");
+      $("sb-job").textContent = { student:"大学生", worker:"会社員（" + S.company + "）", freeter:"フリーター", none:"求職中" }[S.job] || "";
+      $("sb-money").textContent = "所持金 " + S.money.toLocaleString() + "円";
+      $("stat-bars").innerHTML =
+        barHTML("体力", S.hp, "good") + barHTML("ストレス", S.stress, "bad") +
+        barHTML("実力", S.skill) + barHTML("魅力", S.charm, "gold") +
+        barHTML("栞の好意", S.shiori, "warm") + barHTML("資格", S.certs * 25, "");
+      const r = S.rel;
+      $("rel-bars").innerHTML =
+        barHTML("友情", r.friend) + barHTML("信頼", r.trust) +
+        barHTML("親密", r.close, "warm") + barHTML("恋愛感情", r.love, "bad") +
+        barHTML("嫉妬", r.jealous, "bad") + barHTML("警戒", r.guard, "");
+      let hint = "";
+      if(r.love >= 70 && r.close >= 60) hint = "蓮への気持ちは、もう「友達」の枠には収まらなくなっている。";
+      else if(r.love >= 40) hint = "蓮のことが、少しずつ気になり始めている……。";
+      else if(r.friend >= 80 && r.trust >= 70) hint = "揺るがない親友関係。恋愛感情がなくても、二人の絆は本物だ。";
+      else if(r.jealous >= 60) hint = "嫉妬で心が荒れている。このままでは関係が壊れてしまうかもしれない。";
+      $("rel-hint").textContent = hint;
+      const lb = $("log-body");
+      lb.innerHTML = S.log.slice(-14).map(l => "<div class=\"log-line\">・" + l + "</div>").join("");
+      $("log-panel").classList.toggle("hidden", S.log.length === 0);
+    }
+
+    /* ============================================================
+       オープニング回想（小学生〜高校生）
+       ============================================================ */
+    function openingPages(){
+      return [
+        { scene:"flashback", place:"回想 ― 小学生", bgm:"memory", text:"――思い出すのは、いつも夕日の田んぼ道だった。" },
+        { scene:"river", place:"回想 ― 小学生・夏", text:"小学3年の春、転校してきたばかりで一人ぼっちだった{name}に、最初に声をかけてきたのが蓮だった。" },
+        { who:"蓮", text:"「お前、家どこ？　……え、隣の隣じゃん！　じゃあ明日から一緒に帰ろうぜ」" },
+        { text:"それから毎日、二人でランドセルを揺らして帰った。秘密基地を作り、川で魚を追い、怒られて、笑って。" },
+        { scene:"soccer", place:"回想 ― 中学生", text:"中学生になっても、二人は同じサッカー部だった。蓮はレギュラー、{name}は補欠。それでも放課後の自主練には、いつも付き合ってくれた。" },
+        { who:"蓮", text:"「お前がパス出してくれると、なんか決まる気がすんだよな」" },
+        { text:"他愛のない言葉が、妙に嬉しかったのを覚えている。" },
+        { scene:"highschool", place:"回想 ― 高校生", text:"高校も同じ。文化祭の準備で夜遅くまで残り、帰り道のコンビニで肉まんを半分こした。" },
+        { who:"蓮", text:"「大学も一緒に行けたらいいな。……お前と離れるの、なんか想像つかねえわ」" },
+        { text:"その言葉通り、二人は同じ大学に進んだ。そして今、大学4年の春――。" },
+        { scene:"park", place:"大学 ― 4月", bgm:"daily", face:"assets/yuma-suit.webp", text:"就職活動の季節がやってきた。スーツに袖を通すたび、学生生活の終わりが近づいてくる。" },
+        { who:"蓮", text:"「なあ{name}。卒業しても、なんかこうやって会えるよな？」" },
+        { text:"蓮は笑っていた。――この先の1年が、二人の関係を大きく変えていくことになるとは、まだ知らなかった。" }
+      ];
+    }
+
+    /* ============================================================
+       固定ストーリーイベント（t = 半月ターン番号）
+       ============================================================ */
+    function evMensetsu(){ return { pages: [
+      { scene:"mensetsu", place:"都内 ― 面接会場", bgm:"daily", face:"assets/yuma-suit.webp", text:"就活が本格化した。今日は第一志望群の面接。緊張で口が渇く。" },
+      { text:"結果は――手応えは半分、というところ。帰り道、蓮からメッセージが来た。" },
+      { who:"蓮", text:"「お疲れ！　どうだった？　……まあ結果は結果だ。今日は飲もうぜ、奢るわ」" },
+      { text:"落ち込んでいても、この一言で少し前を向ける。昔から、そうだった。",
+        choices: [
+          { label:"素直に甘えて飲みに行く", fx:{ friend:4, trust:3, stress:-8 }, log:"面接の帰りに蓮と飲んだ" },
+          { label:"気持ちを切り替えて次の対策をする", fx:{ skill:4, stress:3 }, log:"面接の反省をして対策を練った" }
+        ] }
+    ] }; }
+    function evMensetsuOchi(){ return { pages: [
+      { scene:"nightfail", place:"自宅 ― 深夜", bgm:"sad", face:"assets/yuma-tired.webp", text:"「誠に残念ながら、今回の選考ではご希望に添いかねる結果となりました」" },
+      { text:"第一志望の会社から、不採用の通知が届いた。画面を見つめたまま、しばらく動けなかった。" },
+      { who:"蓮", text:"「……見たよ、察した。なあ、今日うち来いよ。鍋やろう。お前の好きなやつ」" },
+      { text:"何も聞かずに、一番欲しいものを差し出してくる。そういう奴なのだ、蓮は。",
+        choices: [
+          { label:"蓮の家で鍋を囲む", fx:{ friend:5, close:4, stress:-12, hp:5 }, log:"面接に落ちた夜、蓮の家で鍋を囲んだ" },
+          { label:"一人で気持ちを整理する", fx:{ guard:3, stress:-4 }, log:"面接落ちの夜、一人で過ごした" }
+        ] }
+    ] }; }
+    function evGakusai(){ return { pages: [
+      { scene:"festival", place:"大学 ― 最後の学園祭", bgm:"drink", face:"assets/ren-yukata.webp", faceLeft:"assets/yuma-yukata.webp", text:"大学生活最後の学園祭。蓮と二人、実行委員として駆け回った3日間も今日で終わりだ。" },
+      { scene:"festival", place:"大学 ― 最後の学園祭", who:"蓮", face:"assets/ren-yukata.webp", faceLeft:"assets/yuma-yukata.webp", text:"「見ろよ、花火。……学生の花火も、これで最後か」" },
+      { text:"隣に立つ蓮の横顔は、花火の光で明るくなったり、暗くなったりした。",
+        choices: [
+          { label:"「卒業しても花火は見られる」と言う", fx:{ friend:4, close:3 }, log:"最後の学園祭で蓮と花火を見た" },
+          { label:"何も言わず、肩が触れる距離で見上げる", fx:{ close:6, love:3 }, log:"学園祭の花火、蓮の隣で見上げた" }
+        ] }
+    ] }; }
+    function evNaitei(){ return { pages: [
+      { scene:"naitei", place:"大学 ― 就職決定", bgm:"ending", text:"「採用内定のご連絡」――ついに、就職が決まった。中堅の商社『東和トレーディング』。長かった就活が終わった。" },
+      { who:"蓮", face:"assets/ren-suit.webp", text:"「やったじゃん！！　俺も決まったよ、広告代理店の『プラネット・ワークス』。……場所、近いといいな」" },
+      { text:"蓮も内定をもらったという。二人の社会人生活が、もうすぐ始まる。",
+        choices: [
+          { label:"二人で祝杯をあげる", fx:{ friend:5, trust:3, money:-5000 }, log:"二人とも内定、祝杯をあげた" },
+          { label:"卒業までの時間を大切に過ごす", fx:{ close:4, stress:-6 }, log:"内定を喜び合った" }
+        ] }
+    ], apply(){ S.company = "東和トレーディング"; } }; }
+    function evSotsugyo(){ return { pages: [
+      { scene:"graduation", place:"大学 ― 卒業式", bgm:"memory", text:"卒業式。袴とスーツの波の中で、蓮と写真を撮った。" },
+      { who:"蓮", text:"「小学校から大学まで一緒って、冷静に考えるとすげえな俺たち」" },
+      { text:"来月からは別々の会社。会える時間は、きっと減っていく。それでも――。",
+        choices: [
+          { label:"「これからもよろしく」と握手する", fx:{ friend:5, trust:4 }, log:"卒業式、蓮と握手をした" },
+          { label:"照れて冗談でごまかす", fx:{ friend:3, guard:2 }, log:"卒業式、照れくさくて冗談でごまかした" }
+        ] }
+    ] }; }
+    function evNyusha(){ return { pages: [
+      { scene:"office", place:"東和トレーディング ― 入社式", bgm:"daily", text:"社会人1日目。真新しいスーツ、慣れない名刺、飛び交う敬語。あっという間に1日が終わった。" },
+      { text:"夜、蓮から電話がかかってきた。" },
+      { who:"蓮", text:"「どうだった？　俺はもうクタクタ。……でもさ、なんか大人になった気分だな」" },
+      { text:"声を聞くと、張りつめていたものがほぐれた。",
+        choices: [
+          { label:"愚痴を言い合って長電話する", fx:{ friend:4, close:3, stress:-8 }, log:"入社初日の夜、蓮と長電話した" },
+          { label:"明日に備えて早く寝る", fx:{ hp:8, skill:2 }, log:"入社初日、早めに休んだ" }
+        ] }
+    ], apply(){ S.job = "worker"; if(!S.company) S.company = "東和トレーディング"; } }; }
+    function evShippai(){ return { pages: [
+      { scene:"office", place:"会社 ― 初めての失敗", bgm:"sad", face:"assets/yuma-tired.webp", text:"発注数を桁ひとつ間違えた。幸い大事にはならなかったが、会議室で黒田課長にこってり絞られた。" },
+      { who:"黒田課長", face:"assets/kuroda.webp", text:"「新人のミスは『若さ』じゃ済まされないんだよ。次はないと思え」" },
+      { text:"悔しくて、情けなくて。帰り道、気づけば蓮に電話していた。" },
+      { who:"蓮", text:"「……そっか。じゃあ今日は俺の奢り。愚痴、全部聞くから」" },
+      { text:"優しい先輩・佐伯さんがフォローしてくれたこともあり、なんとか立ち直れそうだ。",
+        choices: [
+          { label:"蓮に全部聞いてもらう", fx:{ trust:5, close:3, stress:-10 }, log:"仕事で失敗した日、蓮に愚痴を聞いてもらった" },
+          { label:"佐伯先輩に相談して対策を立てる", fx:{ skill:5, stress:-5 }, log:"失敗を佐伯先輩と振り返った" }
+        ] }
+    ] }; }
+    function evKyuryo(){ return { pages: [
+      { scene:"room", place:"一人暮らしの部屋", bgm:"sad", face:"assets/yuma-tired.webp", text:"初任給が入った。明細を見て、ため息が出た。手取りは思ったよりずっと少ない。家賃、光熱費、食費……自由に使えるお金はわずかだ。" },
+      { who:"蓮", text:"「俺も同じだよ。給料安いよなあ……。でもまあ、最初はこんなもんか」" },
+      { text:"給料の安さを嘆き合うのも、社会人の「あるある」らしい。",
+        choices: [
+          { label:"節約を心がける", fx:{ money:3000, stress:2 }, log:"給料の安さに節約を決意" },
+          { label:"自分へのご褒美に使う", fx:{ money:-8000, stress:-8, hp:4 }, log:"初任給で自分にご褒美" }
+        ] }
+    ] }; }
+    function evSenpai(){ return { pages: [
+      { scene:"office", place:"会社 ― 優しい先輩", bgm:"daily", face:"assets/keisuke-coffee.webp", text:"残業で遅くなった夜、男の先輩・圭介さんが缶コーヒーを差し入れてくれた。" },
+      { who:"圭介", face:"assets/keisuke-coffee.webp", text:"「無理すんなよ。潰れたら元も子もない。……俺も1年目の頃は、よく泣いてたからさ」" },
+      { text:"女の先輩・佐伯さんも、資料の作り方を丁寧に教えてくれる。厳しい上司ばかりではないのだ。",
+        choices: [
+          { label:"先輩たちの助言を素直に受け取る", fx:{ skill:5, stress:-6 }, log:"圭介先輩と佐織先輩に助けられた" },
+          { label:"頼りすぎないよう自分で踏ん張る", fx:{ skill:3, guard:2, stress:3 }, log:"先輩に頼らず踏ん張った" }
+        ] }
+    ] }; }
+    function evJikoTaicho(){ return { pages: [
+      { scene:"hospital", place:"病院", bgm:"sad", face:"assets/yuma-sick.webp", text:"無理がたたって体調を崩し、病院に運ばれた。点滴を受けながら天井を見つめる。" },
+      { text:"夕方、病室のドアが開いた。――蓮だった。仕事を切り上げて駆けつけてくれたらしい。" },
+      { who:"蓮", face:"assets/ren-care.webp", text:"「……ったく、心配させんなよ。お粥作ってきた。食えるか？」" },
+      { text:"ぶっきらぼうな言葉と、冷めないように包まれたお粥。その温度が、胸に染みた。",
+        choices: [
+          { label:"「ありがとう」と素直に伝える", fx:{ close:6, trust:4, love:3, hp:10 }, log:"倒れたとき、蓮が見舞いに来てくれた" },
+          { label:"「大げさだよ」と笑ってごまかす", fx:{ friend:3, hp:8, guard:2 }, log:"見舞いに来た蓮を笑って迎えた" }
+        ] }
+    ] }; }
+
+    function evTaishoku(){ return { pages: [
+      { scene:"nightfail", place:"自宅 ― 深夜", bgm:"sad", face:"assets/yuma-tired.webp", text:"連日の残業、減らないミスへの叱責、眠れない夜。――限界だった。" },
+      { text:"「会社、辞めようかな」　蓮に電話で打ち明けると、長い沈黙のあと、蓮は言った。" },
+      { who:"蓮", text:"「……お前が決めたことなら、俺は止めない。ただ、辞めた後のこと、一緒に考えようぜ」" },
+      { text:"引き止めも、説教もしない。ただ「一緒に考える」と言ってくれる人がいる。",
+        choices: [
+          { label:"思い切って退職する", fx:{ stress:-20, hp:6 }, flag(){ S.job = "none"; S.quitDone = true; }, log:"会社を辞める決断をした" },
+          { label:"もう少しだけ踏ん張る", fx:{ stress:8, skill:4 }, log:"退職を思いとどまった" }
+        ] }
+    ] }; }
+    function evTenshoku(){ return { pages: [
+      { scene:"office", place:"転職活動", bgm:"daily", text:"求職期間を経て、小さなIT企業の『ノースブリッジ』から声がかかった。前の会社より給料は少し下がるが、人は穏やかそうだ。" },
+      { text:"一方、蓮のアパートの家賃の安さと、自分の貯金の減り具合が頭をよぎる――。",
+        choices: [
+          { label:"ノースブリッジに転職する", fx:{ stress:-8, skill:3 }, flag(){ S.job = "worker"; S.company = "ノースブリッジ"; }, log:"ノースブリッジへ転職した" },
+          { label:"しばらくフリーターで様子を見る", fx:{ stress:-4 }, flag(){ S.job = "freeter"; }, log:"フリーターとして働き始めた" }
+        ] }
+    ] }; }
+    function evKorogarikomi(){ return { pages: [
+      { scene:"station", place:"蓮のアパート前 ― 夜", bgm:"sad", text:"貯金が底をつき、今のアパートの更新料が払えない。段ボールを抱えて途方に暮れていた夜、蓮が言った。" },
+      { who:"蓮", text:"「うち来いよ。家賃折半なら、お互い助かるだろ？　……なあ、遠慮すんなって。昔から隣同士だったろ」" },
+      { scene:"moving", place:"蓮のアパート ― ルームシェア開始", bgm:"daily", text:"こうして、ルームシェアが始まった。狭いリビング、洗面所の取り合い、冷蔵庫の中身の領土問題。――なのに、不思議と毎日が楽しい。" },
+      { text:"「ただの友達」との同居生活。のはずだった。",
+        choices: [
+          { label:"家事分担のルールを決める", fx:{ trust:4, close:3 }, flag(){ S.share = true; }, log:"蓮とルームシェアを始めた" },
+          { label:"勢いで同居を始める", fx:{ close:6, friend:3 }, flag(){ S.share = true; }, log:"蓮のアパートに転がり込んだ" }
+        ] }
+    ] }; }
+    function evKanojo(){ return { pages: [
+      { scene:"room", place:"リビング ― 日曜の昼", bgm:"sad", face:"assets/misaki.webp", text:"日曜の昼、インターホンが鳴った。ドアを開けると、見知らぬ女性が立っていた。" },
+      { who:"美咲", face:"assets/misaki.webp", text:"「あ、はじめまして。蓮の彼女の美咲です。……あなたが{name}さん？　蓮からよく話聞いてます」" },
+      { text:"――彼女。蓮に、彼女がいた。知らなかった。いや、知ろうとしなかったのかもしれない。" },
+      { who:"蓮", text:"「あ、紹介遅れたな。大学の後半から付き合っててさ。……お前には言いそびれてた」" },
+      { text:"胸の奥が、ちくりと痛んだ。友達の幸せを喜べない自分に、一番驚いていた。",
+        choices: [
+          { label:"笑顔で祝福する", fx:{ friend:3, jealous:8, guard:3, misaki:3 }, flag(){ S.gfKnown = true; }, log:"蓮の彼女・美咲と初めて会った" },
+          { label:"動揺を隠してその場を離れる", fx:{ jealous:12, guard:5, stress:6 }, flag(){ S.gfKnown = true; }, log:"彼女の存在に動揺した" }
+        ] }
+    ] }; }
+    function evShioriNaku(){ return { pages: [
+      { scene:"park", place:"駅前の公園 ― 夜", bgm:"sad", face:"assets/shiori-cry.webp", text:"大学の後輩・栞から「相談があるんです」と呼び出された。ベンチに座る栞は、目を真っ赤にしていた。" },
+      { who:"栞", face:"assets/shiori-cry.webp", text:"「先輩……私、先輩のことが好きなんです。ずっと。……でも先輩には、好きな人がいるんでしょう？　顔に、書いてあります」" },
+      { text:"泣き出した栞に、かける言葉が見つからない。自分の気持ちから逃げてきたツケが、ここにも回ってきた。",
+        choices: [
+          { label:"正直に「好きな人がいる」と答える", fx:{ love:5, trust:2, shiori:-10, stress:4 }, log:"栞に正直に答えた" },
+          { label:"「そんな人いないよ」とごまかす", fx:{ guard:5, shiori:4, stress:6 }, log:"栞の告白をごまかしてしまった" },
+          { label:"栞の気持ちを受け止める", fx:{ shiori:15, love:-6, close:-3 }, log:"栞の気持ちを受け止めた" }
+        ] }
+    ] }; }
+    function evTenkin(){ return { pages: [
+      { scene:"tenkin", place:"リビング ― 夜", bgm:"sad", face:"assets/ren-suit-serious.webp", text:"帰宅した蓮の顔が、いつもと違った。テーブルの上に、会社の封筒が置かれる。" },
+      { who:"蓮", face:"assets/ren-suit-serious.webp", text:"「……転勤の内示が出た。来月から、大阪支社。断ることもできるけど、断れば出世は止まるってさ」" },
+      { text:"大阪。電車で3時間。同居も、この距離も、全部終わってしまうかもしれない。",
+        choices: [
+          { label:"「行くな」と本音をぶつける", fx:{ love:6, close:5, jealous:-4, stress:5 }, flag(){ S.seen.tenkinHonest = true; }, log:"転勤の話に本音をぶつけた" },
+          { label:"「応援するよ」と背中を押す", fx:{ trust:5, guard:4, stress:8 }, log:"蓮の転勤を応援すると言った" },
+          { label:"二人でじっくり話し合う", fx:{ trust:7, close:4 }, flag(){ S.seen.tenkinTalk = true; }, log:"転勤のことを二人で話し合った" }
+        ] }
+    ] }; }
+    function evWakare(){ return { pages: [
+      { scene:"room", place:"リビング ― 深夜", bgm:"sad", face:"assets/ren-sad.webp", text:"深夜、蓮が暗い顔で帰ってきた。缶ビールを2本、無言でテーブルに置く。" },
+      { who:"蓮", face:"assets/ren-sad.webp", text:"「……美咲と、別れた。『あなたの隣にいるべき人は、私じゃない気がする』って。……どういう意味だと思う？」" },
+      { text:"心臓が跳ねた。美咲は――何かを、見抜いていたのかもしれない。",
+        choices: [
+          { label:"黙って隣に座り、ビールを開ける", fx:{ close:6, trust:4 }, flag(){ S.gfGone = true; }, log:"美咲と別れた夜、黙って隣にいた" },
+          { label:"「俺でよければ話聞くよ」と言う", fx:{ trust:5, love:3 }, flag(){ S.gfGone = true; }, log:"蓮の話を聞くと約束した" }
+        ] }
+    ] }; }
+    function evKokuhakuMae(){ return { pages: [
+      { scene:"endinglove", place:"リビング ― 3月の夜", bgm:"ending", face:"assets/ren-confess.webp", faceLeft:"assets/yuma-confess.webp", text:"転勤の辞令は、話し合いの末に蓮が自ら見送る形で決着した。大阪行きは、なくなった。" },
+      { who:"蓮", face:"assets/ren-confess.webp", faceLeft:"assets/yuma-confess.webp", text:"「{name}。……俺さ、ずっと言えなかったことがあるんだ。小学生の頃から、俺の隣にはお前がいて。それが、当たり前すぎて気づかなかったけど――」" },
+      { text:"蓮の目が、まっすぐにこちらを見ている。逃げ場は、もうない。",
+        choices: [
+          { label:"自分の気持ちを伝える", fx:{ love:8 }, flag(){ S.confessed = true; }, log:"3月の夜、気持ちを伝えた" },
+          { label:"「親友でいよう」と笑う", fx:{ friend:6, guard:3 }, log:"3月の夜、親友のままでいることを選んだ" }
+        ] }
+    ] }; }
+
+    /* 固定イベントのスケジュール（t → 関数） */
+    const FIXED = {
+      2: evMensetsu, 5: evMensetsuOchi, 13: evGakusai, 17: evNaitei,
+      23: evSotsugyo, 24: evNyusha, 27: evShippai, 29: evKyuryo,
+      31: evSenpai, 34: evTaishoku, 35: evTenshoku, 37: evKorogarikomi,
+      39: evKanojo, 41: evJikoTaicho, 43: evShioriNaku, 44: evTenkin,
+      46: evWakare, 47: evKokuhakuMae
+    };
+
+    /* ============================================================
+       季節行事（暦月で発生）
+       ============================================================ */
+    function seasonalEvent(month){
+      const yr = S.t < 24 ? 0 : 1;
+      if(month === 1 && S.seen.hatsumode !== yr) { S.seen.hatsumode = yr; return { pages: [
+        { scene:"shrine", place:"神社 ― 初詣", bgm:"memory", text:"新年。蓮と二人、地元の神社へ初詣。人の波にもまれながら賽銭を投げ、おみくじを引く。" },
+        { who:"蓮", text:"「俺、大吉！　お前は？　……末吉か。まあ俺の大吉、半分分けてやるよ」" },
+        { text:"他愛ないやり取りが、今年も続いていく。",
+          choices: [
+            { label:"二人の健康を祈る", fx:{ friend:3, hp:5 }, log:"蓮と初詣に行った" },
+            { label:"仕事運アップを本気で祈る", fx:{ skill:3, trust:2 }, log:"初詣で仕事運を祈った" },
+            { label:"「蓮との縁が続きますように」と祈る", fx:{ close:5, love:3 }, log:"初詣で蓮との縁を祈った" }
+          ] }
+      ] }; }
+      if(month === 8 && S.seen.matsuri !== yr) { S.seen.matsuri = yr; return { pages: [
+        { scene:"festival", place:"地元 ― 夏祭り", bgm:"drink", face:"assets/ren-yukata.webp", faceLeft:"assets/yuma-yukata.webp", text:"夏祭り。地元に戻り、蓮と二人で屋台を冷やかす。わたあめ、焼きそば、射的――子供の頃と何も変わらない。" },
+        { who:"蓮", text:"「なあ、覚えてる？　小学生の頃、金魚すくいで喧嘩したの。……あれから何年だよ、俺たち」" },
+        { text:"花火が上がる。隣の横顔を見ていたら、子供の頃の夕日と重なった。",
+          choices: [
+            { label:"「来年も来よう」と約束する", fx:{ friend:4, close:3 }, log:"夏祭りで来年の約束をした" },
+            { label:"花火そっちのけで蓮を見ていた", fx:{ close:5, love:4 }, log:"夏祭りの花火より蓮を見ていた" },
+            { label:"屋台グルメを満喫する", fx:{ hp:6, money:-3000, stress:-5 }, log:"夏祭りの屋台を満喫した" }
+          ] }
+      ] }; }
+      if(month === 12 && S.seen.xmas !== yr) { S.seen.xmas = yr; return { pages: [
+        { scene:"christmas", place:"街 ― クリスマス", bgm:"memory", face:"assets/ren-winter.webp", text:"クリスマス。街はカップルとイルミネーションで溢れている。" },
+        { text: S.share ? "帰宅すると、蓮が小さなケーキを買って待っていた。" : "蓮から「暇なら飯でも」と誘いの連絡が来た。",
+          choices: [
+            { label: S.share ? "二人でケーキを囲む" : "二人で居酒屋で過ごす", fx:{ close:5, friend:3 }, log:"クリスマスを蓮と過ごした" },
+            { label:"仕事／勉強に打ち込む", fx:{ skill:4, stress:3 }, log:"クリスマスも仕事に打ち込んだ" },
+            { label:"栞を誘ってみる", fx:{ shiori:8, love:-2 }, log:"クリスマスに栞を誘った" }
+          ] }
+      ] }; }
+      if(month === 2 && S.t >= 24 && !S.seen.valentine) { S.seen.valentine = S.t; return { pages: [
+        { scene:"room", place:"バレンタイン", bgm:"daily", text:"2月14日。帰宅すると、玄関に小さな紙袋。中には栞からの手作りチョコと、手紙が入っていた。" },
+        { who:"栞", face:"assets/shiori-valentine.webp", text:"（手紙）『いつも隣にいてくれてありがとうございます。本命です。……なんて、冗談だと思ってください』" },
+        { text:"冗談で済ませられる字の震えじゃなかった。",
+          choices: [
+            { label:"お礼の連絡をする", fx:{ shiori:6 }, log:"栞のバレンタインチョコにお礼した" },
+            { label:"蓮と二人でそのチョコを食べる", fx:{ close:3, jealous:3 }, log:"栞のチョコを蓮と食べた" },
+            { label:"一人で大切に食べる", fx:{ shiori:3, hp:3 }, log:"栞のチョコを一人で食べた" }
+          ] }
+      ] }; }
+      return null;
+    }
+
+    /* ============================================================
+       ランダムイベント（社会人・学生 共通プール）
+       cond: 発生条件 / once: 一度きり
+       ============================================================ */
+    const RANDOM_EVENTS = [
+      { id:"zangyo", title:"残業と終電", cond:() => S.job === "worker", pages:() => [
+        { scene:"office", place:"会社 ― 深夜", bgm:"daily", text:"気づけば終電間際。オフィスの明かりはまばらで、黒田課長の席だけがまだ光っている。" },
+        { who:"黒田課長", face:"assets/kuroda-soft.webp", text:"「お、まだいたのか。……まあ、無理はするなよ（小声）」" },
+        { text:"意外な一面を見た気がした。走って終電に飛び乗る。",
+          choices: [
+            { label:"明日こそ定時で帰ると誓う", fx:{ hp:-8, stress:8, skill:3, money:6000 }, log:"残業して終電で帰った" },
+            { label:"タクシーでゆっくり帰る", fx:{ hp:-4, stress:4, money:-3000 }, log:"残業後タクシーで帰った" }
+          ] } ] },
+      { id:"shuccho", title:"出張", cond:() => S.job === "worker", pages:() => [
+        { scene:"park", place:"地方都市 ― 出張", bgm:"daily", text:"初めての泊まり出張。商談は無事に終わり、夜は地元の居酒屋で一人酒。" },
+        { text:"ふと、蓮に写真を送った。「そっちはどう？」　返信はすぐ来た。" },
+        { who:"蓮", text:"「出張お疲れ！　土産話、楽しみにしてる。……一人で飲む酒は、ほどほどにな」" },
+        { text:"離れていても、気にかけてもらえるのは嬉しい。",
+          choices: [
+            { label:"蓮への土産を買う", fx:{ money:-2000, close:3 }, log:"出張先で蓮に土産を買った" },
+            { label:"仕事の勉強に時間を使う", fx:{ skill:4, stress:2 }, log:"出張先で仕事の勉強をした" }
+          ] } ] },
+      { id:"yuukyu", title:"有給が取れない", cond:() => S.job === "worker", pages:() => [
+        { scene:"office", place:"会社 ― 有給申請", bgm:"sad", text:"楽しみにしていた有給休暇。しかし繁忙期と重なり、黒田課長に渋い顔をされた。" },
+        { who:"黒田課長", face:"assets/kuroda.webp", text:"「気持ちは分かるが、今は戦力外になられると困るんだ……頼む」" },
+        { text:"楽しみにしていた蓮との旅行計画は、流れてしまった。",
+          choices: [
+            { label:"仕事を優先して有給を取り下げる", fx:{ skill:3, stress:7, jealous:2 }, log:"有給が取れず旅行が流れた" },
+            { label:"粘って1日だけ休む", fx:{ hp:8, stress:-4, guard:2 }, log:"粘って有給を1日取った" }
+          ] } ] },
+      { id:"bonus", title:"ボーナスの使い道", cond:() => S.job === "worker" && (calMonth(S.t) === 6 || calMonth(S.t) === 12), pages:() => [
+        { scene:"naitei", place:"銀行 ― ボーナス支給日", bgm:"ending", text:"ボーナスが振り込まれた。明細の数字に、思わず頬が緩む。これをどう使うか――。" },
+        { text:"蓮は「半分は貯金、半分はパーッと」と笑っていた。",
+          choices: [
+            { label:"全額しっかり貯金する", fx:{ money:120000, stress:2 }, log:"ボーナスを貯金した" },
+            { label:"蓮と少し贅沢な食事に行く", fx:{ money:60000, close:5, friend:3 }, log:"ボーナスで蓮と贅沢な食事をした" },
+            { label:"資格の講座に投資する", fx:{ money:40000, skill:8 }, log:"ボーナスを自己投資に使った" }
+          ] } ] },
+      { id:"shainryoko", title:"社員旅行", cond:() => S.job === "worker", once:true, pages:() => [
+        { scene:"trip", place:"温泉地 ― 社員旅行", bgm:"drink", text:"社員旅行で温泉へ。宴会では黒田課長がまさかの美声を披露し、部署の距離が少し縮まった。" },
+        { who:"沙織", face:"assets/saori-drink.webp", text:"「たまにはこういうのも悪くないでしょ？　仕事だけが人生じゃないよ」" },
+        { text:"露天風呂で空を見上げながら、ふと蓮の顔が浮かんだ。",
+          choices: [
+            { label:"同僚たちと親交を深める", fx:{ skill:3, stress:-8, charm:3 }, log:"社員旅行で同僚と親交を深めた" },
+            { label:"蓮に写真を送りまくる", fx:{ close:4, stress:-6 }, log:"社員旅行先から蓮に写真を送った" }
+          ] } ] },
+      { id:"bounenkai", title:"忘年会・新年会", cond:() => S.job !== "student" && (calMonth(S.t) === 12 || calMonth(S.t) === 1), pages:() => [
+        { scene:"izakaya", place:"居酒屋 ― 忘年会", bgm:"drink", text:"部署の忘年会。酒が進むにつれ、普段は見えない顔が見えてくる。" },
+        { who:"圭介", face:"assets/keisuke.webp", text:"「いやー、今年も色々あったな。来年もよろしく頼むよ」" },
+        { text:"二次会のカラオケまで付き合って、帰りは午前様。",
+          choices: [
+            { label:"幹事として場を盛り上げる", fx:{ charm:4, skill:2, hp:-5, money:-4000 }, log:"忘年会で幹事を務めた" },
+            { label:"ほどほどで切り上げる", fx:{ hp:2, stress:-3 }, log:"忘年会をほどほどで切り上げた" }
+          ] } ] },
+      { id:"jikka", title:"実家からの電話", cond:() => true, pages:() => [
+        { scene:"room", place:"部屋 ― 夜", bgm:"memory", text:"実家の母から電話。「あんた、ちゃんと食べてるの？　……声聞けてよかった」" },
+        { who:"母", face:"assets/mother-phone.webp", text:"「蓮くんにもよろしくね。小さい頃から、本当に仲がいいんだから」" },
+        { text:"母の声に、少しだけ胸が温かくなった。",
+          choices: [
+            { label:"近況をゆっくり話す", fx:{ stress:-6, trust:2 }, log:"実家の母と電話で話した" },
+            { label:"今度帰省すると約束する", fx:{ stress:-3, money:-5000 }, log:"帰省を約束した" }
+          ] } ] },
+      { id:"oyabyoki", title:"親の病気", cond:() => S.t >= 26, once:true, pages:() => [
+        { scene:"hospital", place:"実家 ― 父の入院", bgm:"sad", text:"父が倒れた。幸い命に別状はなかったが、しばらく入院することに。病院の廊下で、母の小さな背中を見た。" },
+        { text:"その夜、蓮が実家まで車で駆けつけてくれた。何も言わず、母の荷物を持ってくれる。" },
+        { who:"蓮", face:"assets/ren-care.webp", text:"「困ったときは、お互い様だろ。……俺のことは家族みたいなもんだと思ってくれていいから」" },
+        { text:"「家族みたいな」――その言葉が、嬉しくて、少し切なかった。",
+          choices: [
+            { label:"蓮に甘えて支えてもらう", fx:{ trust:7, close:5, stress:-8 }, log:"父の入院で蓮に支えられた" },
+            { label:"気丈に振る舞う", fx:{ guard:3, stress:4 }, log:"父の入院、気丈に振る舞った" }
+          ] } ] },
+      { id:"hikkoshi", title:"引っ越しと部屋探し", cond:() => S.t >= 24 && !S.share, once:true, pages:() => [
+        { scene:"park", place:"不動産屋", bgm:"daily", face:"assets/yuma-smile.webp", text:"一人暮らしの部屋の更新が近い。不動産屋で家賃の安い物件を探すが、条件のいい部屋はなかなかない。" },
+        { text:"「いっそ誰かとシェアすれば……」　頭に浮かんだ顔は、やっぱり一人だけだった。",
+          choices: [
+            { label:"今の部屋を更新する", fx:{ money:-40000, stress:2 }, log:"部屋の更新をした" },
+            { label:"安い部屋に引っ越す", fx:{ money:-15000, hp:-4, stress:4 }, log:"安い部屋へ引っ越した" }
+          ] } ] },
+      { id:"kenshin", title:"健康診断", cond:() => S.job === "worker", once:true, pages:() => [
+        { scene:"hospital", place:"病院 ― 健康診断", bgm:"daily", text:"会社の健康診断。結果は「要経過観察」。睡眠不足と運動不足を、医師にずばり指摘された。" },
+        { who:"蓮", text:"「お前さ、自分のこと後回しにしすぎ。……週末、走るぞ。一緒に」" },
+        { text:"心配してくれる人がいる、というのは心強い。",
+          choices: [
+            { label:"蓮と週末ランニングを始める", fx:{ hp:10, close:4, stress:-4 }, log:"蓮とランニングを始めた" },
+            { label:"食生活だけ改善する", fx:{ hp:5, money:-2000 }, log:"食生活を改善した" }
+          ] } ] },
+      { id:"densha", title:"電車が止まって帰れない夜", cond:() => S.job !== "student", once:true, pages:() => [
+        { scene:"station", place:"駅前 ― 深夜", bgm:"sad", text:"人身事故で電車が止まった。タクシー乗り場は長蛇の列。途方に暮れて蓮に連絡すると――。" },
+        { who:"蓮", face:"assets/ren-care.webp", text:"「迎えに行く。……文句言うな、こういうときのための『隣』だろ」" },
+        { text:"30分後、蓮の車のヘッドライトが見えた。助手席に乗り込むと、温かい缶コーヒーが渡された。",
+          choices: [
+            { label:"助手席で素直に感謝する", fx:{ close:6, trust:4, love:3 }, log:"帰れない夜、蓮が迎えに来てくれた" },
+            { label:"ガソリン代を渡そうとする", fx:{ friend:3, guard:2, money:-1000 }, log:"迎えに来た蓮にガソリン代を渡そうとした" }
+          ] } ] },
+      { id:"kekkonshiki", title:"友人の結婚式", cond:() => S.t >= 28, once:true, pages:() => [
+        { scene:"wedding", place:"式場 ― 友人の結婚式", bgm:"memory", face:"assets/ren-suit.webp", faceLeft:"assets/yuma-suit.webp", text:"大学時代の友人の結婚式。幸せそうな新郎新婦を見て、拍手しながら、ふと考える。" },
+        { text:"隣の席の蓮も、同じ顔をしていた気がした。帰り道、どちらからともなく無言になる。" },
+        { who:"蓮", text:"「……俺たちはさ、この先どうなるんだろうな」" },
+        { text:"その問いへの答えは、まだ出せなかった。",
+          choices: [
+            { label:"「ずっと隣にはいるよ」と答える", fx:{ close:5, love:4 }, log:"結婚式の帰り道、蓮と将来の話をした" },
+            { label:"「さあな」とはぐらかす", fx:{ guard:4, stress:3 }, log:"結婚式の帰り道、問いをはぐらかした" }
+          ] } ] },
+      { id:"gokon", title:"合コン", cond:() => S.t >= 24 && !S.gfKnown, pages:() => [
+        { scene:"izakaya", place:"居酒屋 ― 合コン", bgm:"drink", face:"assets/yuma-drunk.webp", text:"同僚に誘われて合コンへ。話の合う女性もいたが、気づけば蓮と行く居酒屋と比べてしまっている。" },
+        { text:"帰り道、携帯には蓮からの「今日は鍋だぞ」のメッセージ。それを見て、足が速くなった。",
+          choices: [
+            { label:"ほどほどに楽しむ", fx:{ charm:3, stress:-4, money:-6000 }, log:"合コンに参加した" },
+            { label:"早めに切り上げて帰る", fx:{ close:3, money:-3000 }, log:"合コンを早めに切り上げた" }
+          ] } ] },
+      { id:"dosokai", title:"同窓会", cond:() => S.t >= 30, once:true, pages:() => [
+        { scene:"reunion", place:"地元 ― 同窓会", bgm:"memory", text:"中学の同窓会。懐かしい顔ぶれの中で、蓮と{name}は当然のように隣同士に座っていた。" },
+        { who:"同期", text:"「お前ら、まだ一緒にいるの！？　小学校からずっと一緒って、もはや家族じゃん」" },
+        { text:"周りは笑っていたが、その言葉は意外なほど胸に残った。",
+          choices: [
+            { label:"「家族みたいなもんです」と笑う", fx:{ friend:4, close:3 }, log:"同窓会で『家族みたい』と言われた" },
+            { label:"少し意識して距離を取る", fx:{ guard:4, jealous:2 }, log:"同窓会で蓮を意識してしまった" }
+          ] } ] },
+      { id:"kyumae", title:"給料日前の金欠", cond:() => S.money < 25000 && S.job !== "student", pages:() => [
+        { scene:"room", place:"部屋 ― 給料日前", bgm:"sad", text:"給料日まであと5日。財布の中身は心許ない。冷蔵庫の残り物で、なんとか凌ぐしかない。" },
+        { text: S.share ? "見かねた蓮が「今日は俺が作る」と腕を振るってくれた。質素なのに、やけに美味い夕食だった。" : "もやしと卵の炒め物を作りながら、節約の大切さを痛感した。",
+          choices: [
+            { label:"質素に節約して乗り切る", fx:{ hp:-3, stress:3 }, log:"金欠の週を節約で乗り切った" },
+            { label:"日払いバイトを入れる", fx:{ money:8000, hp:-6, stress:4 }, log:"金欠で日払いバイトを入れた" }
+          ] } ] },
+      { id:"rinji", title:"臨時収入", cond:() => true, pages:() => [
+        { scene:"park", place:"街 ― 臨時収入", bgm:"ending", face:"assets/yuma-smile.webp", text:"不用品をフリマアプリで売ったら、思いのほか良い値がついた。ちょっとした臨時収入だ。" },
+        { text:"何に使おうか。真っ先に浮かんだのは、蓮と行く店のことだった。",
+          choices: [
+            { label:"蓮を食事に誘う", fx:{ money:4000, close:4 }, log:"臨時収入で蓮を食事に誘った" },
+            { label:"貯金に回す", fx:{ money:12000 }, log:"臨時収入を貯金した" }
+          ] } ] },
+      { id:"idom", title:"異動の内示（自分）", cond:() => S.job === "worker" && S.t >= 38, once:true, pages:() => [
+        { scene:"office", place:"会社 ― 内示", bgm:"daily", text:"黒田課長に呼ばれ、異動の内示を受けた。幸い通勤圏内の別部署で、仕事内容もステップアップになるという。" },
+        { who:"黒田課長", face:"assets/kuroda-soft.webp", text:"「期待してるんだ。……それと、体は大事にしろ。潰れた奴を何人も見てきた」" },
+        { text:"厳しいだけの人ではなかったのかもしれない。",
+          choices: [
+            { label:"新しい部署で頑張ると決意する", fx:{ skill:5, stress:3 }, log:"異動の内示を受け入れた" },
+            { label:"蓮に報告して相談する", fx:{ trust:4, skill:2 }, log:"異動のことを蓮に相談した" }
+          ] } ] },
+      { id:"shoshin", title:"昇進と資格取得", cond:() => S.job === "worker" && (S.skill >= 55 || S.certs >= 2), once:true, pages:() => [
+        { scene:"office", place:"会社 ― 朗報", bgm:"ending", text:"努力が実を結んだ。昇進の打診と、資格手当の増額が決まったのだ。" },
+        { who:"蓮", face:"assets/ren-suit.webp", text:"「すげえじゃん！　お前の頑張り、ちゃんと見てる人は見てるんだな。今夜は祝いだ、俺の奢り！」" },
+        { text:"誰より喜んでくれる人の存在が、何よりの報酬だった。",
+          choices: [
+            { label:"蓮の奢りで祝ってもらう", fx:{ friend:4, close:4, money:15000, stress:-8 }, log:"昇進を蓮に祝ってもらった" },
+            { label:"浮かれず次の目標を立てる", fx:{ skill:4, money:15000 }, log:"昇進して次の目標を立てた" }
+          ] } ] },
+      { id:"nomikai", title:"飲み会での本音", cond:() => S.t >= 10, pages:() => [
+        { scene:"izakaya", place:"居酒屋 ― 飲み会", bgm:"drink", face:"assets/ren-drunk.webp", faceLeft:"assets/yuma-drunk.webp", text:"蓮と二人、行きつけの居酒屋。酒が回るにつれ、普段は言えない話になっていく。" },
+        { who:"蓮", face:"assets/ren-drunk.webp", faceLeft:"assets/yuma-drunk.webp", text:"「お前さ……俺のこと、どう思ってる？　いや、なんでもない。酔った、酔った」" },
+        { text:"笑って流された問い。でも、その一瞬の真剣な目が忘れられない。",
+          choices: [
+            { label:"「大事な奴だよ」と真っ直ぐ答える", fx:{ trust:4, close:4, love:2 }, log:"飲み会で蓮に本音を少し見せた" },
+            { label:"「親友だろ」と笑って答える", fx:{ friend:4, guard:2 }, log:"飲み会で『親友』と答えた" },
+            { label:"酔ったふりして話題を変える", fx:{ guard:4, stress:2 }, log:"飲み会の問いをはぐらかした" }
+          ] } ] },
+      { id:"freeterBaito", title:"バイト掛け持ち", cond:() => S.job === "freeter", pages:() => [
+        { scene:"freeter", place:"バイト先", bgm:"daily", face:"assets/yuma-tired.webp", text:"フリーター生活。昼はコンビニ、夜は居酒屋の掛け持ちバイト。体はきついが、時間の自由はある。" },
+        { who:"蓮", text:"「無理すんなよ。……飯くらい、いつでも食いに来いよな」" },
+        { text:"蓮の何気ない優しさが、疲れた体に染みる。",
+          choices: [
+            { label:"掛け持ちでしっかり稼ぐ", fx:{ money:30000, hp:-10, stress:6 }, log:"バイトを掛け持ちして稼いだ" },
+            { label:"転職活動と両立させる", fx:{ money:15000, skill:4, hp:-5 }, log:"バイトと転職活動を両立させた" }
+          ] } ] },
+      { id:"renDate", title:"蓮との休日", cond:() => true, pages:() => [
+        { scene:"park", place:"公園 ― 休日", bgm:"daily", face:"assets/ren.webp", faceLeft:"assets/yuma-smile.webp", text:"休日。蓮と近所の公園を散歩した。特別なことは何もない。でも、こういう時間がいちばん落ち着く。" },
+        { who:"蓮", text:"「なあ。……このまま歳取っても、こうやって散歩してそうだな、俺たち」" },
+        { text:"「このまま」――その言葉の意味を、考えてしまった。",
+          choices: [
+            { label:"「そうだといいな」と答える", fx:{ close:5, friend:3 }, log:"蓮と公園を散歩した" },
+            { label:"冗談で返す", fx:{ friend:3, guard:2 }, log:"蓮と公園を散歩した" }
+          ] } ] }
+    ];
+    function pickRandomEvent(){
+      const pool = RANDOM_EVENTS.filter(e => (!e.once || !S.seen[e.id]) && e.cond());
+      if(pool.length === 0) return null;
+      if(Math.random() < 0.30) return null; // 7割でイベント発生
+      const e = pool[Math.floor(Math.random() * pool.length)];
+      S.seen[e.id] = S.t;
+      return { pages: e.pages() };
+    }
+
+    /* ============================================================
+       コマンド（フェーズ・職業で変化）
+       ============================================================ */
+    function getCommands(){
+      const cmds = [];
+      const P = (o) => cmds.push(o);
+      if(S.job === "student"){
+        if(!S.seen.naiteiDone) P({ id:"shukatsu", label:"就職活動", sub:"面接対策・エントリーシート", run(){ const r = Math.random(); if(S.skill >= 30 || r < .45){ return { fx:{ stress:5, skill:3 }, msg:"面接を1件こなした。少しずつ手応えが出てきた。" }; } return { fx:{ stress:8, skill:2 }, msg:"面接は手応えなし……。でも経験値は貯まった。" }; } });
+        P({ id:"study", label:"勉強する", sub:"実力アップ・ストレス少し", run(){ return { fx:{ skill:5, stress:3, hp:-3 }, msg:"図書館で勉強した。知識が身についた気がする。" }; } });
+        P({ id:"baito", label:"アルバイト", sub:"お金を稼ぐ・体力消費", run(){ return { fx:{ money:18000, hp:-7, stress:3 }, msg:"バイトでしっかり稼いだ。" }; } });
+        P({ id:"ren", label:"蓮と遊ぶ", sub:"友情・親密アップ", run(){ return { fx:{ friend:4, close:3, stress:-6, money:-3000 }, msg:"蓮と他愛ない時間を過ごした。やっぱり落ち着く。" }; } });
+        P({ id:"shiori", label:"後輩・栞と会う", sub:"栞の好意アップ", run(){ return { fx:{ shiori:6, stress:-3, money:-2000 }, msg:"栞とカフェで話した。栞は嬉しそうだった。" }; } });
+      } else if(S.job === "worker"){
+        P({ id:"work", label:"仕事を頑張る", sub:"実力アップ・給料は月末", run(){ return { fx:{ skill:4, stress:5, hp:-4 }, msg:"仕事に集中した。少しずつ任される仕事が増えてきた。" }; } });
+        P({ id:"zangyo", label:"残業する", sub:"残業代・実力アップ、体力消費大", run(){ return { fx:{ skill:5, money:9000, stress:9, hp:-10 }, msg:"残業して案件を片付けた。体は悲鳴を上げている。" }; } });
+        P({ id:"cert", label:"資格の勉強", sub:"資格取得に近づく", run(){ S._certP = (S._certP || 0) + 1; if(S._certP >= 3){ S._certP = 0; S.certs++; return { fx:{ skill:4, stress:3 }, msg:"資格試験に合格した！　資格が1つ増えた。", extra:true }; } return { fx:{ skill:4, stress:3, hp:-3 }, msg:"資格の勉強を進めた。（合格まであと" + (3 - S._certP) + "回）" }; } });
+        P({ id:"nomikai", label:"飲み会に行く", sub:"ストレス解消・同僚と親交", run(){ return { fx:{ stress:-9, charm:3, money:-5000, hp:-3 }, msg:"同僚と飲んだ。仕事の愚痴も笑い話になった。" }; } });
+        P({ id:"ren", label: S.share ? "蓮と過ごす" : "蓮に会いに行く", sub:"友情・親密アップ", run(){ return { fx:{ friend:4, close:4, stress:-7, money:-2000 }, msg: S.share ? "リビングで蓮とだらだら過ごした。何もしない時間が心地いい。" : "蓮と食事に行った。忙しくても、この時間は大切にしたい。" }; } });
+        if(S.share) P({ id:"kaji", label:"家事を分担する", sub:"信頼アップ・同居生活", run(){ return { fx:{ trust:5, close:2, hp:-3 }, msg:"掃除と洗濯を片付けた。蓮が「助かる」と喜んでいた。" }; } });
+        P({ id:"shiori", label:"栞と会う", sub:"栞の好意アップ", run(){ return { fx:{ shiori:6, stress:-3, money:-2000 }, msg:"栞と会った。社会人になった{name}を、栞は少し眩しそうに見ていた。" }; } });
+      } else if(S.job === "freeter"){
+        P({ id:"baito", label:"バイトを頑張る", sub:"お金を稼ぐ", run(){ return { fx:{ money:26000, hp:-8, stress:4 }, msg:"バイトのシフトをこなした。" }; } });
+        P({ id:"tenshoku", label:"転職活動", sub:"正社員を目指す", run(){ if(S.skill >= 35 && Math.random() < .6){ S.job = "worker"; S.company = "ノースブリッジ"; return { fx:{ skill:3, stress:-5 }, msg:"転職が決まった！　小さなIT企業『ノースブリッジ』で再スタートだ。", extra:true }; } return { fx:{ skill:3, stress:4 }, msg:"求人に応募した。返事はまだ来ない。" }; } });
+        P({ id:"ren", label:"蓮と過ごす", sub:"友情・親密アップ", run(){ return { fx:{ friend:4, close:4, stress:-7 }, msg:"蓮と過ごした。事情を全部知っている相手は、やっぱり楽だ。" }; } });
+        P({ id:"study", label:"勉強する", sub:"実力アップ", run(){ return { fx:{ skill:5, stress:3, hp:-3 }, msg:"図書館で勉強した。将来への投資だ。" }; } });
+      } else { // none（求職中）
+        P({ id:"tenshoku", label:"転職活動", sub:"次の仕事を探す", run(){ if(Math.random() < .5){ return { fx:{ skill:2, stress:3 }, msg:"面接を1件受けた。手応えは悪くない。" }; } return { fx:{ skill:2, stress:6 }, msg:"応募した会社から返事がない……。" }; } });
+        P({ id:"baito", label:"日払いバイト", sub:"当面の生活費", run(){ return { fx:{ money:12000, hp:-6, stress:4 }, msg:"日払いバイトで生活費を稼いだ。" }; } });
+        P({ id:"ren", label:"蓮に相談する", sub:"信頼アップ", run(){ return { fx:{ trust:5, stress:-6 }, msg:"蓮に今の状況を全部話した。聞いてもらえるだけで違う。" }; } });
+        P({ id:"study", label:"勉強する", sub:"実力アップ", run(){ return { fx:{ skill:5, stress:2, hp:-2 }, msg:"資格と仕事の勉強をした。" }; } });
+      }
+      P({ id:"rest", label:"ゆっくり休む", sub:"体力回復・ストレス解消", run(){ return { fx:{ hp:16, stress:-10 }, msg:"何もしない休日。しっかり充電できた。" }; } });
+      return cmds;
+    }
+
+    /* ============================================================
+       ターン進行
+       ============================================================ */
+    function monthSettle(){
+      // 月末（後半ターン終了時）の収支
+      if(S.job === "worker"){ S.money += 165000; fxLog("給料が振り込まれた（手取り）"); }
+      if(S.job === "freeter"){ S.money += 60000; }
+      if(S.job === "student"){ S.money += 20000; } // 仕送り等
+      const living = S.share ? 45000 : (S.job === "student" ? 25000 : 78000);
+      S.money = Math.max(0, S.money - living);
+      fxLog("生活費として " + living.toLocaleString() + "円出ていった");
+      // 嫉妬の自然減衰／警戒の自然減衰
+      S.rel.jealous = clamp(S.rel.jealous - 2, 0, 100);
+      S.rel.guard = clamp(S.rel.guard - 1, 0, 100);
+      if(S.hp <= 0){ S.hp = 20; S.stress = clamp(S.stress + 10, 0, 100); fxLog("体力の限界……無理がたたって数日寝込んだ"); }
+      if(S.stress >= 100){ S.stress = 80; S.hp = clamp(S.hp - 15, 1, 100); fxLog("ストレスが限界に達し、体調を崩した"); }
+    }
+    function startTurn(){
+      renderStatus();
+      if(S.t >= 48){ doEnding(); return; }
+      // 固定イベント
+      const F = FIXED[S.t];
+      if(F){
+        const ev = F();
+        playScene(ev.pages, () => {
+          if(ev.apply) ev.apply();
+          if(S.t === 17) S.seen.naiteiDone = true;
+          advance();
+        });
+        return;
+      }
+      // 季節行事
+      const sev = seasonalEvent(calMonth(S.t));
+      if(sev){ playScene(sev.pages, advance); return; }
+      // ランダムイベント
+      const rev = pickRandomEvent();
+      if(rev){ playScene(rev.pages, advance); return; }
+      showCommands();
+    }
+    function advance(){
+      S.t++;
+      if(S.t % 2 === 0 && S.t > 0 && S.t < 48) monthSettle();
+      if(S.t >= 48){ renderStatus(); doEnding(); return; }
+      startTurn();
+    }
+    function showCommands(){
+      renderStatus();
+      setScene(S.share ? "room" : (S.job === "worker" ? "office" : "town"),
+        S.share ? "ルームシェアの部屋" : (S.job === "worker" ? "会社／街" : "街"), null);
+      BGM.start(S.job === "student" ? "daily" : "daily");
+      showText("", dateLabel(S.t) + "。今週はどう過ごそうか。");
+      $("dlg-next").style.visibility = "hidden";
+      const grid = $("cmd-grid"); grid.innerHTML = "";
+      getCommands().forEach(c => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = "";
+        b.appendChild(document.createTextNode(c.label));
+        const sm = document.createElement("small"); sm.textContent = c.sub; b.appendChild(sm);
+        b.addEventListener("click", () => {
+          $("command-area").classList.add("hidden");
+          $("dlg-next").style.visibility = "";
+          const r = c.run();
+          const notes = r.fx ? applyFx(r.fx) : [];
+          showText("", r.msg);
+          showFx(notes);
+          fxLog(c.label + " ― " + r.msg);
+          queue = []; queueDone = () => advance();
+        });
+        grid.appendChild(b);
+      });
+      $("command-area").classList.remove("hidden");
+    }
+
+    /* ============================================================
+       エンディング判定
+       ============================================================ */
+    function doEnding(){
+      S.over = true;
+      const r = S.rel;
+      let title, badge, pages, bgm = "ending";
+      if(S.confessed && r.love >= 60 && r.close >= 55 && S.gfGone){
+        badge = "恋愛成就エンド";
+        title = "「隣」から「恋人」へ";
+        pages = [
+          { scene:"endinglove", place:"リビング ― 3月最後の夜", bgm:"ending", who:"蓮", face:"assets/ren-confess.webp", faceLeft:"assets/yuma-confess.webp", text:"「……ありがとう。俺もずっと、お前が好きだったんだと思う。気づくのに、20年近くかかったけどな」" },
+          { text:"蓮の手が、そっとこちらの手に重なった。小学生の頃、田んぼ道で繋いだ手と、少しも変わらない温かさだった。" },
+          { text:"友情100、恋愛0――そんな関係もあったはずなのに。積み重ねた日々が、いつの間にか形を変えていた。" },
+          { text:"これからも隣にいる。ただ、その意味が、少しだけ変わる。これからも、ずっと。　― 恋愛成就エンド ―" }
+        ];
+      } else if(r.friend >= 75 && r.trust >= 65){
+        badge = "親友エンド";
+        title = "一生ものの親友";
+        pages = [
+          { scene:"endingfriend", place:"リビング ― 3月最後の夜", bgm:"memory", who:"蓮", text:"「なあ。これからもよろしくな、相棒」" },
+          { text:"恋愛感情がなくたって、この絆は本物だ。友情100、恋愛0。それでも二人の関係は、誰にも真似できない形で完成していた。" },
+          { text:"小学生の田んぼ道から、社会人のリビングまで。いつも隣にいた君は、これからも隣にいる。　― 親友エンド ―" }
+        ];
+      } else if(S.shiori >= 65 && r.love < 40){
+        badge = "後輩エンド";
+        title = "栞との新しい日々";
+        pages = [
+          { scene:"park", place:"駅前の公園", bgm:"memory", who:"栞", face:"assets/shiori.webp", text:"「先輩……今度こそ、逃げないでくださいね。私、ずっと待ってたんですから」" },
+          { text:"蓮とは親友のまま。栞の真っ直ぐな気持ちに、ようやく向き合う決心がついた。" },
+          { text:"人生は、選ばなかった道の分だけ広がっていく。これはこれで、一つの答えだった。　― 後輩エンド ―" }
+        ];
+      } else if(r.jealous >= 70 || r.guard >= 70){
+        badge = "すれ違いエンド"; bgm = "sad";
+        title = "言えなかった言葉";
+        pages = [
+          { scene:"nightfail", place:"街 ― 夜", bgm:"sad", face:"assets/yuma-tired.webp", text:"嫉妬と警戒が積み重なって、二人の距離は少しずつ離れていった。" },
+          { text:"言いたい言葉は、いつも喉の奥で止まってしまった。――いつも隣にいたはずなのに。" },
+          { text:"関係は終わらない。でも、あの頃の距離には、まだ戻れていない。　― すれ違いエンド ―" }
+        ];
+      } else {
+        badge = "日常エンド"; bgm = "daily";
+        title = "続いていく日々";
+        pages = [
+          { scene:"room", place:"リビング", bgm:"daily", who:"蓮", text:"「来週さ、実家帰るついでに、昔の秘密基地の場所、見に行かねえ？」" },
+          { text:"劇的なことは起きなかった。でも、二人の日常は穏やかに続いていく。" },
+          { text:"答えは、まだ先でいいのかもしれない。　― 日常エンド ―" }
+        ];
+      }
+      playScene(pages, () => {
+        $("dlg-speaker").textContent = "";
+        $("dlg-text").innerHTML = "";
+        const d = document.createElement("div");
+        d.innerHTML = "<span class=\"ending-badge\">" + badge + "</span><br /><strong style=\"font-size:1.2rem;\">" + title + "</strong><br /><br />" +
+          "最終関係値 ― 友情 " + Math.round(r.friend) + " ／ 信頼 " + Math.round(r.trust) + " ／ 親密 " + Math.round(r.close) +
+          " ／ 恋愛感情 " + Math.round(r.love) + " ／ 嫉妬 " + Math.round(r.jealous) + " ／ 警戒 " + Math.round(r.guard) +
+          "<br />栞の好意 " + Math.round(S.shiori) + " ／ 資格 " + S.certs + " ／ 所持金 " + S.money.toLocaleString() + "円";
+        $("dlg-text").appendChild(d);
+        $("dlg-next").style.visibility = "hidden";
+        const box = $("choices"); box.innerHTML = ""; box.classList.remove("hidden");
+        const b1 = document.createElement("button"); b1.type = "button"; b1.textContent = "タイトルに戻る";
+        b1.addEventListener("click", () => location.reload());
+        const b2 = document.createElement("button"); b2.type = "button"; b2.textContent = "セーブ／ロード";
+        b2.addEventListener("click", openSaveModal);
+        box.appendChild(b1); box.appendChild(b2);
+      });
+      fxLog("エンディング：" + badge);
+      renderStatus();
+    }
+
+    /* ============================================================
+       セーブ／ロード（メモリ内スロット＋ファイル書き出し）
+       ============================================================ */
+    const SLOTS = [null, null, null];
+    function openModal(html){ $("modal").innerHTML = html; $("modal-back").classList.remove("hidden"); }
+    function closeModal(){ $("modal-back").classList.add("hidden"); }
+    $("modal-back").addEventListener("click", e => { if(e.target === $("modal-back")) closeModal(); });
+    function openSaveModal(){
+      let html = "<h2>セーブ／ロード</h2><p>スロットはこのページを開いている間のみ有効です。長く残したい場合は、下の「ファイルに書き出し」を使ってください。</p>";
+      SLOTS.forEach((s, i) => {
+        html += "<div class=\"slot\"><strong>スロット" + (i + 1) + "</strong> " +
+          (s ? "<span class=\"meta\">" + s.meta + "</span>" : "<span class=\"meta\">（空き）</span>") +
+          "<div class=\"row\"><button type=\"button\" data-act=\"save\" data-i=\"" + i + "\">セーブ</button>" +
+          (s ? "<button type=\"button\" class=\"sub-btn\" data-act=\"load\" data-i=\"" + i + "\">ロード</button>" : "") + "</div></div>";
+      });
+      html += "<div class=\"row\"><button type=\"button\" id=\"m-export\">ファイルに書き出し</button>" +
+        "<button type=\"button\" class=\"sub-btn\" id=\"m-import\">ファイルから読み込み</button>" +
+        "<button type=\"button\" class=\"sub-btn\" id=\"m-close\">閉じる</button></div>" +
+        "<input type=\"file\" id=\"m-file\" accept=\".json,application/json\" class=\"hidden\" />";
+      openModal(html);
+      $("modal").querySelectorAll("button[data-act]").forEach(b => {
+        b.addEventListener("click", () => {
+          const i = Number(b.dataset.i);
+          if(b.dataset.act === "save"){
+            if(!S){ closeModal(); return; }
+            SLOTS[i] = { meta: dateLabel(S.t) + "／" + ({ student:"大学生", worker:"会社員", freeter:"フリーター", none:"求職中" })[S.job],
+              data: JSON.stringify(S) };
+            openSaveModal();
+          } else {
+            S = JSON.parse(SLOTS[i].data);
+            closeModal(); startGame(false);
+          }
+        });
+      });
+      $("m-close").addEventListener("click", closeModal);
+      $("m-export").addEventListener("click", () => {
+        if(!S) return;
+        const blob = new Blob([JSON.stringify(S)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "itumolin-save.json";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      });
+      $("m-import").addEventListener("click", () => $("m-file").click());
+      $("m-file").addEventListener("change", e => {
+        const f = e.target.files[0]; if(!f) return;
+        f.text().then(txt => {
+          try { S = JSON.parse(txt); closeModal(); startGame(false); }
+          catch(err){ /* 不正なファイルは無視 */ }
+        });
+      });
+    }
+    function openHowto(){
+      openModal(
+        "<h2>遊び方</h2>" +
+        "<p>大学4年4月から社会人1年目3月までの2年間（全48ターン）を過ごす育成シミュレーションです。イベントの選択肢と毎週のコマンドで、蓮との関係が変化します。</p>" +
+        "<h2>関係値（蓮）</h2>" +
+        "<p>友情・信頼・親密・恋愛感情・嫉妬・警戒を別々に管理します。友情100でも恋愛感情0なら「親友エンド」、恋愛感情と親密が高まれば「恋愛成就エンド」へ分岐します。嫉妬や警戒を溜めすぎると、すれ違いの結末に……。</p>" +
+        "<h2>登場人物</h2>" +
+        "<ul>" +
+        "<li><strong>蓮</strong> ― 小学生からの幼なじみ。同じ中学・高校・大学に進み、社会人になってからはルームシェアの同居人に。</li>" +
+        "<li><strong>美咲</strong> ― 蓮の彼女。明るくて気配りのできる女性。</li>" +
+        "<li><strong>栞</strong> ― 大学の後輩。主人公にずっと好意を寄せている。</li>" +
+        "<li><strong>圭介</strong> ― 会社の男の先輩。面倒見がいい。</li>" +
+        "<li><strong>沙織</strong> ― 会社の女の先輩。仕事の相談相手。</li>" +
+        "<li><strong>黒田課長</strong> ― 嫌な上司……と思いきや、たまに意外な一面も。</li>" +
+        "</ul>" +
+        "<div class=\"row\"><button type=\"button\" id=\"m-close2\">閉じる</button></div>"
+      );
+      $("m-close2").addEventListener("click", closeModal);
+    }
+
+    /* ============================================================
+       開始・配線
+       ============================================================ */
+    function startGame(fresh){
+      $("screen-title").classList.add("hidden");
+      $("screen-game").classList.remove("hidden");
+      $("statusbar").classList.remove("hidden");
+      if(fresh){
+        playScene(openingPages(), () => startTurn());
+      } else {
+        startTurn();
+      }
+      renderStatus();
+    }
+    $("btn-start").addEventListener("click", () => {
+      const nm = $("player-name").value.trim() || "悠真";
+      S = newState(nm);
+      BGM.start("title");
+      startGame(true);
+    });
+    const GALLERY = [
+      ["assets/flashback.webp","回想：田んぼ道（小学生）"],["assets/flashback-river.webp","回想：川遊び（小学生）"],["assets/flashback-soccer.webp","回想：サッカー部（中学生）"],["assets/flashback-highschool.webp","回想：帰り道（高校生）"],
+      ["assets/ren.webp","蓮：通常"],["assets/ren-suit.webp","蓮：スーツ笑顔"],["assets/ren-suit-serious.webp","蓮：スーツ真剣"],["assets/ren-sad.webp","蓮：悲しみ"],["assets/ren-shy.webp","蓮：照れ"],["assets/ren-surprised.webp","蓮：驚き"],["assets/ren-yukata.webp","蓮：浴衣"],["assets/ren-winter.webp","蓮：冬"],["assets/ren-drunk.webp","蓮：酔い"],["assets/ren-care.webp","蓮：心配"],["assets/ren-confess.webp","蓮：告白"],
+      ["assets/yuma-smile.webp","主人公：通常"],["assets/yuma-suit.webp","主人公：就活スーツ"],["assets/yuma-tired.webp","主人公：疲労"],["assets/yuma-yukata.webp","主人公：浴衣"],["assets/yuma-winter.webp","主人公：冬"],["assets/yuma-drunk.webp","主人公：酔い"],["assets/yuma-sick.webp","主人公：病気"],["assets/yuma-confess.webp","主人公：告白"],
+      ["assets/misaki.webp","美咲：通常"],["assets/misaki-sad.webp","美咲：悲しみ"],["assets/misaki-cafe.webp","美咲：カフェ"],
+      ["assets/shiori.webp","栞：通常"],["assets/shiori-cry.webp","栞：涙の告白"],["assets/shiori-valentine.webp","栞：バレンタイン"],["assets/shiori-cafe.webp","栞：カフェ"],
+      ["assets/keisuke.webp","圭介先輩：通常"],["assets/keisuke-coffee.webp","圭介先輩：缶コーヒー"],["assets/saori.webp","沙織先輩：通常"],["assets/saori-drink.webp","沙織先輩：飲み会"],
+      ["assets/kuroda.webp","黒田課長：厳しい顔"],["assets/kuroda-soft.webp","黒田課長：意外な笑顔"],["assets/mother.webp","母：通常"],["assets/mother-phone.webp","母：電話"],
+      ["assets/roomshare.webp","ルームシェアのリビング"],["assets/festival.webp","夏祭りと花火"],["assets/mensetsu.webp","面接会場"],["assets/office.webp","オフィス"],["assets/izakaya.webp","居酒屋"],["assets/hatsumode.webp","初詣"],["assets/christmas.webp","クリスマス"],["assets/hospital.webp","病院・見舞い"],["assets/graduation.webp","卒業式"],["assets/park.webp","公園の休日"],["assets/wedding.webp","友人の結婚式"],["assets/night-fail.webp","面接落ちの夜"],["assets/station-night.webp","駅前・迎えの夜"],["assets/tenkin-night.webp","転勤の話し合い"],["assets/naitei-celebration.webp","内定の祝杯"],["assets/moving-in.webp","引っ越し・同居開始"],["assets/company-trip.webp","社員旅行"],["assets/running.webp","週末ランニング"],["assets/reunion.webp","同窓会"],["assets/freeter-work.webp","フリーターの掛け持ち"],["assets/ending-love.webp","エンディング：恋愛成就"],["assets/ending-friend.webp","エンディング：親友"]
+    ];
+    function openGallery(){
+      let html = "<h2>グラフィックギャラリー（全" + GALLERY.length + "枚）</h2><p>主人公と蓮を中心に、脇役の立ち絵と場面CGを収録しています。</p><div class=\"gal-grid\">";
+      GALLERY.forEach(g => { html += "<figure><img loading=\"lazy\" src=\"" + g[0] + "\" alt=\"" + g[1] + "\" /><figcaption>" + g[1] + "</figcaption></figure>"; });
+      html += "</div><div class=\"row\"><button type=\"button\" id=\"m-close3\">閉じる</button></div>";
+      openModal(html);
+      $("m-close3").addEventListener("click", closeModal);
+    }
+    $("btn-gallery").addEventListener("click", openGallery);
+    $("btn-load-title").addEventListener("click", openSaveModal);
+    $("btn-howto").addEventListener("click", openHowto);
+    $("btn-save").addEventListener("click", openSaveModal);
+    $("btn-status").addEventListener("click", () => {
+      const p = $("status-panel");
+      p.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    $("btn-bgm").addEventListener("click", () => {
+      const v = !BGM.isOn();
+      BGM.setOn(v);
+      $("btn-bgm").textContent = v ? "♪ BGM オン" : "♪ BGM オフ";
+      if(v) BGM.start("daily");
+    });
+    // 最初のタップでAudioContextを起こすため、タイトル操作時にもBGM開始
+    document.addEventListener("pointerdown", function once(){
+      BGM.start("title");
+      document.removeEventListener("pointerdown", once);
+    });
+  </script>
+  </body>
+</html>

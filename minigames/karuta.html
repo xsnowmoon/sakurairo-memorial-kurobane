@@ -1,0 +1,1522 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>かるた読上ゲーム</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "YuMincho", "Yu Mincho", "MS PMincho", serif;
+        background-color: #0d3b2e;
+        background-image:
+          repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 26px),
+          repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 26px);
+        color: #2b2118;
+        min-height: 100vh;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 16px 14px 40px; }
+
+      /* ---------- 共通 ---------- */
+      .panel {
+        background: #f8f1dc;
+        border: 3px solid #6b4a2b;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: 2px solid #6b4a2b;
+        border-radius: 8px;
+        background: #fffaf0;
+        color: #2b2118;
+        min-height: 52px;
+        padding: 10px 18px;
+        font-size: 1.05rem;
+        touch-action: manipulation;
+      }
+      button:active { transform: translateY(1px); }
+      button:disabled { opacity: 0.45; cursor: default; transform: none; }
+      .btn-main {
+        background: #8c2f2a;
+        border-color: #5f1d1a;
+        color: #fdf6e3;
+        font-weight: bold;
+      }
+      .btn-sub { background: #efe3c2; }
+      .btn-beginner {
+        background: #2f6b4a;
+        border-color: #1e4a32;
+        color: #fdf6e3;
+        font-weight: bold;
+      }
+      .btn-beginner small { display: block; font-size: 0.78rem; font-weight: normal; opacity: 0.9; margin-top: 2px; letter-spacing: 0; }
+      .hidden { display: none !important; }
+      .howto-box {
+        max-width: 560px; margin: 0 auto 20px; text-align: left;
+        background: #fffaf0; border: 2px solid #d8c997; border-radius: 8px;
+        padding: 12px 16px; font-size: 1rem; line-height: 1.8; color: #57462e;
+      }
+      .howto-box strong { color: #2f6b4a; }
+      .beginner-desc { font-size: 0.98rem; line-height: 1.7; color: #57462e; margin: 8px 0 18px; }
+
+      /* ---------- タイトル画面 ---------- */
+      #titleScreen { padding: 34px 22px 26px; text-align: center; margin-top: 4vh; }
+      #titleScreen h1 {
+        margin: 0 0 6px;
+        font-size: clamp(2rem, 6vw, 3.2rem);
+        letter-spacing: 0.12em;
+        color: #43301c;
+      }
+      #titleScreen .lead { margin: 0 0 26px; font-size: 1.05rem; line-height: 1.9; color: #57462e; }
+      .mode-block { margin: 0 auto 22px; max-width: 560px; }
+      .mode-block .big-btn, .learn-block .big-btn { width: 100%; font-size: 1.35rem; min-height: 68px; letter-spacing: 0.08em; }
+      .learn-block { margin: 30px auto 0; max-width: 560px; border-top: 2px dashed #d8c997; padding-top: 4px; }
+      .learn-block .big-btn small { display: block; font-size: 0.78rem; font-weight: normal; opacity: 0.9; margin-top: 2px; letter-spacing: 0; }
+      .learn-block .setting-row { margin-top: 14px; }
+      .mode-label { font-size: 1.1rem; margin: 20px 0 10px; color: #57462e; letter-spacing: 0.1em; }
+      .diff-row { display: flex; gap: 10px; }
+      .diff-row button { flex: 1; font-size: 1.15rem; min-height: 62px; }
+      .diff-row small { display: block; font-size: 0.78rem; color: #7a6748; margin-top: 2px; }
+      .setting-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+      .setting-row button { min-width: 180px; }
+      .credit { margin-top: 30px; font-size: 0.92rem; color: #8a764f; letter-spacing: 0.05em; }
+      .warn { margin-top: 14px; color: #8c2f2a; font-size: 0.95rem; line-height: 1.7; }
+
+      /* ---------- ゲーム画面 ---------- */
+      #readerPanel { padding: 14px 16px 16px; margin-bottom: 14px; }
+      #statusBar {
+        display: flex; flex-wrap: wrap; gap: 6px 18px;
+        font-size: 1.02rem; color: #57462e;
+        border-bottom: 1px solid #d8c997;
+        padding-bottom: 10px; margin-bottom: 12px;
+      }
+      #statusBar b { color: #2b2118; font-size: 1.12rem; }
+      #readerText { min-height: 96px; display: flex; flex-direction: column; justify-content: center; }
+      #readerHint { font-size: 1.1rem; color: #57462e; line-height: 1.8; margin: 0; }
+      #readingNow { font-size: 1.25rem; color: #8c2f2a; margin: 0; letter-spacing: 0.06em; }
+      #beginnerGuide {
+        background: #eaf3ec; border: 2px solid #2f6b4a; border-radius: 8px;
+        padding: 10px 14px; margin-bottom: 12px;
+        font-size: 1.05rem; line-height: 1.8; color: #2b4a36;
+      }
+      #beginnerGuide strong { color: #1e4a32; }
+      #beginnerKami { text-align: center; padding: 4px 0 2px; }
+      #beginnerKami .bk-label { margin: 0 0 4px; font-size: 0.95rem; color: #2f6b4a; letter-spacing: 0.08em; }
+      #beginnerKami .bk-kanji { margin: 0; font-size: clamp(1.3rem, 3.6vw, 1.8rem); line-height: 1.6; letter-spacing: 0.04em; color: #2b2118; font-weight: bold; }
+      #beginnerKami .bk-kana { margin: 2px 0 0; font-size: 1.05rem; line-height: 1.6; color: #7a6748; letter-spacing: 0.04em; }
+      #beginnerKami .bk-note { margin: 8px 0 0; font-size: 1.05rem; color: #8c2f2a; }
+      #revealPoem { margin: 0; }
+      #revealPoem .kami, #revealPoem .shimo { font-size: clamp(1.25rem, 3.4vw, 1.7rem); line-height: 1.65; letter-spacing: 0.04em; }
+      #revealPoem .poet { margin-top: 6px; font-size: 1rem; color: #7a6748; text-align: right; }
+      #takenBy { margin: 8px 0 0; font-size: 1.1rem; font-weight: bold; }
+      #takenBy.player { color: #8c2f2a; }
+      #takenBy.cpu { color: #2c4f86; }
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+      .controls button { flex: 1 1 150px; font-size: 1.1rem; }
+      #readBtn { font-size: 1.3rem; min-height: 62px; }
+
+      #field {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+      }
+      .card {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        height: min(40vh, 300px);
+        min-height: 236px;
+        padding: 14px 8px;
+        font-size: clamp(1rem, 2.6vw, 1.3rem);
+        letter-spacing: 0.14em;
+        line-height: 1.5;
+        background: linear-gradient(160deg, #fdf8ea, #f3e9cd);
+        border: 3px solid #6b4a2b;
+        border-radius: 6px;
+        color: #33261a;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .card:not(:disabled):active { background: #f7ecc9; }
+      .card.taken-player {
+        background: #eec5ba;
+        border-color: #8c2f2a;
+        color: #7c2d26;
+        opacity: 0.85;
+      }
+      .card.taken-cpu {
+        background: #bccfe8;
+        border-color: #2c4f86;
+        color: #274a7d;
+        opacity: 0.85;
+      }
+      .card.hint {
+        background: linear-gradient(160deg, #fdeeda, #f3d193);
+        border-color: #a05a3a;
+      }
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-7px); }
+        40% { transform: translateX(7px); }
+        60% { transform: translateX(-5px); }
+        80% { transform: translateX(5px); }
+      }
+      .card.shake { animation: shake 0.4s ease; }
+
+      /* ---------- 決まり字 ---------- */
+      .kimari { font-weight: bold; font-size: 1.16em; color: #8c2f2a; }
+      .kimari-note {
+        max-width: 640px; margin: 0 auto 18px; text-align: left;
+        background: #fffaf0; border: 2px solid #d8c997; border-radius: 8px;
+        padding: 10px 16px; font-size: 1rem; line-height: 1.8; color: #57462e;
+      }
+      .kimari-note strong { color: #8c2f2a; }
+
+      /* ---------- 特集 ---------- */
+      .feature-box {
+        max-width: 640px; margin: 0 auto 18px; text-align: left;
+        background: #fffaf0; border: 2px solid #d8c997; border-radius: 8px;
+        padding: 12px 16px 14px;
+      }
+      .feature-box .feature-title { margin: 0 0 10px; font-size: 1.05rem; color: #57462e; letter-spacing: 0.1em; text-align: center; }
+      .feature-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+      .feature-btns button { flex: 1 1 220px; font-size: 1.12rem; min-height: 60px; }
+      .feature-btns button small { display: block; font-size: 0.78rem; font-weight: normal; color: #7a6748; margin-top: 2px; letter-spacing: 0; }
+      .feature-desc { margin: 10px 0 0; font-size: 0.95rem; line-height: 1.75; color: #57462e; }
+      .feature-desc strong { color: #8c2f2a; }
+      .poem-row .pr-kimari {
+        flex: 0 0 auto; font-size: 0.85rem; font-weight: bold; color: #5f1d1a;
+        background: #f3e3c2; border-radius: 999px; padding: 3px 10px;
+        letter-spacing: 0.03em; white-space: nowrap;
+      }
+      #revealPoem .kana { font-size: 1.05rem; line-height: 1.6; color: #7a6748; letter-spacing: 0.04em; }
+
+      /* ---------- 意味（現代語訳） ---------- */
+      .meaning-line {
+        margin: 10px 0 0; text-align: left;
+        background: #efe6c8; border: 2px solid #d8c997; border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 1.05rem; line-height: 1.8; color: #43301c;
+      }
+      #seqDisplay .seq-meaning, #rmDisplay .rm-meaning { text-align: left; }
+      .poem-row .pr-meaning {
+        flex: 0 0 100%; order: 4;
+        font-size: 0.92rem; line-height: 1.65; color: #7a6748;
+        letter-spacing: 0.02em;
+      }
+
+      /* ---------- 札の一覧・暗記 ---------- */
+      #listScreen { padding: 26px 22px 28px; margin-top: 2vh; }
+      #listScreen h2 { margin: 0 0 8px; font-size: clamp(1.6rem, 5vw, 2.2rem); letter-spacing: 0.1em; color: #43301c; text-align: center; }
+      .list-desc { text-align: center; font-size: 1rem; line-height: 1.8; color: #57462e; margin: 0 0 18px; }
+      #seqDisplay {
+        background: #fffaf0; border: 2px solid #d8c997; border-radius: 8px;
+        padding: 16px 18px; text-align: center; margin-bottom: 14px;
+      }
+      #seqDisplay .seq-no { margin: 0 0 6px; font-size: 0.95rem; color: #2f6b4a; letter-spacing: 0.08em; }
+      #seqDisplay .seq-kami, #seqDisplay .seq-shimo { margin: 0; font-size: clamp(1.3rem, 3.6vw, 1.85rem); line-height: 1.6; letter-spacing: 0.04em; font-weight: bold; color: #2b2118; }
+      #seqDisplay .seq-kana { margin: 8px 0 0; font-size: 1rem; line-height: 1.7; color: #7a6748; letter-spacing: 0.03em; }
+      #seqDisplay .seq-poet { margin: 4px 0 0; font-size: 1rem; color: #7a6748; text-align: right; }
+      .seq-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+      .seq-controls button { flex: 1 1 140px; font-size: 1.1rem; }
+      #poemList { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+      .poem-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; row-gap: 2px; text-align: left; width: 100%; min-height: 56px; padding: 10px 14px; }
+      .poem-row .pr-no { flex: 0 0 auto; font-size: 0.9rem; color: #8a764f; min-width: 3.4em; }
+      .poem-row .pr-kami { flex: 1; font-size: 1.08rem; letter-spacing: 0.03em; line-height: 1.5; }
+      .poem-row .pr-poet { flex: 0 0 auto; font-size: 0.95rem; color: #7a6748; }
+      .poem-row.active { background: #fdeeda; border-color: #a05a3a; }
+      .list-back-row { text-align: center; }
+      .list-back-row button { min-width: 220px; font-size: 1.15rem; min-height: 58px; }
+
+      /* ---------- 読手モード ---------- */
+      #readerModeScreen { padding: 26px 22px 28px; margin-top: 2vh; text-align: center; }
+      #readerModeScreen h2 { margin: 0 0 8px; font-size: clamp(1.6rem, 5vw, 2.2rem); letter-spacing: 0.08em; color: #43301c; }
+      .rm-settings { max-width: 640px; margin: 0 auto 18px; background: #fffaf0; border: 2px solid #d8c997; border-radius: 8px; padding: 12px 14px; }
+      .rm-setting { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin: 10px 0; }
+      .rm-setting .rm-label { flex: 0 0 100%; font-size: 1rem; color: #57462e; letter-spacing: 0.06em; }
+      .rm-setting button { flex: 1 1 90px; max-width: 170px; font-size: 1.1rem; }
+      .rm-setting button.sel { background: #2f6b4a; border-color: #1e4a32; color: #fdf6e3; font-weight: bold; }
+      #rmProgress { font-size: 1.3rem; font-weight: bold; color: #2b2118; margin: 6px 0 14px; letter-spacing: 0.04em; line-height: 1.6; }
+      #rmDisplay { background: #fffaf0; border: 2px solid #d8c997; border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
+      #rmDisplay .rm-no { margin: 0 0 6px; font-size: 0.95rem; color: #2f6b4a; letter-spacing: 0.08em; }
+      #rmDisplay .rm-kami, #rmDisplay .rm-shimo { margin: 0; font-size: clamp(1.3rem, 3.6vw, 1.85rem); line-height: 1.6; letter-spacing: 0.04em; font-weight: bold; color: #2b2118; }
+      #rmDisplay .rm-kana { margin: 8px 0 0; font-size: 1rem; line-height: 1.7; color: #7a6748; letter-spacing: 0.03em; }
+      #rmDisplay .rm-poet { margin: 4px 0 0; font-size: 1rem; color: #7a6748; text-align: right; }
+      .rm-done-msg { font-size: 1.25rem; line-height: 1.8; color: #2b2118; margin: 0 0 14px; }
+      #rmDone button { font-size: 1.2rem; min-height: 64px; width: 100%; max-width: 480px; margin-bottom: 10px; }
+      .rm-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+      .rm-controls button { flex: 1 1 200px; font-size: 1.25rem; min-height: 72px; }
+      #rmStartBtn { flex-basis: 100%; font-size: 1.45rem; min-height: 80px; }
+
+      /* ---------- 結果画面 ---------- */
+      #resultScreen { padding: 34px 22px 28px; text-align: center; margin-top: 4vh; }
+      #resultScreen h2 { margin: 0 0 18px; font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: 0.1em; color: #43301c; }
+      #resultStats { font-size: 1.2rem; line-height: 2.1; color: #57462e; margin-bottom: 26px; }
+      #resultStats b { color: #2b2118; font-size: 1.35rem; }
+      .result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+      .result-btns button { min-width: 200px; font-size: 1.2rem; min-height: 62px; }
+
+      @media (max-width: 680px) {
+        #field { grid-template-columns: repeat(4, 1fr); gap: 9px; }
+        .card { min-height: 210px; padding: 10px 5px; }
+        .diff-row { flex-direction: column; }
+        .poem-row { flex-wrap: wrap; row-gap: 2px; }
+        .poem-row .pr-kami { flex-basis: 100%; order: 3; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- タイトル画面 -->
+      <section id="titleScreen" class="panel">
+        <h1>かるた読上ゲーム</h1>
+        <p class="lead">ブラウザが読み手です。上の句を声で読み上げるので、<br />下の句の札をタップして取ってください。</p>
+
+        <div class="howto-box">
+          <strong>遊び方：</strong>「🔊 読む」を押すと、声で上の句を読みます。その歌の下の句が書かれた札をタップすると取れます。取れた歌は、意味（今の言葉での説明）も表示されます。百人一首を初めて知る方は、まず「超初心者モード」からどうぞ。
+        </div>
+
+        <div class="mode-block">
+          <p class="mode-label" style="margin-top:0">― CPU対戦 ―</p>
+          <div class="diff-row">
+            <button data-diff="easy">かんたん<small>CPUはゆっくり</small></button>
+            <button data-diff="normal">ふつう<small>CPUはふつう</small></button>
+            <button data-diff="hard">つよい<small>CPUは速い</small></button>
+          </div>
+        </div>
+
+        <div class="setting-row" style="margin-top:0">
+          <button id="speedBtn" class="btn-sub">読み上げ速度：×1.0</button>
+          <button id="testVoiceBtn" class="btn-sub">声をテスト</button>
+          <button id="updateBtn" class="btn-sub">🔄 最新版に更新</button>
+        </div>
+
+        <div class="mode-block" style="margin-top:26px">
+          <button id="readerModeBtn" class="big-btn btn-beginner">📢 読手モード（実物かるた用）<small>画面の札は使わず、声だけで読み上げます</small></button>
+          <p class="beginner-desc">手元に実際のかるたがあるとき用です。全100首を順番に読み上げる、音声だけの読手です。出先のスマホでも使えます。</p>
+        </div>
+
+        <div class="learn-block">
+          <p class="mode-label">― 学習コーナー ―</p>
+          <button id="practiceBtn" class="big-btn btn-main">練習モード</button>
+          <p class="beginner-desc">相手なしで、自分のペースで札を取る練習ができます。</p>
+          <button id="beginnerBtn" class="big-btn btn-beginner">超初心者モード<small>上の句の文字を表示 ＋ 数秒後に正解の札の色が変わります</small></button>
+          <p class="beginner-desc">声で上の句を読みます。数秒たつと、正解の札の色が変わります。タップすると取れます。取った札は、下の句も読み上げます。</p>
+          <button id="listBtn" class="big-btn btn-sub">札の一覧・暗記<small>100首の一覧 ／ 順番に読み上げ ／ 好きな札を選んで読み上げ</small></button>
+          <div class="setting-row">
+            <button id="hintBtn" class="btn-sub">ヒントまでの時間：5秒</button>
+          </div>
+        </div>
+
+        <p id="noSpeechWarn" class="warn hidden">このブラウザは音声読み上げ（SpeechSynthesis）に対応していないため、読み上げが使えません。ChromeやEdgeでお試しください。</p>
+
+        <p class="credit">Snow Moon Ver.20261120.2.4（全100首）</p>
+      </section>
+
+      <!-- ゲーム画面 -->
+      <section id="gameScreen" class="hidden">
+        <div id="readerPanel" class="panel">
+          <div id="beginnerGuide" class="hidden">
+            <strong>超初心者モード：</strong>声で上の句を読みます。数秒たつと、正解の札の色が変わります。タップすると取れます。上の句の文字もここに表示されます。
+          </div>
+          <div id="statusBar">
+            <span>残り <b id="stRemain">100</b> 首</span>
+            <span>自分 <b id="stPlayer">0</b> 枚</span>
+            <span id="stCpuWrap">CPU <b id="stCpu">0</b> 枚</span>
+            <span>お手つき <b id="stOtetsuki">0</b></span>
+            <span><b id="stTime">0</b> 秒</span>
+          </div>
+          <div id="readerText">
+            <p id="readerHint">「🔊 読む」を押すと、上の句を読み上げます。</p>
+            <p id="readingNow" class="hidden">♪ 読上中…</p>
+            <div id="beginnerKami" class="hidden">
+              <p class="bk-label">♪ いま読んでいる上の句</p>
+              <p class="bk-kanji" id="bkKanji"></p>
+              <p class="bk-kana" id="bkKana"></p>
+              <p class="bk-note">数秒たつと、正解の札の色が変わります</p>
+            </div>
+            <div id="revealPoem" class="hidden">
+              <p class="kami" id="revealKami" style="margin:0"></p>
+              <p class="kana" id="revealKana" style="margin:0"></p>
+              <p class="shimo" id="revealShimo" style="margin:0"></p>
+              <p class="poet" id="revealPoet"></p>
+              <p class="meaning-line" id="revealMeaning"></p>
+              <p id="takenBy"></p>
+            </div>
+          </div>
+          <div class="controls">
+            <button id="readBtn" class="btn-main">🔊 読む</button>
+            <button id="rereadBtn" class="btn-sub" disabled>もう一度読む</button>
+            <button id="nextBtn" class="btn-main hidden">次の歌へ</button>
+            <button id="quitBtn" class="btn-sub">やめる</button>
+          </div>
+        </div>
+        <div id="field"></div>
+      </section>
+
+      <!-- 結果画面 -->
+      <section id="resultScreen" class="panel hidden">
+        <h2 id="resultTitle">結果</h2>
+        <div id="resultStats"></div>
+        <div class="result-btns">
+          <button id="againBtn" class="btn-main">もう一度遊ぶ</button>
+          <button id="toTitleBtn" class="btn-sub">タイトルに戻る</button>
+        </div>
+        <p class="credit">Snow Moon Ver.20261120.2.4（全100首）</p>
+      </section>
+
+      <!-- 札の一覧・暗記 -->
+      <section id="listScreen" class="panel hidden">
+        <h2>札の一覧・暗記</h2>
+        <p class="list-desc">覚えたい歌の行をタップすると、その歌の上の句→下の句を読み上げます。<br />「順番に全部読む」では、1首目から順に全文を表示しながら読み上げます。<br />各行には、意味（今の言葉での説明）も出ています。</p>
+        <p class="kimari-note"><strong>決まり字</strong>とは、上の句を何文字聞けば下の句が1つに決まるか、の目印です。各行のバッジと、読みの<strong>太文字</strong>の部分が決まり字です。太文字のところまで聞けば、取る札が分かります。</p>
+
+        <div class="feature-box">
+          <p class="feature-title">― 特集 ―</p>
+          <div class="feature-btns">
+            <button id="jogekaBtn" class="btn-sub">🎵 序歌を聞く<small>試合の前に読む、合図の歌です</small></button>
+            <button id="ichijiBtn" class="btn-sub">一字決まり特集を聞く<small>決まり字が1文字の歌だけを、順番に読み上げます</small></button>
+          </div>
+          <p class="feature-desc"><strong>序歌（じょか）</strong>は、かるたを始める前に読手が読む合図の歌で、百人一首の100首には入っていません（王仁の歌）。聞き流すだけでもどうぞ。<strong>一字決まり</strong>は、最初の1文字を聞いただけで取る札が決まる歌です。</p>
+        </div>
+
+        <div id="seqDisplay" class="hidden">
+          <p class="seq-no" id="seqNo"></p>
+          <p class="seq-kami" id="seqKami"></p>
+          <p class="seq-shimo" id="seqShimo"></p>
+          <p class="seq-kana" id="seqKana"></p>
+          <p class="seq-poet" id="seqPoet"></p>
+          <p class="seq-meaning meaning-line" id="seqMeaning"></p>
+        </div>
+
+        <div class="seq-controls">
+          <button id="seqPlayBtn" class="btn-main">▶ 順番に全部読む</button>
+          <button id="seqStopBtn" class="btn-sub" disabled>⏸ 止める</button>
+          <button id="seqPrevBtn" class="btn-sub" disabled>◀ 前の歌</button>
+          <button id="seqNextBtn" class="btn-sub">次の歌 ▶</button>
+        </div>
+
+        <div id="poemList"></div>
+
+        <div class="list-back-row">
+          <button id="listBackBtn" class="btn-sub">タイトルに戻る</button>
+        </div>
+        <p class="credit" style="text-align:center">Snow Moon Ver.20261120.2.4（全100首）</p>
+      </section>
+
+      <!-- 読手モード（実物かるた用） -->
+      <section id="readerModeScreen" class="panel hidden">
+        <h2>📢 読手モード</h2>
+        <p class="list-desc">実際のかるたを使って遊ぶための読手です。画面の札は使いません。<br />声で上の句を1首ずつ読み上げるので、手元のかるたから札を取ってください。<br />画面の歌は、読み間違いがないか確認するための表示です。</p>
+
+        <div class="rm-settings">
+          <div class="rm-setting">
+            <span class="rm-label">序歌（じょか）を読む</span>
+            <button id="rmJogekaOn">あり</button>
+            <button id="rmJogekaOff">なし</button>
+          </div>
+          <div class="rm-setting">
+            <span class="rm-label">次の歌へ進む方法</span>
+            <button id="rmAutoOn">自動で進む</button>
+            <button id="rmAutoOff">手動（ボタン）</button>
+          </div>
+          <div class="rm-setting">
+            <span class="rm-label">自動のとき、次の歌までの間</span>
+            <button data-rm-interval="0">10秒</button>
+            <button data-rm-interval="1">15秒</button>
+            <button data-rm-interval="2">20秒</button>
+          </div>
+        </div>
+
+        <p id="rmProgress">「スタート」を押すと読み始めます</p>
+
+        <div id="rmDisplay" class="hidden">
+          <p class="rm-no" id="rmNo"></p>
+          <p class="rm-kami" id="rmKami"></p>
+          <p class="rm-shimo" id="rmShimo"></p>
+          <p class="rm-kana" id="rmKana"></p>
+          <p class="rm-poet" id="rmPoet"></p>
+          <p class="rm-meaning meaning-line" id="rmMeaning"></p>
+        </div>
+
+        <div id="rmDone" class="hidden">
+          <p class="rm-done-msg">🎉 全100首を読み終わりました。おつかれさまでした！</p>
+          <button id="rmRestartBtn" class="btn-main">もう一度（シャッフルして最初から）</button>
+        </div>
+
+        <div class="rm-controls">
+          <button id="rmStartBtn" class="btn-main">▶ スタート</button>
+          <button id="rmNextBtn" class="btn-sub" disabled>次の歌 ▶</button>
+          <button id="rmRereadBtn" class="btn-sub" disabled>もう一度読む</button>
+          <button id="rmBackBtn" class="btn-sub">タイトルへ戻る</button>
+        </div>
+        <p class="credit" style="text-align:center">Snow Moon Ver.20261120.2.4（全100首）</p>
+      </section>
+
+    </div>
+
+    <script>
+      // ===== 歌データ（100首） =====
+      var POEMS = [
+        { no: 1, poet: "天智天皇", kami: "秋の田の かりほの庵の 苫をあらみ", shimo: "わが衣手は 露にぬれつつ", kamiKana: "あきのたの かりほのいほの とまをあらみ", shimoKana: "わがころもでは つゆにぬれつつ" },
+        { no: 2, poet: "持統天皇", kami: "春過ぎて 夏来にけらし 白妙の", shimo: "衣ほすてふ 天の香具山", kamiKana: "はるすぎて なつきにけらし しろたへの", shimoKana: "ころもほすてふ あまのかぐやま" },
+        { no: 3, poet: "柿本人麻呂", kami: "あしびきの 山鳥の尾の しだり尾の", shimo: "ながながし夜を ひとりかも寝む", kamiKana: "あしびきの やまどりのをの しだりをの", shimoKana: "ながながしよを ひとりかもねむ" },
+        { no: 4, poet: "山部赤人", kami: "田子の浦に うち出でてみれば 白妙の", shimo: "富士の高嶺に 雪は降りつつ", kamiKana: "たごのうらに うちいでてみれば しろたへの", shimoKana: "ふじのたかねに ゆきはふりつつ" },
+        { no: 5, poet: "猿丸大夫", kami: "奥山に 紅葉踏み分け 鳴く鹿の", shimo: "声聞く時ぞ 秋は悲しき", kamiKana: "おくやまに もみぢふみわけ なくしかの", shimoKana: "こゑきくときぞ あきはかなしき" },
+        { no: 6, poet: "中納言家持", kami: "かささぎの 渡せる橋に 置く霜の", shimo: "白きを見れば 夜ぞ更けにける", kamiKana: "かささぎの わたせるはしに おくしもの", shimoKana: "しろきをみれば よぞふけにける" },
+        { no: 7, poet: "安倍仲麿", kami: "天の原 ふりさけ見れば 春日なる", shimo: "三笠の山に 出でし月かも", kamiKana: "あまのはら ふりさけみれば かすがなる", shimoKana: "みかさのやまに いでしつきかも" },
+        { no: 8, poet: "喜撰法師", kami: "わが庵は 都のたつみ しかぞ住む", shimo: "世をうぢ山と 人はいふなり", kamiKana: "わがいほは みやこのたつみ しかぞすむ", shimoKana: "よをうぢやまと ひとはいふなり" },
+        { no: 9, poet: "小野小町", kami: "花の色は 移りにけりな いたづらに", shimo: "わが身世にふる ながめせしまに", kamiKana: "はなのいろは うつりにけりな いたづらに", shimoKana: "わがみよにふる ながめせしまに" },
+        { no: 10, poet: "蝉丸", kami: "これやこの 行くも帰るも 別れては", shimo: "知るも知らぬも 逢坂の関", kamiKana: "これやこの ゆくもかへるも わかれては", shimoKana: "しるもしらぬも あふさかのせき" },
+        { no: 11, poet: "参議篁", kami: "わたの原 八十島かけて 漕ぎ出でぬと", shimo: "人には告げよ 海人の釣舟", kamiKana: "わたのはら やそしまかけて こぎいでぬと", shimoKana: "ひとにはつげよ あまのつりぶね" },
+        { no: 12, poet: "僧正遍昭", kami: "天つ風 雲の通ひ路 吹きとぢよ", shimo: "をとめの姿 しばしとどめむ", kamiKana: "あまつかぜ くものかよひぢ ふきとぢよ", shimoKana: "をとめのすがた しばしとどめむ" },
+        { no: 13, poet: "陽成院", kami: "筑波嶺の 峰より落つる 男女川", shimo: "恋ぞつもりて 淵となりぬる", kamiKana: "つくばねの みねよりおつる みなのがは", shimoKana: "こひぞつもりて ふちとなりぬる" },
+        { no: 14, poet: "河原左大臣", kami: "陸奥の しのぶもぢずり 誰ゆゑに", shimo: "乱れそめにし われならなくに", kamiKana: "みちのくの しのぶもぢずり たれゆゑに", shimoKana: "みだれそめにし われならなくに" },
+        { no: 15, poet: "光孝天皇", kami: "君がため 春の野に出でて 若菜摘む", shimo: "わが衣手に 雪は降りつつ", kamiKana: "きみがため はるののにいでて わかなつむ", shimoKana: "わがころもでに ゆきはふりつつ" },
+        { no: 16, poet: "中納言行平", kami: "立ち別れ いなばの山の 峰に生ふる", shimo: "まつとし聞かば 今帰り来む", kamiKana: "たちわかれ いなばのやまの みねにおふる", shimoKana: "まつとしきかば いまかへりこむ" },
+        { no: 17, poet: "在原業平", kami: "ちはやぶる 神代も聞かず 竜田川", shimo: "からくれなゐに 水くくるとは", kamiKana: "ちはやぶる かみよもきかず たつたがは", shimoKana: "からくれなゐに みづくくるとは" },
+        { no: 18, poet: "藤原敏行朝臣", kami: "住の江の 岸に寄る波 よるさへや", shimo: "夢の通ひ路 人目よくらむ", kamiKana: "すみのえの きしによるなみ よるさへや", shimoKana: "ゆめのかよひぢ ひとめよくらむ" },
+        { no: 19, poet: "伊勢", kami: "難波潟 短き蘆の ふしの間も", shimo: "逢はでこの世を 過ぐしてよとや", kamiKana: "なにはがた みじかきあしの ふしのまも", shimoKana: "あはでこのよを すぐしてよとや" },
+        { no: 20, poet: "元良親王", kami: "わびぬれば 今はた同じ 難波なる", shimo: "みをつくしても 逢はむとぞ思ふ", kamiKana: "わびぬれば いまはたおなじ なにはなる", shimoKana: "みをつくしても あはむとぞおもふ" },
+        { no: 21, poet: "素性法師", kami: "今来むと 言ひしばかりに 長月の", shimo: "有明の月を 待ち出でつるかな", kamiKana: "いまこむと いひしばかりに ながつきの", shimoKana: "ありあけのつきを まちいでつるかな" },
+        { no: 22, poet: "文屋康秀", kami: "吹くからに 秋の草木の しをるれば", shimo: "むべ山風を 嵐といふらむ", kamiKana: "ふくからに あきのくさきの しをるれば", shimoKana: "むべやまかぜを あらしといふらむ" },
+        { no: 23, poet: "大江千里", kami: "月見れば 千々にものこそ 悲しけれ", shimo: "わが身ひとつの 秋にはあらねど", kamiKana: "つきみれば ちぢにものこそ かなしけれ", shimoKana: "わがみひとつの あきにはあらねど" },
+        { no: 24, poet: "菅家", kami: "このたびは 幣も取りあへず 手向山", shimo: "紅葉の錦 神のまにまに", kamiKana: "このたびは ぬさもとりあへず たむけやま", shimoKana: "もみぢのにしき かみのまにまに" },
+        { no: 25, poet: "三条右大臣", kami: "名にし負はば 逢坂山の さねかづら", shimo: "人に知られで くるよしもがな", kamiKana: "なにしおはば あふさかやまの さねかづら", shimoKana: "ひとにしられで くるよしもがな" },
+        { no: 26, poet: "貞信公", kami: "小倉山 峰のもみぢ葉 心あらば", shimo: "今ひとたびの みゆき待たなむ", kamiKana: "をぐらやま みねのもみぢば こころあらば", shimoKana: "いまひとたびの みゆきまたなむ" },
+        { no: 27, poet: "中納言兼輔", kami: "みかの原 わきて流るる いづみ川", shimo: "いつ見きとてか 恋しかるらむ", kamiKana: "みかのはら わきてながるる いづみがは", shimoKana: "いつみきとてか こひしかるらむ" },
+        { no: 28, poet: "源宗于朝臣", kami: "山里は 冬ぞ寂しさ まさりける", shimo: "人目も草も かれぬと思へば", kamiKana: "やまざとは ふゆぞさびしさ まさりける", shimoKana: "ひとめもくさも かれぬとおもへば" },
+        { no: 29, poet: "凡河内躬恒", kami: "心あてに 折らばや折らむ 初霜の", shimo: "置きまどはせる 白菊の花", kamiKana: "こころあてに をらばやをらむ はつしもの", shimoKana: "おきまどはせる しらぎくのはな" },
+        { no: 30, poet: "壬生忠岑", kami: "有明の つれなく見えし 別れより", shimo: "暁ばかり 憂きものはなし", kamiKana: "ありあけの つれなくみえし わかれより", shimoKana: "あかつきばかり うきものはなし" },
+        { no: 31, poet: "坂上是則", kami: "朝ぼらけ 有明の月と 見るまでに", shimo: "吉野の里に 降れる白雪", kamiKana: "あさぼらけ ありあけのつきと みるまでに", shimoKana: "よしののさとに ふれるしらゆき" },
+        { no: 32, poet: "春道列樹", kami: "山川に 風のかけたる しがらみは", shimo: "流れもあへぬ 紅葉なりけり", kamiKana: "やまがはに かぜのかけたる しがらみは", shimoKana: "ながれもあへぬ もみぢなりけり" },
+        { no: 33, poet: "紀友則", kami: "久方の 光のどけき 春の日に", shimo: "静心なく 花の散るらむ", kamiKana: "ひさかたの ひかりのどけき はるのひに", shimoKana: "しづごころなく はなのちるらむ" },
+        { no: 34, poet: "藤原興風", kami: "誰をかも 知る人にせむ 高砂の", shimo: "松も昔の 友ならなくに", kamiKana: "たれをかも しるひとにせむ たかさごの", shimoKana: "まつもむかしの ともならなくに" },
+        { no: 35, poet: "紀貫之", kami: "人はいさ 心も知らず ふるさとは", shimo: "花ぞ昔の 香ににほひける", kamiKana: "ひとはいさ こころもしらず ふるさとは", shimoKana: "はなぞむかしの かににほひける" },
+        { no: 36, poet: "清原深養父", kami: "夏の夜は まだ宵ながら 明けぬるを", shimo: "雲のいづこに 月宿るらむ", kamiKana: "なつのよは まだよひながら あけぬるを", shimoKana: "くものいづこに つきやどるらむ" },
+        { no: 37, poet: "文屋朝康", kami: "白露に 風の吹きしく 秋の野は", shimo: "つらぬきとめぬ 玉ぞ散りける", kamiKana: "しらつゆに かぜのふきしく あきののは", shimoKana: "つらぬきとめぬ たまぞちりける" },
+        { no: 38, poet: "右近", kami: "忘らるる 身をば思はず 誓ひてし", shimo: "人の命の 惜しくもあるかな", kamiKana: "わすらるる みをばおもはず ちかひてし", shimoKana: "ひとのいのちの をしくもあるかな" },
+        { no: 39, poet: "参議等", kami: "浅茅生の 小野の篠原 しのぶれど", shimo: "あまりてなどか 人の恋しき", kamiKana: "あさぢふの をののしのはら しのぶれど", shimoKana: "あまりてなどか ひとのこひしき" },
+        { no: 40, poet: "平兼盛", kami: "しのぶれど 色に出でにけり わが恋は", shimo: "ものや思ふと 人の問ふまで", kamiKana: "しのぶれど いろにいでにけり わがこひは", shimoKana: "ものやおもふと ひとのとふまで" },
+        { no: 41, poet: "壬生忠見", kami: "恋すてふ わが名はまだき 立ちにけり", shimo: "人知れずこそ 思ひそめしか", kamiKana: "こひすてふ わがなはまだき たちにけり", shimoKana: "ひとしれずこそ おもひそめしか" },
+        { no: 42, poet: "清原元輔", kami: "契りきな かたみに袖を しぼりつつ", shimo: "末の松山 波越さじとは", kamiKana: "ちぎりきな かたみにそでを しぼりつつ", shimoKana: "すゑのまつやま なみこさじとは" },
+        { no: 43, poet: "権中納言敦忠", kami: "逢ひ見ての のちの心に くらぶれば", shimo: "昔はものを 思はざりけり", kamiKana: "あひみての のちのこころに くらぶれば", shimoKana: "むかしはものを おもはざりけり" },
+        { no: 44, poet: "中納言朝忠", kami: "逢ふことの 絶えてしなくは なかなかに", shimo: "人をも身をも 恨みざらまし", kamiKana: "あふことの たえてしなくは なかなかに", shimoKana: "ひとをもみをも うらみざらまし" },
+        { no: 45, poet: "謙徳公", kami: "あはれとも いふべき人は 思ほえで", shimo: "身のいたづらに なりぬべきかな", kamiKana: "あはれとも いふべきひとは おもほえで", shimoKana: "みのいたづらに なりぬべきかな" },
+        { no: 46, poet: "曾禰好忠", kami: "由良のとを 渡る舟人 かぢを絶え", shimo: "ゆくへも知らぬ 恋の道かな", kamiKana: "ゆらのとを わたるふなびと かぢをたえ", shimoKana: "ゆくへもしらぬ こひのみちかな" },
+        { no: 47, poet: "恵慶法師", kami: "八重むぐら しげれる宿の さびしきに", shimo: "人こそ見えね 秋は来にけり", kamiKana: "やへむぐら しげれるやどの さびしきに", shimoKana: "ひとこそみえね あきはきにけり" },
+        { no: 48, poet: "源重之", kami: "風をいたみ 岩うつ波の おのれのみ", shimo: "くだけてものを 思ふころかな", kamiKana: "かぜをいたみ いはうつなみの おのれのみ", shimoKana: "くだけてものを おもふころかな" },
+        { no: 49, poet: "大中臣能宣朝臣", kami: "みかきもり 衛士のたく火の 夜は燃え", shimo: "昼は消えつつ ものをこそ思へ", kamiKana: "みかきもり ゑじのたくひの よるはもえ", shimoKana: "ひるはきえつつ ものをこそおもへ" },
+        { no: 50, poet: "藤原義孝", kami: "君がため 惜しからざりし 命さへ", shimo: "長くもがなと 思ひけるかな", kamiKana: "きみがため をしからざりし いのちさへ", shimoKana: "ながくもがなと おもひけるかな" },
+        { no: 51, poet: "藤原実方朝臣", kami: "かくとだに えやはいぶきの さしも草", shimo: "さしも知らじな 燃ゆる思ひを", kamiKana: "かくとだに えやはいぶきの さしもぐさ", shimoKana: "さしもしらじな もゆるおもひを" },
+        { no: 52, poet: "藤原道信朝臣", kami: "明けぬれば 暮るるものとは 知りながら", shimo: "なほうらめしき 朝ぼらけかな", kamiKana: "あけぬれば くるるものとは しりながら", shimoKana: "なほうらめしき あさぼらけかな" },
+        { no: 53, poet: "右大将道綱母", kami: "嘆きつつ ひとり寝る夜の 明くる間は", shimo: "いかに久しき ものとかは知る", kamiKana: "なげきつつ ひとりぬるよの あくるまは", shimoKana: "いかにひさしき ものとかはしる" },
+        { no: 54, poet: "儀同三司母", kami: "忘れじの 行く末までは かたければ", shimo: "今日を限りの 命ともがな", kamiKana: "わすれじの ゆくすゑまでは かたければ", shimoKana: "けふをかぎりの いのちともがな" },
+        { no: 55, poet: "大納言公任", kami: "滝の音は 絶えて久しく なりぬれど", shimo: "名こそ流れて なほ聞こえけれ", kamiKana: "たきのおとは たえてひさしく なりぬれど", shimoKana: "なこそながれて なほきこえけれ" },
+        { no: 56, poet: "和泉式部", kami: "あらざらむ この世のほかの 思ひ出に", shimo: "今ひとたびの 逢ふこともがな", kamiKana: "あらざらむ このよのほかの おもひでに", shimoKana: "いまひとたびの あふこともがな" },
+        { no: 57, poet: "紫式部", kami: "めぐり逢ひて 見しやそれとも 分かぬ間に", shimo: "雲隠れにし 夜半の月かな", kamiKana: "めぐりあひて みしやそれとも わかぬまに", shimoKana: "くもがくれにし よはのつきかな" },
+        { no: 58, poet: "大弐三位", kami: "有馬山 猪名の笹原 風吹けば", shimo: "いでそよ人を 忘れやはする", kamiKana: "ありまやま ゐなのささはら かぜふけば", shimoKana: "いでそよひとを わすれやはする" },
+        { no: 59, poet: "赤染衛門", kami: "やすらはで 寝なましものを 小夜更けて", shimo: "かたぶくまでの 月を見しかな", kamiKana: "やすらはで ねなましものを さよふけて", shimoKana: "かたぶくまでの つきをみしかな" },
+        { no: 60, poet: "小式部内侍", kami: "大江山 いく野の道の 遠ければ", shimo: "まだふみも見ず 天の橋立", kamiKana: "おほえやま いくののみちの とほければ", shimoKana: "まだふみもみず あまのはしだて" },
+        { no: 61, poet: "伊勢大輔", kami: "いにしへの 奈良の都の 八重桜", shimo: "けふ九重に にほひぬるかな", kamiKana: "いにしへの ならのみやこの やへざくら", shimoKana: "けふここのえに にほひぬるかな" },
+        { no: 62, poet: "清少納言", kami: "夜をこめて 鳥の空音は はかるとも", shimo: "よに逢坂の 関は許さじ", kamiKana: "よをこめて とりのそらねは はかるとも", shimoKana: "よにあふさかの せきはゆるさじ" },
+        { no: 63, poet: "左京大夫道雅", kami: "今はただ 思ひ絶えなむ とばかりを", shimo: "人づてならで 言ふよしもがな", kamiKana: "いまはただ おもひたえなむ とばかりを", shimoKana: "ひとづてならで いふよしもがな" },
+        { no: 64, poet: "権中納言定頼", kami: "朝ぼらけ 宇治の川霧 たえだえに", shimo: "あらはれわたる 瀬々の網代木", kamiKana: "あさぼらけ うぢのかはぎり たえだえに", shimoKana: "あらはれわたる せぜのあじろぎ" },
+        { no: 65, poet: "相模", kami: "恨みわび ほさぬ袖だに あるものを", shimo: "恋に朽ちなむ 名こそ惜しけれ", kamiKana: "うらみわび ほさぬそでだに あるものを", shimoKana: "こひにくちなむ なこそをしけれ" },
+        { no: 66, poet: "前大僧正行尊", kami: "もろともに あはれと思へ 山桜", shimo: "花よりほかに 知る人もなし", kamiKana: "もろともに あはれとおもへ やまざくら", shimoKana: "はなよりほかに しるひともなし" },
+        { no: 67, poet: "周防内侍", kami: "春の夜の 夢ばかりなる 手枕に", shimo: "かひなく立たむ 名こそ惜しけれ", kamiKana: "はるのよの ゆめばかりなる たまくらに", shimoKana: "かひなくたたむ なこそをしけれ" },
+        { no: 68, poet: "三条院", kami: "心にも あらでうき世に ながらへば", shimo: "恋しかるべき 夜半の月かな", kamiKana: "こころにも あらでうきよに ながらへば", shimoKana: "こひしかるべき よはのつきかな" },
+        { no: 69, poet: "能因法師", kami: "嵐吹く 三室の山の もみぢ葉は", shimo: "竜田の川の 錦なりけり", kamiKana: "あらしふく みむろのやまの もみぢばは", shimoKana: "たつたのかはの にしきなりけり" },
+        { no: 70, poet: "良暹法師", kami: "さびしさに 宿を立ち出でて ながむれば", shimo: "いづこも同じ 秋の夕暮れ", kamiKana: "さびしさに やどをたちいでて ながむれば", shimoKana: "いづこもおなじ あきのゆふぐれ" },
+        { no: 71, poet: "大納言経信", kami: "夕されば 門田の稲葉 おとづれて", shimo: "蘆のまろやに 秋風ぞ吹く", kamiKana: "ゆふされば かどたのいなば おとづれて", shimoKana: "あしのまろやに あきかぜぞふく" },
+        { no: 72, poet: "祐子内親王家紀伊", kami: "音に聞く 高師の浜の あだ波は", shimo: "かけじや袖の ぬれもこそすれ", kamiKana: "おとにきく たかしのはまの あだなみは", shimoKana: "かけじやそでの ぬれもこそすれ" },
+        { no: 73, poet: "権中納言匡房", kami: "高砂の 尾の上の桜 咲きにけり", shimo: "外山の霞 立たずもあらなむ", kamiKana: "たかさごの をのへのさくら さきにけり", shimoKana: "とやまのかすみ たたずもあらなむ" },
+        { no: 74, poet: "源俊頼朝臣", kami: "憂かりける 人を初瀬の 山おろしよ", shimo: "激しかれとは 祈らぬものを", kamiKana: "うかりける ひとをはつせの やまおろしよ", shimoKana: "はげしかれとは いのらぬものを" },
+        { no: 75, poet: "藤原基俊", kami: "契りおきし させもが露を 命にて", shimo: "あはれ今年の 秋もいぬめり", kamiKana: "ちぎりおきし させもがつゆを いのちにて", shimoKana: "あはれことしの あきもいぬめり" },
+        { no: 76, poet: "法性寺入道前関白太政大臣", kami: "わたの原 漕ぎ出でてみれば 久方の", shimo: "雲居にまがふ 沖つ白波", kamiKana: "わたのはら こぎいでてみれば ひさかたの", shimoKana: "くもゐにまがふ おきつしらなみ" },
+        { no: 77, poet: "崇徳院", kami: "瀬をはやみ 岩にせかるる 滝川の", shimo: "われても末に 逢はむとぞ思ふ", kamiKana: "せをはやみ いはにせかるる たきがはの", shimoKana: "われてもすゑに あはむとぞおもふ" },
+        { no: 78, poet: "源兼昌", kami: "淡路島 かよふ千鳥の 鳴く声に", shimo: "幾夜寝覚めぬ 須磨の関守", kamiKana: "あはぢしま かよふちどりの なくこゑに", shimoKana: "いくよねざめぬ すまのせきもり" },
+        { no: 79, poet: "左京大夫顕輔", kami: "秋風に たなびく雲の 絶え間より", shimo: "もれ出づる月の 影のさやけさ", kamiKana: "あきかぜに たなびくくもの たえまより", shimoKana: "もれいづるつきの かげのさやけさ" },
+        { no: 80, poet: "待賢門院堀河", kami: "長からむ 心も知らず 黒髪の", shimo: "乱れて今朝は ものをこそ思へ", kamiKana: "ながからむ こころもしらず くろかみの", shimoKana: "みだれてけさは ものをこそおもへ" },
+        { no: 81, poet: "後徳大寺左大臣", kami: "ほととぎす 鳴きつる方を 眺むれば", shimo: "ただ有明の 月ぞ残れる", kamiKana: "ほととぎす なきつるかたを ながむれば", shimoKana: "ただありあけの つきぞのこれる" },
+        { no: 82, poet: "道因法師", kami: "思ひわび さても命は あるものを", shimo: "憂きにたへぬは 涙なりけり", kamiKana: "おもひわび さてもいのちは あるものを", shimoKana: "うきにたへぬは なみだなりけり" },
+        { no: 83, poet: "皇太后宮大夫俊成", kami: "世の中よ 道こそなけれ 思ひ入る", shimo: "山の奥にも 鹿ぞ鳴くなる", kamiKana: "よのなかよ みちこそなけれ おもひいる", shimoKana: "やまのおくにも しかぞなくなる" },
+        { no: 84, poet: "藤原清輔朝臣", kami: "ながらへば またこのごろや しのばれむ", shimo: "憂しと見し世ぞ 今は恋しき", kamiKana: "ながらへば またこのごろや しのばれむ", shimoKana: "うしとみしよぞ いまはこひしき" },
+        { no: 85, poet: "俊恵法師", kami: "夜もすがら もの思ふころは 明けやらで", shimo: "閨のひまさへ つれなかりけり", kamiKana: "よもすがら ものおもふころは あけやらで", shimoKana: "ねやのひまさへ つれなかりけり" },
+        { no: 86, poet: "西行法師", kami: "嘆けとて 月やはものを 思はする", shimo: "かこち顔なる わが涙かな", kamiKana: "なげけとて つきやはものを おもはする", shimoKana: "かこちがほなる わがなみだかな" },
+        { no: 87, poet: "寂蓮法師", kami: "村雨の 露もまだひぬ 槙の葉に", shimo: "霧立ちのぼる 秋の夕暮れ", kamiKana: "むらさめの つゆもまだひぬ まきのはに", shimoKana: "きりたちのぼる あきのゆふぐれ" },
+        { no: 88, poet: "皇嘉門院別当", kami: "難波江の 蘆のかりねの ひとよゆゑ", shimo: "みをつくしてや 恋ひわたるべき", kamiKana: "なにはえの あしのかりねの ひとよゆゑ", shimoKana: "みをつくしてや こひわたるべき" },
+        { no: 89, poet: "式子内親王", kami: "玉の緒よ 絶えなば絶えね ながらへば", shimo: "忍ぶることの 弱りもぞする", kamiKana: "たまのをよ たえなばたえね ながらへば", shimoKana: "しのぶることの よわりもぞする" },
+        { no: 90, poet: "殷富門院大輔", kami: "見せばやな 雄島のあまの 袖だにも", shimo: "ぬれにぞぬれし 色は変はらず", kamiKana: "みせばやな をじまのあまの そでだにも", shimoKana: "ぬれにぞぬれし いろはかはらず" },
+        { no: 91, poet: "後京極摂政前太政大臣", kami: "きりぎりす 鳴くや霜夜の さむしろに", shimo: "衣かたしき ひとりかも寝む", kamiKana: "きりぎりす なくやしもよの さむしろに", shimoKana: "ころもかたしき ひとりかもねむ" },
+        { no: 92, poet: "二条院讃岐", kami: "わが袖は 潮干に見えぬ 沖の石の", shimo: "人こそ知らね かわく間もなし", kamiKana: "わがそでは しほひにみえぬ おきのいしの", shimoKana: "ひとこそしらね かわくまもなし" },
+        { no: 93, poet: "鎌倉右大臣", kami: "世の中は 常にもがもな 渚漕ぐ", shimo: "あまの小舟の 綱手かなしも", kamiKana: "よのなかは つねにもがもな なぎさこぐ", shimoKana: "あまのをぶねの つなでかなしも" },
+        { no: 94, poet: "参議雅経", kami: "み吉野の 山の秋風 小夜更けて", shimo: "ふるさと寒く 衣打つなり", kamiKana: "みよしのの やまのあきかぜ さよふけて", shimoKana: "ふるさとさむく ころもうつなり" },
+        { no: 95, poet: "前大僧正慈円", kami: "おほけなく うき世の民に おほふかな", shimo: "わが立つ杣に 墨染の袖", kamiKana: "おほけなく うきよのたみに おほふかな", shimoKana: "わがたつそまに すみぞめのそで" },
+        { no: 96, poet: "入道前太政大臣", kami: "花さそふ 嵐の庭の 雪ならで", shimo: "ふりゆくものは わが身なりけり", kamiKana: "はなさそふ あらしのにはの ゆきならで", shimoKana: "ふりゆくものは わがみなりけり" },
+        { no: 97, poet: "権中納言定家", kami: "来ぬ人を まつほの浦の 夕なぎに", shimo: "焼くや藻塩の 身もこがれつつ", kamiKana: "こぬひとを まつほのうらの ゆふなぎに", shimoKana: "やくやもしほの みもこがれつつ" },
+        { no: 98, poet: "従二位家隆", kami: "風そよぐ ならの小川の 夕暮れは", shimo: "みそぎぞ夏の しるしなりける", kamiKana: "かぜそよぐ ならのをがはの ゆふぐれは", shimoKana: "みそぎぞなつの しるしなりける" },
+        { no: 99, poet: "後鳥羽院", kami: "人も惜し 人も恨めし あぢきなく", shimo: "世を思ふゆゑに 物思ふ身は", kamiKana: "ひともをし ひともうらめし あぢきなく", shimoKana: "よをおもふゆゑに ものおもふみは" },
+        { no: 100, poet: "順徳院", kami: "ももしきや 古き軒端の しのぶにも", shimo: "なほあまりある 昔なりけり", kamiKana: "ももしきや ふるきのきばの しのぶにも", shimoKana: "なほあまりある むかしなりけり" }
+      ];
+
+      // ===== 意味（現代語の一言説明） =====
+      // POEMS と同じ順（1番〜100番）。表示専用で、読み上げには含めない。
+      var MEANINGS = [
+        "秋の田の仮小屋の屋根が粗くて、夜露で私の袖が濡れてしまう",
+        "春が過ぎて夏が来たらしい。白い衣を干すという天の香具山だ",
+        "山鳥の長い尾のように、長い夜を一人で寝るのかなあ",
+        "田子の浦に出てみると、富士山の高い峰に雪が降っている",
+        "山奥で紅葉を踏み分ける鹿の声を聞く時、秋は悲しい",
+        "かささぎが渡した橋に置いた霜の白さを見ると、夜が更けたなあ",
+        "空を眺めると、春日の三笠山に出ていたのと同じ月だ",
+        "私の庵は都の東南。ひっそり暮らす私を、世間は浮き世に住むと言う",
+        "桜の色があせるように、私も長雨を眺めるうちに老いてしまった",
+        "行く人も帰る人も別れ、知る人も知らない人も出会う、逢坂の関",
+        "大海原へ漕ぎ出したと、漁師の釣り舟に告げてほしい",
+        "空を吹く風よ、雲の通り道を吹き閉じて。乙女の舞姿をもう少し見ていたい",
+        "筑波山から落ちる川のように、恋心が積もって深い淵になった",
+        "陸奥のしのぶずりの乱れ模様のように、私の心も乱れた。あなたのせいで",
+        "あなたのため春の野で若菜を摘む私の袖に、雪が降りかかっている",
+        "別れて因幡へ行くけれど、待っていると聞けばすぐ帰ってきます",
+        "神々の時代にも聞いたことがない。竜田川が真っ赤に染まるなんて",
+        "住の江の岸に寄る波。その夜さえ夢で会いに来てくれないのは、人目を避けているのか",
+        "短い蘆の節の間のような短い時間でさえ、会わずに一生を過ごせというのか",
+        "つらくなった今はもう同じこと。身を滅ぼしてもあなたに会いたい",
+        "「すぐ行く」と言ったまま来ないあなたを、有明の月が出るまで待ち続けた",
+        "吹くとすぐに秋の草木がしおれるから、山風を「嵐」と言うのだろう",
+        "月を見ると何もかも悲しくなる。私一人の秋ではないのに",
+        "今回は幣を用意できなかった。手向山の紅葉の錦を神様に捧げます",
+        "名に「逢う」と負う逢坂山のさねかづらのように、人に知られずあなたのもとへ行く方法がほしい",
+        "小倉山の紅葉よ、心があるなら天皇のお出ましまで散らずに待ってほしい",
+        "みかの原を湧いて流れるいづみ川。いつ見たのか、あなたが恋しい",
+        "山里は冬こそ寂しさが増す。人も来ず草も枯れてしまうと思うと",
+        "当てずっぽうに折ろうか、初霜にまどわされる白菊の花を",
+        "つれなく見えた有明の月との別れ以来、明け方ほどつらいものはない",
+        "夜明けに有明の月かと思うほど、吉野の里に白雪が降っている",
+        "山の川に風がかけた堰は、流しきれない紅葉だった",
+        "光のどかな春の日に、どうして花は心なく散っていくのだろう",
+        "誰を昔からの友としよう。高砂の松も昔の友ではないのに",
+        "人の心は分からないけれど、ふるさとの花は昔の香りのままに匂っている",
+        "夏の夜はまだ宵のうちに明けてしまう。雲のどこに月は宿っているのだろう",
+        "白露に風が吹く秋の野は、糸に通していない玉のように露が散っている",
+        "忘れられる身は仕方ないけれど、誓ったあの人の命が惜しい",
+        "小野の篠原のように、人に知られまいと忍んでも恋しさがあふれてしまう",
+        "忍んでいたのに恋は顔色に出てしまった。「何か思い事？」と聞かれるほどに",
+        "恋をしているという噂がもう立ってしまった。人知れず思い始めたばかりなのに",
+        "約束したよね。涙で袖をしぼりながら、末の松山を波が越えることはないと",
+        "実際に会ってからの心と比べると、昔は何も思っていなかったのだなあ",
+        "会うことが全くないのなら、人も自分も恨まずに済んだのに",
+        "「かわいそうに」と言ってくれる人も思い浮かばず、この身はむなしく終わりそうだ",
+        "由良の瀬戸を渡る舟人が舵をなくしたように、恋の道に迷って行く先が分からない",
+        "草ぼうぼうの寂しい宿に、訪れる人もなく秋が来てしまった",
+        "風が強く岩に打つ波が砕けるように、私だけが砕けるほど思い悩んでいる",
+        "宮中の衛士の焚く火が夜は燃え昼は消えるように、私の思いも燃えたり消えたり",
+        "あなたのため惜しくなかった命さえ、長くあってほしいと思うようになった",
+        "こんなに思っているとさえ言えない。伊吹のさしも草のように燃える思いをあなたは知らない",
+        "夜が明ければ夕方になるのは分かっていても、夜明けが恨めしい",
+        "嘆きながら一人寝る夜が明けるまでの時間の、なんと長いことか",
+        "「忘れない」が行く末まで続くのは難しいから、今日を最後の命にしたい",
+        "滝の音は絶えて久しいけれど、その名声は今も聞こえてくる",
+        "もう長くない命。あの世への思い出に、もう一度あなたに会いたい",
+        "久しぶりに会えたのに、分からないうちに夜中の月が雲に隠れるようにあなたは行ってしまった",
+        "有馬山の笹原に風が吹くと音がする。私はあなたを忘れたりしない",
+        "ためらわず寝てしまえばよかった。夜更けに傾く月を、あなたを待ちながら見てしまった",
+        "大江山を越える生野の道は遠くて、天の橋立へはまだ行ったことがない",
+        "昔の奈良の都の八重桜が、今日は宮中でいっそう美しく咲き匂っている",
+        "夜のうちに鶏の鳴き真似をして騙そうとしても、逢坂の関は決して開けてくれない",
+        "今はもう思い切るほかない。そのことだけでも人づてでなく直接伝える方法がほしい",
+        "夜明けに宇治川の霧が晴れて、瀬々の網代木が現れてくる",
+        "恨み嘆いて涙で乾かない袖さえあるのに、恋で朽ちる私の名が惜しい",
+        "山桜よ、私と同じように「あはれ」と思ってくれ。花よりほかに私を知る人はいない",
+        "春の夜の、夢ほどの短い手枕のことで、つまらない噂が立つのが惜しい",
+        "心ならずも生き長らえたら、この浮き世で見た夜中の月が恋しくなるだろう",
+        "嵐が吹く三室の山の紅葉は、竜田川の錦だった",
+        "寂しくて宿を出て眺めると、どこも同じ秋の夕暮れだ",
+        "夕方になると門田の稲葉を訪れて、蘆の仮小屋に秋風が吹く",
+        "噂に聞く高師の浜のいたずらな波のように、袖が濡れるからと誘いに乗るわけにはいかない",
+        "高砂の尾の上に桜が咲いた。外山の霞よ、立たないでほしい",
+        "つらかった人を初瀬の山おろしに「激しくあれ」とは祈らなかったのに",
+        "約束してくれたさせもが露を命として待っていたのに、今年の秋も過ぎていく",
+        "大海原に漕ぎ出してみると、沖の白波が雲と見まちがえる",
+        "瀬が速く岩にせき止められる滝川も、別れても末には一つになる。私たちも会えるはず",
+        "淡路島から通う千鳥の鳴く声に、須磨の関守は何夜目覚めたことか",
+        "秋風にたなびく雲の切れ間から漏れる月の光の、なんと清らかなことか",
+        "長くありたいというあなたの心も分からず、黒髪が乱れて今朝は物思いにふけっている",
+        "ほととぎすが鳴いた方を眺めると、ただ有明の月だけが残っていた",
+        "思い悩んでも命は続くのに、つらさに耐えられないのは涙だ",
+        "世の中に逃げ道はない。思い入る山の奥でも鹿が鳴いている",
+        "生き長らえれば、つらかった昔の世も今は恋しく思い出されるのだろう",
+        "一晩中物思いをしていると夜も明けきらず、寝室の隙間さえつれなく感じる",
+        "嘆けと言って月が物思いをさせるわけではないのに、月のせいにした顔で涙が出る",
+        "村雨の露もまだ乾かない槙の葉に、霧が立ちのぼる秋の夕暮れ",
+        "難波江の蘆の仮寝の一夜のために、身を滅ぼすほど恋し続けなければならないのか",
+        "命よ、絶えるなら絶えてしまえ。生き長らえると忍ぶ力が弱ってしまうから",
+        "見せたいなあ。雄島の漁師の袖でさえ、濡れても色は変わらないのに",
+        "こおろぎが鳴く霜夜の寒いむしろに、衣を片敷いて一人で寝るのかなあ",
+        "私の袖は、潮が引いても見えない沖の石のように、人に知られず乾く間もない",
+        "世の中は変わらないでほしい。渚を漕ぐ漁師の小舟の綱手が悲しい",
+        "吉野の山に秋風が吹き、夜が更けて、ふるさとは寒く衣を打つ音がする",
+        "身の程知らずにも、憂き世の人々を覆おうとする私の墨染の袖よ",
+        "花を誘う嵐の庭の雪のように、散りゆくのは私の身だった",
+        "来ない人を待つ松帆の浦の夕なぎに、藻塩を焼くように身も焦がれている",
+        "風がそよぐ楢の小川の夕暮れは、みそぎだけが夏のしるしだ",
+        "人が愛しくもあり恨めしくもある。つまらない世を思うせいで物思いする私だ",
+        "宮中の古い軒端のしのぶ草を見ても、なお昔の宮廷の栄華がしのばれる"
+      ];
+
+      // ===== 決まり字（自動計算） =====
+      // 各歌の kamiKana から空白を取り除き、全100首の中でその歌だけが持つ
+      // 最短の先頭文字列（他の歌と区別できる最短の接頭辞）を決まり字とする。
+      var KANA_STRIPPED = POEMS.map(function (p) { return p.kamiKana.replace(/\s/g, ""); });
+      var KIMARI = POEMS.map(function (p, i) {
+        var s = KANA_STRIPPED[i];
+        for (var len = 1; len <= s.length; len++) {
+          var pre = s.substring(0, len);
+          var dup = false;
+          for (var j = 0; j < KANA_STRIPPED.length; j++) {
+            if (j !== i && KANA_STRIPPED[j].indexOf(pre) === 0) { dup = true; break; }
+          }
+          if (!dup) return pre;
+        }
+        return s;
+      });
+
+      // kamiKana の決まり字部分だけを太文字にしたHTMLを返す
+      function kimariHTML(poemIdx) {
+        var kana = POEMS[poemIdx].kamiKana;
+        var n = KIMARI[poemIdx].length;
+        var count = 0, closed = false;
+        var out = "<b class=\"kimari\">";
+        for (var i = 0; i < kana.length; i++) {
+          var ch = kana.charAt(i);
+          out += ch;
+          if (!/\s/.test(ch)) {
+            count++;
+            if (count >= n && !closed) { out += "</b>"; closed = true; }
+          }
+        }
+        if (!closed) out += "</b>";
+        return out;
+      }
+
+      // ===== 序歌（じょか）データ =====
+      // かるたを始める前に読手が読む合図の歌。百人一首の100首には入っていない。
+      // 読手モードと「札の一覧・暗記」の特集で共通に使う。
+      var JOGEKA = {
+        kami: "難波津に 咲くやこの花 冬ごもり",
+        shimo: "今は春べと 咲くやこの花",
+        kamiKana: "なにはづに さくやこのはな ふゆごもり",
+        shimoKana: "いまははるべと さくやこのはな",
+        poet: "王仁"
+      };
+
+      var SPEEDS = [0.75, 1.0, 1.25, 1.5];
+      var HINT_DELAYS = [3, 5, 10, 15];
+      var CPU_DELAY = { easy: 7000, normal: 4500, hard: 2600 };
+
+      // ===== 状態 =====
+      var speedIdx = 1;
+      try {
+        var saved = parseInt(localStorage.getItem("karuta-speed-idx"), 10);
+        if (!isNaN(saved) && saved >= 0 && saved < SPEEDS.length) speedIdx = saved;
+      } catch (e) {}
+      var hintDelayIdx = 1; // 初期値：5秒
+      try {
+        var savedHint = parseInt(localStorage.getItem("karuta-hint-delay-idx"), 10);
+        if (!isNaN(savedHint) && savedHint >= 0 && savedHint < HINT_DELAYS.length) hintDelayIdx = savedHint;
+      } catch (e) {}
+
+      var mode = "practice";       // "beginner" | "practice" | "cpu"
+      var difficulty = "normal";
+      var deck = [];               // まだ場に出ていない歌（POEMSのindex）
+      var field = [];              // 場の札 { poem: index, takenBy: null|"player"|"cpu" }
+      var target = null;           // 今読まれている歌のindex
+      var roundActive = false;     // 読み始めてから決着まで
+      var playerCount = 0, cpuCount = 0, otetsuki = 0;
+      var cpuTimer = null;
+      var hintTimer = null;
+      var hintShown = false;
+      var startTime = 0, elapsedSec = 0, clockTimer = null;
+
+      // ===== DOM =====
+      function $(id) { return document.getElementById(id); }
+      var titleScreen = $("titleScreen"), gameScreen = $("gameScreen"), resultScreen = $("resultScreen"), listScreen = $("listScreen"), readerModeScreen = $("readerModeScreen");
+      var fieldEl = $("field");
+
+      function shuffle(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+      }
+
+      // ===== 読み上げ =====
+      var speechOK = ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window);
+      if (!speechOK) $("noSpeechWarn").classList.remove("hidden");
+
+      function speak(text, onend) {
+        if (!speechOK) { if (onend) onend(); return; }
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = "ja-JP";
+        u.rate = SPEEDS[speedIdx];
+        try {
+          var voices = speechSynthesis.getVoices();
+          for (var i = 0; i < voices.length; i++) {
+            if (voices[i].lang && voices[i].lang.indexOf("ja") === 0) { u.voice = voices[i]; break; }
+          }
+        } catch (e) {}
+        if (onend) {
+          u.onend = onend;
+          u.onerror = onend;
+        }
+        speechSynthesis.speak(u);
+      }
+      if (speechOK && speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = function () {};
+      }
+
+      function stopSpeech() { if (speechOK) speechSynthesis.cancel(); }
+
+      // ===== 速度ボタン =====
+      function refreshSpeedBtn() {
+        $("speedBtn").textContent = "読み上げ速度：×" + SPEEDS[speedIdx].toFixed(2).replace(/0$/, "");
+      }
+      $("speedBtn").addEventListener("click", function () {
+        speedIdx = (speedIdx + 1) % SPEEDS.length;
+        try { localStorage.setItem("karuta-speed-idx", String(speedIdx)); } catch (e) {}
+        refreshSpeedBtn();
+      });
+      refreshSpeedBtn();
+
+      // ===== ヒントまでの時間ボタン（超初心者モード用） =====
+      function refreshHintBtn() {
+        $("hintBtn").textContent = "ヒントまでの時間：" + HINT_DELAYS[hintDelayIdx] + "秒";
+      }
+      $("hintBtn").addEventListener("click", function () {
+        hintDelayIdx = (hintDelayIdx + 1) % HINT_DELAYS.length;
+        try { localStorage.setItem("karuta-hint-delay-idx", String(hintDelayIdx)); } catch (e) {}
+        refreshHintBtn();
+      });
+      refreshHintBtn();
+
+      function clearHintTimer() {
+        if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+      }
+
+      $("testVoiceBtn").addEventListener("click", function () {
+        speak("ちはやぶる かみよもきかず たつたがは");
+      });
+
+      // ===== 最新版に更新 =====
+      $("updateBtn").addEventListener("click", function () {
+        var url = location.href.split("?")[0].split("#")[0];
+        location.href = url + "?v=" + Date.now();
+      });
+
+      // ===== 画面遷移 =====
+      function show(el) {
+        [titleScreen, gameScreen, resultScreen, listScreen, readerModeScreen].forEach(function (s) { s.classList.add("hidden"); });
+        el.classList.remove("hidden");
+        window.scrollTo(0, 0);
+      }
+
+      // ===== ゲーム開始 =====
+      function startGame(m, diff) {
+        mode = m; difficulty = diff || "normal";
+        deck = shuffle(POEMS.map(function (_, i) { return i; }));
+        playerCount = 0; cpuCount = 0; otetsuki = 0;
+        target = null; roundActive = false;
+        clearCpuTimer();
+        clearHintTimer();
+        $("stCpuWrap").style.display = (mode === "cpu") ? "" : "none";
+        if (mode === "beginner") $("beginnerGuide").classList.remove("hidden");
+        else $("beginnerGuide").classList.add("hidden");
+        dealField();
+        show(gameScreen);
+        if (mode === "beginner") resetReader("「🔊 読む」を押すと、上の句の文字を表示しながら声で読みます。数秒たつと、正解の札の色が変わります。");
+        else resetReader("「🔊 読む」を押すと、上の句を読み上げます。");
+        startTime = Date.now(); elapsedSec = 0;
+        if (clockTimer) clearInterval(clockTimer);
+        clockTimer = setInterval(function () {
+          elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+          $("stTime").textContent = elapsedSec;
+        }, 500);
+        updateStatus();
+      }
+
+      function dealField() {
+        var take = deck.splice(0, 10);
+        field = shuffle(take.slice()).map(function (pi) { return { poem: pi, takenBy: null }; });
+        renderField();
+      }
+
+      function renderField() {
+        fieldEl.innerHTML = "";
+        field.forEach(function (card, i) {
+          var b = document.createElement("button");
+          b.className = "card";
+          b.textContent = POEMS[card.poem].shimoKana.replace(/\s/g, "");
+          if (card.takenBy === "player") { b.classList.add("taken-player"); b.disabled = true; }
+          if (card.takenBy === "cpu") { b.classList.add("taken-cpu"); b.disabled = true; }
+          if (mode === "beginner" && roundActive && hintShown && target !== null && card.poem === target && !card.takenBy) { b.classList.add("hint"); }
+          b.addEventListener("click", function () { tapCard(i, b); });
+          fieldEl.appendChild(b);
+        });
+      }
+
+      function applyHint() {
+        if (mode !== "beginner") return;
+        var kids = fieldEl.children;
+        for (var i = 0; i < field.length && i < kids.length; i++) {
+          if (field[i].poem === target && !field[i].takenBy) kids[i].classList.add("hint");
+          else kids[i].classList.remove("hint");
+        }
+      }
+
+      function clearHint() {
+        var kids = fieldEl.children;
+        for (var i = 0; i < kids.length; i++) kids[i].classList.remove("hint");
+      }
+
+      function updateStatus() {
+        var remain = deck.length + field.filter(function (c) { return !c.takenBy; }).length;
+        $("stRemain").textContent = remain;
+        $("stPlayer").textContent = playerCount;
+        $("stCpu").textContent = cpuCount;
+        $("stOtetsuki").textContent = otetsuki;
+        $("stTime").textContent = elapsedSec;
+      }
+
+      function resetReader(hint) {
+        $("readerHint").textContent = hint;
+        $("readerHint").classList.remove("hidden");
+        $("readingNow").classList.add("hidden");
+        $("beginnerKami").classList.add("hidden");
+        hintShown = false;
+        clearHint();
+        $("revealPoem").classList.add("hidden");
+        $("readBtn").disabled = false;
+        $("readBtn").classList.remove("hidden");
+        $("rereadBtn").disabled = true;
+        $("nextBtn").classList.add("hidden");
+      }
+
+      // ===== 読む =====
+      $("readBtn").addEventListener("click", function () {
+        var open = field.filter(function (c) { return !c.takenBy; });
+        if (open.length === 0) return;
+        var pick = open[Math.floor(Math.random() * open.length)];
+        target = pick.poem;
+        roundActive = true;
+        hintShown = false;
+        $("readerHint").classList.add("hidden");
+        $("revealPoem").classList.add("hidden");
+        $("readBtn").disabled = true;
+        $("rereadBtn").disabled = false;
+        if (mode === "beginner") {
+          // 超初心者：上の句の文字を最初から表示し、正解の札だけ色を少し変える
+          $("readingNow").classList.add("hidden");
+          $("bkKanji").textContent = POEMS[target].kami;
+          $("bkKana").innerHTML = kimariHTML(target);
+          $("beginnerKami").classList.remove("hidden");
+          clearHintTimer();
+          hintTimer = setTimeout(function () {
+            hintTimer = null;
+            if (roundActive) { hintShown = true; applyHint(); }
+          }, HINT_DELAYS[hintDelayIdx] * 1000);
+          speak(POEMS[target].kamiKana, null);
+        } else {
+          $("beginnerKami").classList.add("hidden");
+          $("readingNow").classList.remove("hidden");
+          speak(POEMS[target].kamiKana, function () {
+            if (roundActive) $("readingNow").textContent = "♪ 読上中…（札をタップ！）";
+          });
+        }
+        if (mode === "cpu") {
+          var base = CPU_DELAY[difficulty];
+          var delay = base * (0.85 + Math.random() * 0.30); // ±15%
+          clearCpuTimer();
+          cpuTimer = setTimeout(cpuTake, delay);
+        }
+      });
+
+      $("rereadBtn").addEventListener("click", function () {
+        if (target === null || !roundActive) return;
+        if (mode === "beginner") {
+          speak(POEMS[target].kamiKana, null);
+          return;
+        }
+        $("readingNow").textContent = "♪ 読上中…";
+        speak(POEMS[target].kamiKana, function () {
+          if (roundActive) $("readingNow").textContent = "♪ 読上中…（札をタップ！）";
+        });
+      });
+
+      function clearCpuTimer() {
+        if (cpuTimer) { clearTimeout(cpuTimer); cpuTimer = null; }
+      }
+
+      // ===== 札タップ =====
+      function tapCard(i, el) {
+        if (!roundActive || target === null) return;
+        var card = field[i];
+        if (card.takenBy) return;
+        if (card.poem === target) {
+          card.takenBy = "player";
+          playerCount++;
+          renderField();
+          resolveRound("player");
+        } else {
+          otetsuki++;
+          updateStatus();
+          el.classList.remove("shake");
+          void el.offsetWidth;
+          el.classList.add("shake");
+        }
+      }
+
+      function cpuTake() {
+        if (!roundActive || target === null) return;
+        for (var i = 0; i < field.length; i++) {
+          if (field[i].poem === target && !field[i].takenBy) {
+            field[i].takenBy = "cpu";
+            cpuCount++;
+            renderField();
+            resolveRound("cpu");
+            return;
+          }
+        }
+      }
+
+      // ===== 決着 =====
+      function resolveRound(by) {
+        roundActive = false;
+        clearCpuTimer();
+        clearHintTimer();
+        hintShown = false;
+        stopSpeech();
+        clearHint();
+        var p = POEMS[target];
+        // 超初心者モード：自分が取った札は、下の句を読み上げる
+        if (mode === "beginner" && by === "player") speak(p.shimoKana, null);
+        $("readingNow").classList.add("hidden");
+        $("beginnerKami").classList.add("hidden");
+        $("revealKami").textContent = p.kami;
+        $("revealKana").innerHTML = kimariHTML(target);
+        $("revealShimo").textContent = p.shimo;
+        $("revealPoet").textContent = "― " + p.poet + "（" + p.no + "番）";
+        $("revealMeaning").textContent = "意味：" + MEANINGS[target];
+        var tb = $("takenBy");
+        if (by === "player") { tb.textContent = "取った！"; tb.className = "player"; }
+        else { tb.textContent = "CPUに取られた…"; tb.className = "cpu"; }
+        $("revealPoem").classList.remove("hidden");
+        $("rereadBtn").disabled = true;
+        $("nextBtn").classList.remove("hidden");
+        updateStatus();
+      }
+
+      $("nextBtn").addEventListener("click", function () {
+        target = null;
+        clearHintTimer();
+        var allTaken = field.every(function (c) { return c.takenBy; });
+        if (allTaken) {
+          if (deck.length === 0) { showResult(); return; }
+          dealField();
+        }
+        if (mode === "beginner") resetReader("「🔊 読む」を押すと、上の句の文字を表示しながら声で読みます。数秒たつと、正解の札の色が変わります。");
+        else resetReader("「🔊 読む」を押すと、上の句を読み上げます。");
+        updateStatus();
+      });
+
+      // ===== やめる =====
+      $("quitBtn").addEventListener("click", function () {
+        roundActive = false;
+        clearCpuTimer();
+        clearHintTimer();
+        stopSpeech();
+        if (clockTimer) clearInterval(clockTimer);
+        show(titleScreen);
+      });
+
+      // ===== 結果 =====
+      function showResult() {
+        if (clockTimer) clearInterval(clockTimer);
+        stopSpeech();
+        var title, stats;
+        if (mode === "cpu") {
+          if (playerCount > cpuCount) title = "勝ち！ 🎉";
+          else if (playerCount < cpuCount) title = "負け…";
+          else title = "引き分け";
+          stats = "自分 <b>" + playerCount + "</b> 枚　／　CPU <b>" + cpuCount + "</b> 枚<br />" +
+                  "お手つき <b>" + otetsuki + "</b> 回<br />" +
+                  "かかった時間 <b>" + elapsedSec + "</b> 秒";
+        } else if (mode === "beginner") {
+          title = "超初心者モード おつかれさま！";
+          stats = "取った札 <b>" + playerCount + "</b> 枚<br />" +
+                  "お手つき <b>" + otetsuki + "</b> 回<br />" +
+                  "かかった時間 <b>" + elapsedSec + "</b> 秒<br />" +
+                  "慣れてきたら「練習モード」にも挑戦してみてください。";
+        } else {
+          title = "練習おつかれさま！";
+          stats = "取った札 <b>" + playerCount + "</b> 枚<br />" +
+                  "お手つき <b>" + otetsuki + "</b> 回<br />" +
+                  "かかった時間 <b>" + elapsedSec + "</b> 秒";
+        }
+        $("resultTitle").textContent = title;
+        $("resultStats").innerHTML = stats;
+        show(resultScreen);
+      }
+
+      $("againBtn").addEventListener("click", function () { startGame(mode, difficulty); });
+      $("toTitleBtn").addEventListener("click", function () { show(titleScreen); });
+
+      // ===== モード選択 =====
+      $("beginnerBtn").addEventListener("click", function () { startGame("beginner"); });
+      $("practiceBtn").addEventListener("click", function () { startGame("practice"); });
+      Array.prototype.forEach.call(document.querySelectorAll("[data-diff]"), function (btn) {
+        btn.addEventListener("click", function () { startGame("cpu", btn.getAttribute("data-diff")); });
+      });
+
+      // ===== 札の一覧・暗記 =====
+      var seqIndex = -1;       // 大きく表示中の歌（POEMSのindex、未選択・序歌表示中は-1）
+      var seqPlaying = false;  // 順番読み再生中か
+      var speakSession = 0;    // 読み上げの世代（古いコールバックを無効化する）
+      var seqList = null;      // 再生リスト（POEMSのindex配列）。null=全100首を番号順に読む
+      var seqPos = -1;         // 再生リスト内の位置
+      var seqLabel = "";       // 特集名（例「一字決まり特集」）。通常の順番読みでは空
+
+      function seqCurrentList() {
+        if (seqList) return seqList;
+        var all = [];
+        for (var i = 0; i < POEMS.length; i++) all.push(i);
+        return all;
+      }
+
+      // 1首を 上の句→下の句 の順に読み上げる
+      function speakPoem(i, ondone) {
+        var my = ++speakSession;
+        var p = POEMS[i];
+        speak(p.kamiKana, function () {
+          if (my !== speakSession) return;
+          speak(p.shimoKana, function () {
+            if (my !== speakSession) return;
+            if (ondone) ondone();
+          });
+        });
+      }
+
+      function refreshSeqBtns() {
+        $("seqPlayBtn").disabled = seqPlaying;
+        $("seqStopBtn").disabled = !seqPlaying;
+      }
+
+      function stopSeq() {
+        seqPlaying = false;
+        speakSession++;
+        stopSpeech();
+        refreshSeqBtns();
+      }
+
+      function showSeqPoem(i) {
+        seqIndex = i;
+        var p = POEMS[i];
+        var list = seqCurrentList();
+        seqPos = list.indexOf(i);
+        if (seqLabel) {
+          $("seqNo").textContent = seqLabel + "：" + (seqPos + 1) + "首目 ／ 全" + list.length + "首（" + p.no + "番）";
+        } else {
+          $("seqNo").textContent = "第" + (i + 1) + "首 ／ 全" + POEMS.length + "首（" + p.no + "番）";
+        }
+        $("seqKami").textContent = p.kami;
+        $("seqShimo").textContent = p.shimo;
+        $("seqKana").innerHTML = kimariHTML(i) + "　／　" + p.shimoKana;
+        $("seqPoet").textContent = "― " + p.poet;
+        $("seqMeaning").textContent = "意味：" + MEANINGS[i];
+        $("seqMeaning").classList.remove("hidden");
+        $("seqDisplay").classList.remove("hidden");
+        var rows = $("poemList").children;
+        for (var k = 0; k < rows.length; k++) {
+          if (k === i) rows[k].classList.add("active");
+          else rows[k].classList.remove("active");
+        }
+        $("seqPrevBtn").disabled = (seqPos <= 0);
+        $("seqNextBtn").disabled = (seqPos < 0 || seqPos >= list.length - 1);
+      }
+
+      // 再生リストの pos 番目から、自動送りで読み続ける
+      function playSeqFromPos(pos) {
+        var list = seqCurrentList();
+        if (pos < 0 || pos >= list.length) { seqPlaying = false; refreshSeqBtns(); return; }
+        seqPlaying = true;
+        refreshSeqBtns();
+        var i = list[pos];
+        showSeqPoem(i);
+        var row = $("poemList").children[i];
+        if (row && row.scrollIntoView) { try { row.scrollIntoView({ block: "nearest" }); } catch (e) {} }
+        speakPoem(i, function () {
+          if (!seqPlaying) return;
+          playSeqFromPos(pos + 1);
+        });
+      }
+
+      function buildPoemList() {
+        var list = $("poemList");
+        list.innerHTML = "";
+        POEMS.forEach(function (p, i) {
+          var row = document.createElement("button");
+          row.className = "poem-row";
+          var no = document.createElement("span");
+          no.className = "pr-no"; no.textContent = p.no + "番";
+          var kami = document.createElement("span");
+          kami.className = "pr-kami"; kami.textContent = p.kami;
+          var kimari = document.createElement("span");
+          kimari.className = "pr-kimari"; kimari.textContent = "決まり字：" + KIMARI[i];
+          var poet = document.createElement("span");
+          poet.className = "pr-poet"; poet.textContent = p.poet;
+          var meaning = document.createElement("span");
+          meaning.className = "pr-meaning"; meaning.textContent = "意味：" + MEANINGS[i];
+          row.appendChild(no); row.appendChild(kami); row.appendChild(kimari); row.appendChild(poet); row.appendChild(meaning);
+          row.addEventListener("click", function () {
+            stopSeq();
+            seqList = null; seqLabel = "";
+            showSeqPoem(i);
+            speakPoem(i, null);
+          });
+          list.appendChild(row);
+        });
+      }
+      buildPoemList();
+      refreshSeqBtns();
+
+      $("listBtn").addEventListener("click", function () {
+        stopSeq();
+        show(listScreen);
+      });
+      $("listBackBtn").addEventListener("click", function () {
+        stopSeq();
+        show(titleScreen);
+      });
+      $("seqPlayBtn").addEventListener("click", function () {
+        seqList = null; seqLabel = "";
+        playSeqFromPos(0);
+      });
+      $("seqStopBtn").addEventListener("click", function () { stopSeq(); });
+      $("seqPrevBtn").addEventListener("click", function () {
+        if (seqPos <= 0) return;
+        var prev = seqCurrentList()[seqPos - 1];
+        if (seqPlaying) playSeqFromPos(seqPos - 1);
+        else { stopSeq(); showSeqPoem(prev); }
+      });
+      $("seqNextBtn").addEventListener("click", function () {
+        if (seqIndex < 0) { seqList = null; seqLabel = ""; showSeqPoem(0); return; }
+        var list = seqCurrentList();
+        if (seqPos < 0 || seqPos >= list.length - 1) return;
+        if (seqPlaying) playSeqFromPos(seqPos + 1);
+        else { stopSeq(); showSeqPoem(list[seqPos + 1]); }
+      });
+
+      // ===== 特集 =====
+      // 特集1：序歌を大きく表示して、上の句→下の句の順に読み上げる（聞き流し用）
+      function playJogeka() {
+        stopSeq();
+        seqList = null; seqLabel = "";
+        seqIndex = -1; seqPos = -1;
+        $("seqNo").textContent = "特集：序歌（じょか）";
+        $("seqKami").textContent = JOGEKA.kami;
+        $("seqShimo").textContent = JOGEKA.shimo;
+        $("seqKana").textContent = JOGEKA.kamiKana + "　／　" + JOGEKA.shimoKana;
+        $("seqPoet").textContent = "― " + JOGEKA.poet;
+        $("seqMeaning").textContent = "";
+        $("seqMeaning").classList.add("hidden");
+        $("seqDisplay").classList.remove("hidden");
+        var rows = $("poemList").children;
+        for (var k = 0; k < rows.length; k++) rows[k].classList.remove("active");
+        $("seqPrevBtn").disabled = true;
+        $("seqNextBtn").disabled = true;
+        var my = ++speakSession;
+        speak(JOGEKA.kamiKana, function () {
+          if (my !== speakSession) return;
+          speak(JOGEKA.shimoKana, null);
+        });
+      }
+
+      // 特集2：一字決まり（決まり字が1文字）の歌だけを番号順に、順番読みと同じ仕組みで読み上げる
+      function playIchijiKimari() {
+        var list = [];
+        for (var i = 0; i < POEMS.length; i++) {
+          if (KIMARI[i].length === 1) list.push(i);
+        }
+        seqList = list;
+        seqLabel = "一字決まり特集";
+        playSeqFromPos(0);
+      }
+
+      $("jogekaBtn").addEventListener("click", playJogeka);
+      $("ichijiBtn").addEventListener("click", playIchijiKimari);
+
+      // ===== 読手モード（実物かるた用） =====
+      var RM_INTERVALS = [10, 15, 20];
+
+      var rmJogeka = true;      // 序歌を読むか（初期値ON）
+      var rmAuto = true;        // 自動送り（初期値ON）
+      var rmIntervalIdx = 1;    // 自動送りの間隔（初期値15秒）
+      try {
+        if (localStorage.getItem("karuta-rm-jogeka") === "0") rmJogeka = false;
+        if (localStorage.getItem("karuta-rm-auto") === "0") rmAuto = false;
+        var savedRmInt = parseInt(localStorage.getItem("karuta-rm-interval-idx"), 10);
+        if (!isNaN(savedRmInt) && savedRmInt >= 0 && savedRmInt < RM_INTERVALS.length) rmIntervalIdx = savedRmInt;
+      } catch (e) {}
+
+      var rmDeck = [];          // シャッフル済みの歌順（POEMSのindex）
+      var rmPos = -1;           // いまの位置（rmDeckの添字）
+      var rmPhase = "idle";     // "idle" | "jogeka" | "poem" | "done"
+      var rmState = "stopped";  // "stopped" | "playing" | "paused"
+      var rmTimer = null;       // 自動送りタイマー
+      var rmSession = 0;        // 読み上げの世代（古いコールバック無効化）
+
+      function rmSaveSettings() {
+        try {
+          localStorage.setItem("karuta-rm-jogeka", rmJogeka ? "1" : "0");
+          localStorage.setItem("karuta-rm-auto", rmAuto ? "1" : "0");
+          localStorage.setItem("karuta-rm-interval-idx", String(rmIntervalIdx));
+        } catch (e) {}
+      }
+
+      function rmRefreshSettings() {
+        $("rmJogekaOn").classList.toggle("sel", rmJogeka);
+        $("rmJogekaOff").classList.toggle("sel", !rmJogeka);
+        $("rmAutoOn").classList.toggle("sel", rmAuto);
+        $("rmAutoOff").classList.toggle("sel", !rmAuto);
+        Array.prototype.forEach.call(document.querySelectorAll("[data-rm-interval]"), function (b) {
+          var on = parseInt(b.getAttribute("data-rm-interval"), 10) === rmIntervalIdx;
+          b.classList.toggle("sel", on);
+          b.disabled = !rmAuto;
+        });
+      }
+
+      $("rmJogekaOn").addEventListener("click", function () { rmJogeka = true; rmSaveSettings(); rmRefreshSettings(); });
+      $("rmJogekaOff").addEventListener("click", function () { rmJogeka = false; rmSaveSettings(); rmRefreshSettings(); });
+      $("rmAutoOn").addEventListener("click", function () { rmAuto = true; rmSaveSettings(); rmRefreshSettings(); rmScheduleAuto(); });
+      $("rmAutoOff").addEventListener("click", function () { rmAuto = false; rmSaveSettings(); rmRefreshSettings(); rmClearTimer(); rmUpdateUI(); });
+      Array.prototype.forEach.call(document.querySelectorAll("[data-rm-interval]"), function (b) {
+        b.addEventListener("click", function () {
+          rmIntervalIdx = parseInt(b.getAttribute("data-rm-interval"), 10);
+          rmSaveSettings(); rmRefreshSettings();
+        });
+      });
+
+      function rmClearTimer() {
+        if (rmTimer) { clearTimeout(rmTimer); rmTimer = null; }
+      }
+
+      var rmSpeaking = false;   // いま声が出ているか
+      function rmSpeak(text, onend) {
+        var my = ++rmSession;
+        rmSpeaking = true;
+        speak(text, function () {
+          if (my === rmSession) rmSpeaking = false;
+          if (my !== rmSession) return;
+          if (onend) onend();
+        });
+      }
+
+      function rmShowCurrent() {
+        if (rmPhase === "jogeka") {
+          $("rmNo").textContent = "序歌（じょか）";
+          $("rmKami").textContent = JOGEKA.kami;
+          $("rmShimo").textContent = JOGEKA.shimo;
+          $("rmKana").textContent = JOGEKA.kamiKana + "　／　" + JOGEKA.shimoKana;
+          $("rmPoet").textContent = "";
+          $("rmMeaning").textContent = "";
+          $("rmMeaning").classList.add("hidden");
+        } else if (rmPhase === "poem" && rmPos >= 0) {
+          var pi = rmDeck[rmPos];
+          var p = POEMS[pi];
+          $("rmNo").textContent = "確認用表示（" + p.no + "番）";
+          $("rmKami").textContent = p.kami;
+          $("rmShimo").textContent = p.shimo;
+          $("rmKana").innerHTML = kimariHTML(pi) + "　／　" + p.shimoKana;
+          $("rmPoet").textContent = "― " + p.poet;
+          $("rmMeaning").textContent = "意味：" + MEANINGS[pi];
+          $("rmMeaning").classList.remove("hidden");
+        }
+        $("rmDisplay").classList.remove("hidden");
+      }
+
+      function rmUpdateUI() {
+        var startBtn = $("rmStartBtn");
+        if (rmPhase === "done") {
+          $("rmProgress").textContent = "全100首を読み終わりました";
+          startBtn.textContent = "▶ スタート";
+          startBtn.disabled = true;
+          $("rmNextBtn").disabled = true;
+          $("rmRereadBtn").disabled = true;
+          return;
+        }
+        if (rmPhase === "idle") {
+          $("rmProgress").textContent = "「スタート」を押すと読み始めます";
+          startBtn.textContent = "▶ スタート";
+          startBtn.disabled = false;
+          $("rmNextBtn").disabled = true;
+          $("rmRereadBtn").disabled = true;
+          return;
+        }
+        var head;
+        if (rmPhase === "jogeka") head = "序歌";
+        else head = (rmPos + 1) + "首目 ／ 全100首（残り " + (rmDeck.length - rmPos - 1) + "首）";
+        if (rmState === "paused") head += " ― 一時停止中";
+        else if (rmState === "playing" && rmTimer) head += " ― 次の歌まで待っています";
+        $("rmProgress").textContent = head;
+        startBtn.textContent = (rmState === "playing") ? "⏸ 一時停止" : "▶ 再開する";
+        startBtn.disabled = false;
+        $("rmNextBtn").disabled = false;
+        $("rmRereadBtn").disabled = false;
+      }
+
+      // 読み終わったあとの自動送りを予約する（自動ONのときだけ）
+      function rmScheduleAuto() {
+        rmClearTimer();
+        if (!rmAuto || rmState !== "playing" || rmSpeaking) { rmUpdateUI(); return; }
+        if (rmPhase !== "jogeka" && rmPhase !== "poem") { rmUpdateUI(); return; }
+        rmTimer = setTimeout(function () {
+          rmTimer = null;
+          rmAdvance();
+        }, RM_INTERVALS[rmIntervalIdx] * 1000);
+        rmUpdateUI();
+      }
+
+      function rmReadCurrent() {
+        rmShowCurrent();
+        rmUpdateUI();
+        if (rmPhase === "jogeka") {
+          rmSpeak(JOGEKA.kamiKana + " " + JOGEKA.shimoKana, function () {
+            if (rmState !== "playing") return;
+            rmPhase = "poem";
+            rmPos = 0;
+            rmReadCurrent();
+          });
+        } else {
+          rmSpeak(POEMS[rmDeck[rmPos]].kamiKana, function () {
+            if (rmState !== "playing") return;
+            if (rmPos >= rmDeck.length - 1) {
+              if (rmAuto) {
+                rmTimer = setTimeout(function () { rmTimer = null; rmFinish(); }, RM_INTERVALS[rmIntervalIdx] * 1000);
+                rmUpdateUI();
+              }
+            } else {
+              rmScheduleAuto();
+            }
+          });
+        }
+      }
+
+      function rmAdvance() {
+        if (rmPhase === "done" || rmPhase === "idle") return;
+        rmClearTimer();
+        rmSession++;
+        stopSpeech();
+        rmState = "playing";
+        if (rmPhase === "jogeka") {
+          rmPhase = "poem";
+          rmPos = 0;
+          rmReadCurrent();
+          return;
+        }
+        if (rmPos >= rmDeck.length - 1) { rmFinish(); return; }
+        rmPos++;
+        rmReadCurrent();
+      }
+
+      function rmFinish() {
+        rmClearTimer();
+        rmSession++;
+        stopSpeech();
+        rmPhase = "done";
+        rmState = "stopped";
+        $("rmDone").classList.remove("hidden");
+        rmUpdateUI();
+      }
+
+      function rmBegin() {
+        rmClearTimer();
+        rmSession++;
+        stopSpeech();
+        rmDeck = shuffle(POEMS.map(function (_, i) { return i; }));
+        rmPos = 0;
+        rmState = "playing";
+        $("rmDone").classList.add("hidden");
+        if (rmJogeka) {
+          rmPhase = "jogeka";
+          rmReadCurrent();
+        } else {
+          rmPhase = "poem";
+          rmReadCurrent();
+        }
+      }
+
+      function rmStopAll() {
+        rmClearTimer();
+        rmSession++;
+        stopSpeech();
+        rmSpeaking = false;
+        rmPhase = "idle";
+        rmState = "stopped";
+        rmPos = -1;
+        $("rmDisplay").classList.add("hidden");
+        $("rmDone").classList.add("hidden");
+        rmUpdateUI();
+      }
+
+      $("rmStartBtn").addEventListener("click", function () {
+        if (rmPhase === "idle" || rmPhase === "done") { rmBegin(); return; }
+        if (rmState === "playing") {
+          // 一時停止：声とタイマーを止める（再開すると今の歌をもう一度読む）
+          rmState = "paused";
+          rmClearTimer();
+          rmSession++;
+          stopSpeech();
+          rmSpeaking = false;
+          rmUpdateUI();
+        } else {
+          rmState = "playing";
+          rmReadCurrent();
+        }
+      });
+      $("rmNextBtn").addEventListener("click", function () { rmAdvance(); });
+      $("rmRereadBtn").addEventListener("click", function () {
+        if (rmPhase === "idle" || rmPhase === "done") return;
+        rmClearTimer();
+        rmSession++;
+        stopSpeech();
+        rmState = "playing";
+        rmReadCurrent();
+      });
+      $("rmRestartBtn").addEventListener("click", function () { rmBegin(); });
+      $("rmBackBtn").addEventListener("click", function () {
+        rmStopAll();
+        show(titleScreen);
+      });
+      $("readerModeBtn").addEventListener("click", function () {
+        stopSeq();
+        rmStopAll();
+        rmRefreshSettings();
+        show(readerModeScreen);
+      });
+      rmRefreshSettings();
+      rmUpdateUI();
+    </script>
+  </body>
+</html>

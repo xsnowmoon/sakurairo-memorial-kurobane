@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>ドットパチスロ</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: #0b0b12;
+        background-image: radial-gradient(#1c1c2a 1.2px, transparent 1.3px);
+        background-size: 14px 14px;
+        color: #f2f2f7;
+        font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, system-ui, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        padding: 10px 8px 28px;
+      }
+      .machine {
+        max-width: 560px;
+        margin: 0 auto;
+        background: linear-gradient(180deg, #26263a 0%, #171724 60%, #12121c 100%);
+        border: 3px solid #3d3d5c;
+        border-radius: 18px;
+        padding: 12px 12px 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+      }
+      /* ===== ランプ ===== */
+      .lampbar {
+        display: flex; align-items: center; gap: 10px;
+        background: #08080e;
+        border: 2px solid #33334d;
+        border-radius: 12px;
+        padding: 8px 12px;
+      }
+      .lamp-star {
+        font-size: 30px; line-height: 1; color: #3a3a55;
+        text-shadow: none; flex: 0 0 auto;
+        transition: color .1s;
+      }
+      .lamp-text {
+        font-weight: 800; letter-spacing: .14em; font-size: 15px; color: #55557a;
+      }
+      .lamp-sub { font-size: 12px; color: #6d6d92; margin-top: 1px; min-height: 15px; }
+      .lampbar.on .lamp-star { color: #ffd83d; text-shadow: 0 0 14px #ffd83d, 0 0 30px #ff9d00; }
+      .lampbar.on .lamp-text { color: #ffd83d; }
+      .lampbar.tenpai .lamp-star { color: #ff9d00; text-shadow: 0 0 12px #ff9d00; animation: blink .28s steps(2) infinite; }
+      .lampbar.tenpai .lamp-text { color: #ffb84d; animation: blink .28s steps(2) infinite; }
+      .lampbar.bonus .lamp-star { animation: rainbow .5s steps(6) infinite; }
+      .lampbar.bonus .lamp-text { color: #fff; animation: rainbow .5s steps(6) infinite; }
+      .lampbar.bonus { border-color: #ffd83d; }
+      @keyframes blink { 50% { opacity: .25; } }
+      @keyframes rainbow {
+        0% { color: #ff5252; text-shadow: 0 0 16px #ff5252; }
+        20% { color: #ffb84d; text-shadow: 0 0 16px #ffb84d; }
+        40% { color: #ffd83d; text-shadow: 0 0 16px #ffd83d; }
+        60% { color: #51ff7a; text-shadow: 0 0 16px #51ff7a; }
+        80% { color: #4dd8ff; text-shadow: 0 0 16px #4dd8ff; }
+        100% { color: #e07bff; text-shadow: 0 0 16px #e07bff; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .lampbar.tenpai .lamp-star, .lampbar.tenpai .lamp-text,
+        .lampbar.bonus .lamp-star, .lampbar.bonus .lamp-text { animation: none; }
+        .lampbar.bonus .lamp-star { color: #ffd83d; text-shadow: 0 0 16px #ffd83d; }
+        .lampbar.bonus .lamp-text { color: #ffd83d; }
+      }
+      .marquee {
+        text-align: center; margin: 10px 0 2px;
+        font-family: ui-monospace, "Courier New", monospace;
+        font-weight: 700; letter-spacing: .35em; font-size: 13px; color: #8f8fb8;
+      }
+      /* ===== データ表示 ===== */
+      .datapanel {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px;
+      }
+      .databox {
+        background: #08080e; border: 2px solid #2c2c44; border-radius: 10px;
+        padding: 5px 4px 6px; text-align: center;
+      }
+      .databox .label { font-size: 11px; color: #8f8fb8; letter-spacing: .05em; }
+      .databox .value {
+        font-family: ui-monospace, "Courier New", monospace;
+        font-size: 21px; font-weight: 700; color: #7dffb0; line-height: 1.15;
+      }
+      .databox .value.gold { color: #ffd83d; }
+      .databox .value.plus { color: #7dffb0; }
+      .databox .value.minus { color: #ff7d7d; }
+      /* ===== ボーナス表示 ===== */
+      .bonusbar {
+        display: none; margin-top: 8px; background: #2a1503; border: 2px solid #ff9d00;
+        border-radius: 10px; padding: 7px 10px;
+      }
+      .bonusbar.show { display: block; }
+      .bonusbar .btitle { font-weight: 800; color: #ffb84d; font-size: 15px; }
+      .bonusbar .btrack { height: 12px; background: #14100a; border-radius: 6px; margin-top: 5px; overflow: hidden; }
+      .bonusbar .bfill { height: 100%; width: 0%; background: repeating-linear-gradient(90deg, #ffd83d 0 8px, #ff9d00 8px 16px); transition: width .3s; }
+      /* ===== リール ===== */
+      .reelwrap {
+        margin-top: 10px; background: #050508; border: 3px solid #3d3d5c; border-radius: 14px;
+        padding: 8px; position: relative;
+      }
+      canvas#reels { display: block; width: 100%; height: auto; border-radius: 8px; }
+      .msg {
+        min-height: 26px; text-align: center; font-size: 17px; font-weight: 700;
+        margin-top: 9px; color: #e8e8ff;
+      }
+      .msg.hot { color: #ffd83d; }
+      .msg.win { color: #7dffb0; }
+      .payoutline { text-align: center; font-family: ui-monospace, monospace; font-size: 15px; color: #ffd83d; min-height: 20px; }
+      .payoutline b { font-size: 22px; }
+      /* ===== ボタン類 ===== */
+      button {
+        font-family: inherit; cursor: pointer; border: none; color: #fff;
+        touch-action: manipulation; user-select: none; -webkit-user-select: none;
+      }
+      button:disabled { opacity: .38; cursor: default; }
+      .betrow { display: flex; gap: 8px; align-items: stretch; margin-top: 6px; }
+      .betlabel { align-self: center; font-size: 13px; color: #8f8fb8; font-weight: 700; padding: 0 2px; }
+      .betbtn {
+        flex: 1; min-height: 52px; border-radius: 12px; font-size: 17px; font-weight: 800;
+        background: #2c2c44; border: 2px solid #4a4a6e; color: #c9c9e8;
+      }
+      .betbtn.active { background: #7a4d00; border-color: #ffd83d; color: #ffd83d; box-shadow: 0 0 10px rgba(255,216,61,.35); }
+      .leverbtn {
+        width: 100%; min-height: 76px; margin-top: 10px; border-radius: 16px;
+        font-size: 24px; font-weight: 900; letter-spacing: .08em;
+        background: linear-gradient(180deg, #ff5a4d, #c81e12);
+        border: 3px solid #ff9d8a;
+        box-shadow: 0 5px 0 #7d0f08, 0 8px 16px rgba(0,0,0,.5);
+      }
+      .leverbtn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 #7d0f08; }
+      .leverbtn.replay { background: linear-gradient(180deg, #39c2ff, #0f6fc8); border-color: #9be4ff; box-shadow: 0 5px 0 #083f73, 0 8px 16px rgba(0,0,0,.5); }
+      .stoprow { display: flex; gap: 8px; margin-top: 10px; }
+      .stopbtn {
+        flex: 1; min-height: 72px; border-radius: 14px; font-size: 20px; font-weight: 900;
+        background: linear-gradient(180deg, #3d5afe, #1c33c8); border: 3px solid #8fa2ff;
+        box-shadow: 0 4px 0 #0d1a6e;
+      }
+      .stopbtn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #0d1a6e; }
+      .stopbtn small { display: block; font-size: 10.5px; font-weight: 700; opacity: .85; white-space: nowrap; }
+      .subrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+      .subbtn {
+        flex: 1 1 30%; min-height: 48px; border-radius: 10px; font-size: 14px; font-weight: 700;
+        background: #23233a; border: 2px solid #3d3d5c; color: #d5d5f2; padding: 6px 4px;
+      }
+      .subbtn.alert { border-color: #ffd83d; color: #ffd83d; animation: blink 0.7s steps(2) infinite; }
+      @media (prefers-reduced-motion: reduce) { .subbtn.alert { animation: none; } }
+      .settingwrap { flex: 1 1 30%; display: flex; align-items: center; gap: 6px; background: #23233a; border: 2px solid #3d3d5c; border-radius: 10px; padding: 4px 8px; min-height: 48px; }
+      .settingwrap label { font-size: 14px; font-weight: 700; color: #d5d5f2; white-space: nowrap; }
+      .settingwrap select {
+        flex: 1; min-height: 38px; font-size: 17px; font-weight: 800; border-radius: 8px;
+        background: #08080e; color: #ffd83d; border: 2px solid #4a4a6e; text-align: center;
+      }
+      /* ===== 役表 ===== */
+      .paytable { margin-top: 16px; background: #10101c; border: 2px solid #2c2c44; border-radius: 12px; padding: 10px 12px; }
+      .paytable h2 { font-size: 14px; margin: 0 0 8px; color: #8f8fb8; letter-spacing: .1em; }
+      .paytable table { width: 100%; border-collapse: collapse; font-size: 15px; }
+      .paytable td { padding: 5px 2px; border-bottom: 1px dashed #2c2c44; }
+      .paytable tr:last-child td { border-bottom: none; }
+      .paytable td.r { text-align: right; font-family: ui-monospace, monospace; font-weight: 700; color: #ffd83d; font-size: 13.5px; }
+      .howto { margin-top: 12px; font-size: 13.5px; line-height: 1.7; color: #a9a9c9; }
+      .howto b { color: #e8e8ff; }
+      .credit { text-align: center; margin-top: 14px; font-size: 13px; color: #6d6d92; font-family: ui-monospace, monospace; }
+    </style>
+  </head>
+  <body>
+    <main class="machine">
+      <!-- ランプ -->
+      <div class="lampbar" id="lampbar">
+        <div class="lamp-star" id="lampstar">★</div>
+        <div>
+          <div class="lamp-text" id="lamptext">LUCKY LAMP</div>
+          <div class="lamp-sub" id="lampsub">ボーナス確定で点灯します</div>
+        </div>
+      </div>
+
+      <div class="marquee">DOT&nbsp;PACHISLOT</div>
+
+      <!-- データ表示 -->
+      <div class="datapanel">
+        <div class="databox"><div class="label">総ゲーム数</div><div class="value" id="d-games">0</div></div>
+        <div class="databox"><div class="label">BIG</div><div class="value gold" id="d-big">0</div></div>
+        <div class="databox"><div class="label">REG</div><div class="value gold" id="d-reg">0</div></div>
+        <div class="databox"><div class="label">ボーナス確率</div><div class="value" id="d-prob">—</div></div>
+        <div class="databox"><div class="label">所持メダル</div><div class="value" id="d-medals">0</div></div>
+        <div class="databox"><div class="label">差枚</div><div class="value" id="d-diff">0</div></div>
+      </div>
+
+      <!-- ボーナス進行 -->
+      <div class="bonusbar" id="bonusbar">
+        <span class="btitle" id="bonustitle">BIG BONUS</span>
+        <span id="bonustext" style="font-size:13px;color:#ffd9a0;"></span>
+        <div class="btrack"><div class="bfill" id="bonusfill"></div></div>
+      </div>
+
+      <!-- リール -->
+      <div class="reelwrap">
+        <canvas id="reels" width="360" height="264"></canvas>
+      </div>
+      <div class="msg" id="msg">BETを選んでレバーを引いてください</div>
+      <div class="payoutline" id="payoutline"></div>
+
+      <!-- BET -->
+      <div class="betrow">
+        <span class="betlabel">BET</span>
+        <button class="betbtn" id="bet1" type="button">1枚</button>
+        <button class="betbtn" id="bet2" type="button">2枚</button>
+        <button class="betbtn active" id="bet3" type="button">3枚</button>
+      </div>
+
+      <!-- レバー -->
+      <button class="leverbtn" id="lever" type="button">🕹 レバー（スタート）</button>
+
+      <!-- ストップ -->
+      <div class="stoprow">
+        <button class="stopbtn" id="stop0" type="button" disabled>STOP<small>左リール（1キー）</small></button>
+        <button class="stopbtn" id="stop1" type="button" disabled>STOP<small>中リール（2キー）</small></button>
+        <button class="stopbtn" id="stop2" type="button" disabled>STOP<small>右リール（3キー）</small></button>
+      </div>
+
+      <!-- サブ操作 -->
+      <div class="subrow">
+        <div class="settingwrap">
+          <label for="setting">設定</label>
+          <select id="setting">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+        <button class="subbtn" id="soundbtn" type="button">🔊 音 ON</button>
+        <button class="subbtn" id="borrowbtn" type="button">🪙 メダルを借りる（+100）</button>
+        <button class="subbtn" id="reloadbtn" type="button">🔄 最新版に更新</button>
+      </div>
+
+      <!-- 役表 -->
+      <section class="paytable">
+        <h2>役と払い出し</h2>
+        <table>
+          <tr><td>🔴 赤7 そろい</td><td class="r">BIGボーナス（約200枚）</td></tr>
+          <tr><td>⬛ BAR そろい</td><td class="r">REGボーナス（約60枚）</td></tr>
+          <tr><td>🔔 ベル そろい</td><td class="r">10枚</td></tr>
+          <tr><td>🍉 スイカ そろい</td><td class="r">8枚</td></tr>
+          <tr><td>🍒 チェリー（左リール角）</td><td class="r">2枚</td></tr>
+          <tr><td>⭐ 星 そろい</td><td class="r">リプレイ（もう1ゲーム無料）</td></tr>
+        </table>
+        <p class="howto">
+          <b>遊び方：</b>BET枚数で有効ラインが増えます（1枚=中段のみ／2枚=横3本／3枚=横3本+斜め2本）。
+          レバーで回転、STOPボタンで1リールずつ止めます（目押しOK、押してから少し滑って止まる引き込み仕様）。
+          キーボード：<b>スペース=レバー</b>、<b>1・2・3=各リール停止</b>。
+          メダルと成績はこの端末に自動保存されます。メダルが0になったら「メダルを借りる」で100枚追加できます（無料のおもちゃ仕様）。
+        </p>
+      </section>
+
+      <div class="credit">Snow Moon Ver.20261120.1.0</div>
+    </main>
+
+    <script>
+      "use strict";
+      /* ============================================================
+         ドットパチスロ — 図柄はすべてコード描画のドット絵（画像なし）
+         ============================================================ */
+
+      /* ---------- ドット絵スプライト定義（16×16） ---------- */
+      var PALETTE = {
+        R: "#e8382f", r: "#9c1a12",
+        K: "#17171f", W: "#f5f5f5",
+        Y: "#ffd83d", o: "#f08c00",
+        G: "#3ecf5a", g: "#1e7d32",
+        B: "#3b82f6", b: "#1d4ed8",
+        x: "#8a8a9e"
+      };
+      var MAPS = {
+        SEVEN: [
+          "................",
+          ".RRRRRRRRRRRR...",
+          ".RRRRRRRRRRRR...",
+          ".RRr......RRR...",
+          "...........RRR..",
+          "..........RRR...",
+          "..........RRR...",
+          ".........RRR....",
+          "........RRR.....",
+          ".......RRR......",
+          ".......RRR......",
+          "......RRR.......",
+          "......RRR.......",
+          ".....RRR........",
+          ".....RRR........",
+          "................"
+        ],
+        BAR: [
+          "................",
+          "................",
+          "................",
+          "................",
+          ".KKKKKKKKKKKKKK.",
+          ".KKKKKKKKKKKKKK.",
+          ".KWWKKKKWKKKWWK.",
+          ".KWKWKKWKWKKWKW.",
+          ".KWWKKKWWWKKWWK.",
+          ".KWKWKKWKWKKWKW.",
+          ".KWWKKKWKWKKWKW.",
+          ".KKKKKKKKKKKKKK.",
+          "................",
+          "................",
+          "................",
+          "................"
+        ],
+        BELL: [
+          "................",
+          ".......oo.......",
+          "......oYYo......",
+          ".......YY.......",
+          "......YYYY......",
+          ".....YYYYYY.....",
+          "....YYYYYYYY....",
+          "...YYYYYYYYYY...",
+          "...YYYYYYYYYY...",
+          "..YYYYYYYYYYYY..",
+          "..YYYYYYYYYYYY..",
+          "..oooooooooooo..",
+          "................",
+          ".......oo.......",
+          "......oooo......",
+          "................"
+        ],
+        MELON: [
+          "................",
+          "................",
+          ".....gggggg.....",
+          "...ggGGGGGGgg...",
+          "..gGGgGGgGGgGG..",
+          "..GGgGGgGGgGGg..",
+          "..gGGgGGgGGgGG..",
+          "..GGgGGgGGgGGg..",
+          "..gGGgGGgGGgGG..",
+          "...ggGGGGGGgg...",
+          ".....gggggg.....",
+          "................",
+          "................",
+          "................",
+          "................",
+          "................"
+        ],
+        CHERRY: [
+          "..........gg....",
+          ".........g..g...",
+          "........g....g..",
+          ".......g........",
+          "......g.........",
+          ".....g..........",
+          "....RRR.........",
+          "...RRWRR........",
+          "...RRRRR..RRR...",
+          "....RRR..RRWRR..",
+          ".........RRRRR..",
+          "..........RRR...",
+          "................",
+          "................",
+          "................",
+          "................"
+        ],
+        STAR: [
+          ".......BB.......",
+          ".......BB.......",
+          "......BBBB......",
+          "......BBBB......",
+          ".B..BBBBBBBB..B.",
+          ".BBBBBBBBBBBBBB.",
+          "..BBBBBBBBBBBB..",
+          "....BBBBBBBB....",
+          "....BBBBBBBB....",
+          "...BBBB..BBBB...",
+          "...BBB....BBB...",
+          "..BBBB....BBBB..",
+          "..BBB......BBB..",
+          "..BB........BB..",
+          "................",
+          "................"
+        ],
+        BLANK: [
+          "................",
+          "................",
+          "................",
+          ".......xx.......",
+          "......x..x......",
+          ".....x....x.....",
+          ".....x....x.....",
+          "......x..x......",
+          ".......xx.......",
+          "................",
+          "................",
+          "................",
+          "................",
+          "................",
+          "................",
+          "................"
+        ]
+      };
+      var sprites = {};
+      Object.keys(MAPS).forEach(function (name) {
+        var c = document.createElement("canvas");
+        c.width = 16; c.height = 16;
+        var g = c.getContext("2d");
+        var rows = MAPS[name];
+        for (var y = 0; y < 16; y++) {
+          for (var x = 0; x < 16; x++) {
+            var ch = rows[y].charAt(x);
+            if (ch !== "." && PALETTE[ch]) {
+              g.fillStyle = PALETTE[ch];
+              g.fillRect(x, y, 1, 1);
+            }
+          }
+        }
+        sprites[name] = c;
+      });
+
+      /* ---------- リール配列（各20コマ） ---------- */
+      var STRIPS = [
+        ["SEVEN","BLANK","BELL","CHERRY","MELON","BLANK","STAR","BELL","BAR","BLANK","CHERRY","BELL","BLANK","MELON","STAR","BLANK","BELL","CHERRY","BLANK","BAR"],
+        ["BELL","BLANK","SEVEN","MELON","BLANK","STAR","CHERRY","BELL","BLANK","BAR","MELON","BLANK","BELL","STAR","BLANK","CHERRY","BELL","BLANK","MELON","BAR"],
+        ["MELON","BELL","BLANK","BAR","STAR","BLANK","SEVEN","BELL","CHERRY","BLANK","MELON","BELL","BLANK","STAR","CHERRY","BLANK","BELL","MELON","BLANK","BAR"]
+      ];
+      var L = 20;
+      /* 有効ライン（各リールの行 0=上段 1=中段 2=下段） */
+      var LINES = [
+        [1,1,1], /* 中段 */
+        [0,0,0], /* 上段 */
+        [2,2,2], /* 下段 */
+        [0,1,2], /* 斜め↘ */
+        [2,1,0]  /* 斜め↗ */
+      ];
+      function activeLines(bet) {
+        if (bet <= 1) return [0];
+        if (bet === 2) return [0,1,2];
+        return [0,1,2,3,4];
+      }
+      var PAY = { BELL: 10, MELON: 8 };
+      var FLAG_SYM = { BIG: "SEVEN", REG: "BAR", BELL: "BELL", MELON: "MELON", STAR: "STAR" };
+
+      /* ---------- 設定別ボーナス確率 ---------- */
+      var SETTINGS = {
+        1: { big: 1/300, reg: 1/300 },
+        2: { big: 1/290, reg: 1/280 },
+        3: { big: 1/280, reg: 1/260 },
+        4: { big: 1/265, reg: 1/240 },
+        5: { big: 1/250, reg: 1/225 },
+        6: { big: 1/235, reg: 1/205 }
+      };
+
+      /* ---------- 保存データ ---------- */
+      var SAVE_KEY = "dotpachi_save_v1";
+      var save = {
+        medals: 100, borrowed: 100,
+        totalGames: 0, bigCount: 0, regCount: 0,
+        setting: 6, sound: true
+      };
+      try {
+        var raw = localStorage.getItem(SAVE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.medals === "number") save = parsed;
+        }
+      } catch (e) { /* 保存が使えない環境では初期値で遊ぶ */ }
+      function persist() {
+        try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {}
+      }
+
+      /* ---------- ゲーム状態 ---------- */
+      var bet = 3;
+      var phase = "idle"; /* idle | spinning | payout */
+      var reels = [
+        { pos: 3,  state: "stopped", target: 3 },
+        { pos: 8,  state: "stopped", target: 8 },
+        { pos: 13, state: "stopped", target: 13 }
+      ];
+      var flag = null;         /* 今ゲームの内部抽選結果 */
+      var flagLine = 0;        /* 当選ライン番号 */
+      var cherryRow = 0;       /* 角チェリーの目標行（0 or 2） */
+      var stoppedCount = 0;
+      var replayPending = false;
+      var lastBet = 3;
+      var bonus = null;        /* { type:'BIG'|'REG', target:200|60, gained:0 } */
+      var winLinesNow = [];    /* 当選ライン（描画ハイライト用） */
+      var tenpaiDone = false;
+
+      /* ---------- DOM ---------- */
+      function $(id) { return document.getElementById(id); }
+      var canvas = $("reels"), ctx = canvas.getContext("2d");
+      var msgEl = $("msg"), payEl = $("payoutline");
+      var lampbar = $("lampbar"), lamptext = $("lamptext"), lampsub = $("lampsub");
+      var leverBtn = $("lever"), borrowBtn = $("borrowbtn"), soundBtn = $("soundbtn");
+      var stopBtns = [$("stop0"), $("stop1"), $("stop2")];
+      var betBtns = [$("bet1"), $("bet2"), $("bet3")];
+
+      /* 高解像度対応 */
+      (function fitCanvas() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 3);
+        canvas.width = 360 * dpr; canvas.height = 264 * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+      })();
+
+      /* ---------- サウンド（WebAudioビープ） ---------- */
+      var AC = null;
+      function ac() {
+        if (!AC) {
+          try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; }
+        }
+        if (AC && AC.state === "suspended") AC.resume();
+        return AC;
+      }
+      function beep(freq, dur, type, vol, delay) {
+        if (!save.sound) return;
+        var a = ac(); if (!a) return;
+        var t = a.currentTime + (delay || 0);
+        var o = a.createOscillator(), g = a.createGain();
+        o.type = type || "square"; o.frequency.value = freq;
+        g.gain.setValueAtTime(vol || 0.06, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(a.destination);
+        o.start(t); o.stop(t + dur + 0.02);
+      }
+      function sndBet()    { beep(1200, .06, "square", .05); beep(1800, .08, "square", .05, .06); }
+      function sndLever()  { beep(300, .08, "square", .07); beep(520, .06, "square", .06, .07); }
+      function sndStop()   { beep(160, .09, "square", .09); }
+      function sndTenpai() { beep(880, .09, "square", .06); beep(1174, .09, "square", .06, .09); beep(1568, .14, "square", .06, .18); }
+      function sndTick()   { beep(2000, .03, "square", .035); }
+      function sndWin()    { [523,659,784,1046].forEach(function (f, i) { beep(f, .12, "square", .06, i * .09); }); }
+      function sndBonus()  { [523,659,784,1046,784,1046,1318,1568].forEach(function (f, i) { beep(f, .14, "square", .07, i * .11); }); }
+      function sndDeny()   { beep(180, .15, "square", .06); beep(140, .2, "square", .06, .12); }
+
+      /* ---------- 表示更新 ---------- */
+      function refreshData() {
+        $("d-games").textContent = save.totalGames;
+        $("d-big").textContent = save.bigCount;
+        $("d-reg").textContent = save.regCount;
+        var n = save.bigCount + save.regCount;
+        $("d-prob").textContent = n > 0 ? "1/" + Math.round(save.totalGames / n) : "—";
+        $("d-medals").textContent = save.medals;
+        var diff = save.medals - save.borrowed;
+        var dEl = $("d-diff");
+        dEl.textContent = (diff > 0 ? "+" : "") + diff;
+        dEl.className = "value " + (diff > 0 ? "plus" : diff < 0 ? "minus" : "");
+        borrowBtn.disabled = save.medals !== 0 || phase !== "idle";
+        borrowBtn.classList.toggle("alert", save.medals === 0 && phase === "idle");
+        /* ボーナス進行 */
+        if (bonus) {
+          $("bonusbar").classList.add("show");
+          $("bonustitle").textContent = bonus.type === "BIG" ? "🔴 BIG BONUS" : "⬛ REG BONUS";
+          $("bonustext").textContent = " 獲得 " + bonus.gained + "枚 / 目標 約" + bonus.target + "枚（あと約" + Math.max(0, bonus.target - bonus.gained) + "枚）";
+          $("bonusfill").style.width = Math.min(100, bonus.gained / bonus.target * 100) + "%";
+        } else {
+          $("bonusbar").classList.remove("show");
+        }
+        leverBtn.classList.toggle("replay", replayPending && !bonus);
+        leverBtn.textContent = bonus ? "🕹 レバー（ボーナス中）"
+          : replayPending ? "⭐ リプレイ（無料でスタート）"
+          : "🕹 レバー（スタート）";
+        leverBtn.disabled = phase !== "idle" || (save.medals < bet && !replayPending && !bonus);
+      }
+      function setMsg(text, cls) {
+        msgEl.textContent = text;
+        msgEl.className = "msg" + (cls ? " " + cls : "");
+      }
+      function setLamp(mode, text, sub) {
+        lampbar.className = "lampbar" + (mode ? " " + mode : "");
+        if (text) lamptext.textContent = text;
+        if (sub !== undefined) lampsub.textContent = sub;
+      }
+
+      /* ---------- 内部抽選 ---------- */
+      function drawFlag() {
+        var r = Math.random();
+        if (bonus) {
+          /* ボーナス中：小役が高確率 */
+          if (r < 0.50) return "BELL";
+          if (r < 0.68) return "MELON";
+          if (r < 0.80) return "CHERRY";
+          if (r < 0.92) return "STAR";
+          return "MISS";
+        }
+        var s = SETTINGS[save.setting] || SETTINGS[1];
+        if (r < s.big) return "BIG";
+        r -= s.big;
+        if (r < s.reg) return "REG";
+        r -= s.reg;
+        if (r < 0.125) return "BELL";
+        if (r < 0.190) return "MELON";
+        if (r < 0.218) return "CHERRY";
+        if (r < 0.348) return "STAR";
+        return "MISS";
+      }
+
+      /* ---------- 窓（3×3）取得と役判定 ---------- */
+      function symAt(reelIdx, posInt, row) {
+        /* 描画と一致させる：中段=pos、上段=pos+1、下段=pos-1 */
+        var idx = ((posInt + (1 - row)) % L + L) % L;
+        return STRIPS[reelIdx][idx];
+      }
+      function windowOf(positions) {
+        var grid = [];
+        for (var i = 0; i < 3; i++) {
+          grid.push([symAt(i, positions[i], 0), symAt(i, positions[i], 1), symAt(i, positions[i], 2)]);
+        }
+        return grid;
+      }
+      function evaluate(grid, betUsed) {
+        var wins = [], payout = 0, hasReplay = false, bonusType = null;
+        activeLines(betUsed).forEach(function (li) {
+          var rows = LINES[li];
+          var a = grid[0][rows[0]], b = grid[1][rows[1]], c = grid[2][rows[2]];
+          if (a === b && b === c) {
+            if (a === "SEVEN") { wins.push({ type: "BIG", line: li }); bonusType = "BIG"; }
+            else if (a === "BAR") { wins.push({ type: "REG", line: li }); bonusType = "REG"; }
+            else if (a === "BELL") { wins.push({ type: "BELL", line: li }); payout += PAY.BELL; }
+            else if (a === "MELON") { wins.push({ type: "MELON", line: li }); payout += PAY.MELON; }
+            else if (a === "STAR") { wins.push({ type: "STAR", line: li }); hasReplay = true; }
+          }
+        });
+        var cherry = grid[0][0] === "CHERRY" || grid[0][2] === "CHERRY";
+        if (cherry) payout += 2;
+        if (bonusType) payout += 15;
+        if (payout > 15 && !bonus) payout = 15; /* 通常時の1ゲーム払い出し上限 */
+        return { wins: wins, payout: payout, replay: hasReplay, bonusType: bonusType, cherry: cherry };
+      }
+
+      /* ---------- リール停止位置の決定（引き込み制御） ---------- */
+      function findTargetPos(reelIdx, desiredSym, desiredRow, fromPos) {
+        /* fromPos の先で、desiredSym が desiredRow に来る最小の整数位置（最大で1周先まで） */
+        var start = Math.floor(fromPos) + 1;
+        for (var k = 0; k < L + 6; k++) {
+          var p = start + k;
+          if (symAt(reelIdx, p, desiredRow) === desiredSym) return p;
+        }
+        return start;
+      }
+      function stopReel(i) {
+        var reel = reels[i];
+        if (reel.state !== "spinning") return;
+        var isLast = stoppedCount === 2;
+        var target = null;
+
+        var lineFlag = flag === "BIG" || flag === "REG" || flag === "BELL" || flag === "MELON" || flag === "STAR";
+        if (lineFlag) {
+          var rows = LINES[flagLine];
+          target = findTargetPos(i, FLAG_SYM[flag], rows[i], reel.pos);
+        } else if (flag === "CHERRY" && i === 0) {
+          target = findTargetPos(0, "CHERRY", cherryRow, reel.pos);
+        } else {
+          /* フリー停止：少し滑って止まる。最後の1つは「当たっていない役」が揃わないよう制御 */
+          var base = Math.floor(reel.pos) + 1;
+          if (isLast) {
+            target = null;
+            for (var k = 0; k < L + 4; k++) {
+              var cand = base + (k % 3) + Math.floor(k / 3) * 3; /* 滑り量にばらつき */
+              if (cand > base + L + 2) break;
+              var positions = reels.map(function (r, j) { return j === i ? cand : Math.round(r.pos); });
+              var ev = evaluate(windowOf(positions), lastBet);
+              var ok;
+              if (flag === "CHERRY") ok = ev.wins.length === 0 && !ev.bonusType;
+              else ok = ev.wins.length === 0 && !ev.cherry && !ev.bonusType;
+              if (ok) { target = cand; break; }
+            }
+            if (target === null) target = base + 1;
+          } else {
+            target = base + (Math.floor(Math.random() * 3));
+          }
+        }
+        reel.target = target;
+        reel.state = "stopping";
+        stopBtns[i].disabled = true;
+      }
+
+      /* ---------- テンパイ判定 ---------- */
+      function checkTenpai() {
+        if (stoppedCount !== 2 || tenpaiDone) return;
+        var grid = [null, null, null];
+        var spinningIdx = -1;
+        for (var i = 0; i < 3; i++) {
+          if (reels[i].state === "stopped") {
+            var p = Math.round(reels[i].pos);
+            grid[i] = [symAt(i, p, 0), symAt(i, p, 1), symAt(i, p, 2)];
+          } else spinningIdx = i;
+        }
+        if (spinningIdx < 0) return;
+        var lines = activeLines(lastBet);
+        for (var li = 0; li < lines.length; li++) {
+          var rows = LINES[lines[li]];
+          var vals = [];
+          for (var j = 0; j < 3; j++) {
+            if (j !== spinningIdx) vals.push(grid[j][rows[j]]);
+          }
+          if (vals[0] === vals[1] && vals[0] !== "BLANK" &&
+              STRIPS[spinningIdx].indexOf(vals[0]) >= 0) {
+            tenpaiDone = true;
+            var hot = vals[0] === "SEVEN" || vals[0] === "BAR";
+            setLamp("tenpai", hot ? "★ あと1つでボーナス！ ★" : "★ テンパイ！ ★",
+                    hot ? "目押しで狙え！" : "あと1つでそろう…！");
+            setMsg(hot ? "テンパイ！ ボーナスまであと1つ！！" : "テンパイ！ あと1つ…！", "hot");
+            sndTenpai();
+            return;
+          }
+        }
+      }
+
+      /* ---------- ゲーム進行 ---------- */
+      function startGame() {
+        if (phase !== "idle") return;
+        var useBet = bonus ? lastBet : (replayPending ? lastBet : bet);
+        if (!bonus && !replayPending) {
+          if (save.medals < bet) { sndDeny(); setMsg("メダルが足りません", ""); return; }
+          save.medals -= bet;
+          useBet = bet;
+        }
+        lastBet = useBet;
+        replayPending = false;
+        flag = drawFlag();
+        var lines = activeLines(useBet);
+        flagLine = lines[Math.floor(Math.random() * lines.length)];
+        cherryRow = Math.random() < 0.5 ? 0 : 2;
+        stoppedCount = 0;
+        tenpaiDone = false;
+        winLinesNow = [];
+        payEl.innerHTML = "";
+        save.totalGames++;
+        persist();
+        phase = "spinning";
+        reels.forEach(function (r, i) {
+          r.state = "spinning";
+          stopBtns[i].disabled = false;
+        });
+        setLamp(bonus ? "bonus" : "", bonus ? "BONUS GAME" : "LUCKY LAMP",
+                bonus ? "小役ラッシュ中！" : "ボーナス確定で点灯します");
+        setMsg(bonus ? "ボーナス中！ 小役をそろえよう" : "回転中… STOPで止めてください", "");
+        sndLever();
+        refreshData();
+      }
+
+      function onReelStopped() {
+        stoppedCount++;
+        sndStop();
+        if (stoppedCount < 3) { checkTenpai(); return; }
+        /* 全停止 → 判定 */
+        var positions = reels.map(function (r) { return Math.round(r.pos); });
+        var ev = evaluate(windowOf(positions), lastBet);
+        winLinesNow = ev.wins.map(function (w) { return w.line; });
+        phase = "payout";
+        finishGame(ev);
+      }
+
+      function finishGame(ev) {
+        var wasBonus = !!bonus;
+        var messages = [];
+        if (ev.cherry && ev.wins.length === 0) messages.push("🍒 角チェリー！ 2枚");
+        ev.wins.forEach(function (w) {
+          if (w.type === "BELL") messages.push("🔔 ベル！ 10枚");
+          if (w.type === "MELON") messages.push("🍉 スイカ！ 8枚");
+          if (w.type === "STAR") messages.push("⭐ リプレイ！");
+        });
+
+        var enterBonus = null;
+        if (ev.bonusType && !wasBonus) enterBonus = ev.bonusType;
+
+        function afterPayout() {
+          if (ev.replay && !enterBonus) {
+            replayPending = true;
+            setMsg("リプレイ！ 次のゲームは無料です", "win");
+            if (!wasBonus) setLamp("on", "★ REPLAY ★", "次のゲームは無料です");
+            sndWin();
+          }
+          if (enterBonus) {
+            if (enterBonus === "BIG") { save.bigCount++; bonus = { type: "BIG", target: 200, gained: 0 }; }
+            else { save.regCount++; bonus = { type: "REG", target: 60, gained: 0 }; }
+            setLamp("bonus", enterBonus === "BIG" ? "★ BIG BONUS ★" : "★ REG BONUS ★", "ボーナス確定！");
+            setMsg(enterBonus === "BIG" ? "🔴 BIGボーナス突入！！" : "⬛ REGボーナス突入！", "win");
+            sndBonus();
+          } else if (wasBonus) {
+            if (bonus.gained >= bonus.target) {
+              setMsg((bonus.type === "BIG" ? "BIG" : "REG") + "ボーナス終了！ " + bonus.gained + "枚獲得", "win");
+              bonus = null;
+              setLamp("", "LUCKY LAMP", "ボーナス確定で点灯します");
+              sndWin();
+            } else if (messages.length) {
+              setMsg(messages.join("　"), "win");
+            } else {
+              setMsg("ボーナス中… あと約" + (bonus.target - bonus.gained) + "枚", "");
+            }
+          } else if (!ev.replay) {
+            if (messages.length) { setMsg(messages.join("　"), "win"); if (ev.payout > 0) sndWin(); }
+            else setMsg("はずれ… レバーで次のゲームへ", "");
+            setLamp("", "LUCKY LAMP", "ボーナス確定で点灯します");
+          }
+          phase = "idle";
+          persist();
+          refreshData();
+        }
+
+        if (ev.payout > 0) {
+          payEl.innerHTML = "払い出し <b>0</b> 枚";
+          if (wasBonus && bonus) bonus.gained += ev.payout;
+          var paid = 0;
+          var iv = setInterval(function () {
+            paid++;
+            save.medals++;
+            payEl.innerHTML = "払い出し <b>" + paid + "</b> 枚";
+            $("d-medals").textContent = save.medals;
+            sndTick();
+            if (paid >= ev.payout) { clearInterval(iv); afterPayout(); }
+          }, ev.payout > 40 ? 18 : 45);
+        } else {
+          afterPayout();
+        }
+      }
+
+      /* ---------- リール描画 ---------- */
+      var CELL_W = 120, CELL_H = 88;
+      function draw() {
+        ctx.clearRect(0, 0, 360, 264);
+        /* リール帯の背景 */
+        ctx.fillStyle = "#f6efdb";
+        ctx.fillRect(0, 0, 360, 264);
+        for (var i = 0; i < 3; i++) {
+          var reel = reels[i];
+          var x0 = i * CELL_W;
+          var base = Math.floor(reel.pos);
+          var frac = reel.pos - base;
+          for (var k = -2; k <= 2; k++) {
+            var idx = ((base + k) % L + L) % L;
+            var sym = STRIPS[i][idx];
+            var y = (1 - k) * CELL_H + frac * CELL_H + 4;
+            ctx.drawImage(sprites[sym], x0 + 20, y, 80, 80);
+          }
+          /* セパレータ */
+          ctx.fillStyle = "rgba(20,20,40,.25)";
+          if (i > 0) ctx.fillRect(x0 - 1, 0, 2, 264);
+        }
+        /* 行の境目 */
+        ctx.fillStyle = "rgba(20,20,40,.18)";
+        ctx.fillRect(0, CELL_H - 1, 360, 2);
+        ctx.fillRect(0, CELL_H * 2 - 1, 360, 2);
+        /* 中央を少し明るく、外側に影 */
+        var grad = ctx.createLinearGradient(0, 0, 0, 264);
+        grad.addColorStop(0, "rgba(0,0,0,.28)");
+        grad.addColorStop(0.18, "rgba(0,0,0,0)");
+        grad.addColorStop(0.82, "rgba(0,0,0,0)");
+        grad.addColorStop(1, "rgba(0,0,0,.28)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 360, 264);
+        /* 当選ラインハイライト */
+        if (winLinesNow.length && phase !== "spinning") {
+          winLinesNow.forEach(function (li) {
+            var rows = LINES[li];
+            ctx.strokeStyle = "rgba(255,60,40,.85)";
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(6, rows[0] * CELL_H + CELL_H / 2);
+            ctx.lineTo(180, rows[1] * CELL_H + CELL_H / 2);
+            ctx.lineTo(354, rows[2] * CELL_H + CELL_H / 2);
+            ctx.stroke();
+          });
+        }
+        /* 有効ライン表示（左端の小さな三角） */
+        if (phase === "idle" || phase === "spinning") {
+          ctx.fillStyle = "rgba(200,30,20,.75)";
+          activeLines(lastBet).forEach(function (li) {
+            var y = LINES[li][0] * CELL_H + CELL_H / 2;
+            ctx.beginPath();
+            ctx.moveTo(1, y - 6); ctx.lineTo(9, y); ctx.lineTo(1, y + 6);
+            ctx.closePath(); ctx.fill();
+          });
+        }
+      }
+
+      /* ---------- メインループ ---------- */
+      var SPEED = 21; /* コマ/秒 */
+      var lastT = 0;
+      function loop(t) {
+        var dt = Math.min(0.05, (t - lastT) / 1000 || 0);
+        lastT = t;
+        var changed = false;
+        reels.forEach(function (r) {
+          if (r.state === "spinning") {
+            r.pos += SPEED * dt; changed = true;
+          } else if (r.state === "stopping") {
+            r.pos += SPEED * dt; changed = true;
+            if (r.pos >= r.target) {
+              r.pos = r.target;
+              r.state = "stopped";
+              onReelStopped();
+            }
+          }
+        });
+        draw();
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      /* ---------- イベント ---------- */
+      betBtns.forEach(function (b, i) {
+        b.addEventListener("click", function () {
+          if (phase !== "idle" || bonus || replayPending) return;
+          bet = i + 1;
+          betBtns.forEach(function (x, j) { x.classList.toggle("active", j === i); });
+          sndBet();
+          setMsg("BET " + bet + "枚（有効ライン " + activeLines(bet).length + "本）", "");
+          refreshData();
+        });
+      });
+      leverBtn.addEventListener("click", function () { ac(); startGame(); });
+      stopBtns.forEach(function (b, i) {
+        b.addEventListener("pointerdown", function (e) { e.preventDefault(); ac(); stopReel(i); });
+      });
+      soundBtn.addEventListener("click", function () {
+        save.sound = !save.sound;
+        soundBtn.textContent = save.sound ? "🔊 音 ON" : "🔇 音 OFF";
+        persist();
+        if (save.sound) sndBet();
+      });
+      borrowBtn.addEventListener("click", function () {
+        if (save.medals !== 0 || phase !== "idle") return;
+        save.medals += 100;
+        save.borrowed += 100;
+        persist(); refreshData();
+        sndBet();
+        setMsg("メダルを100枚借りました（無料のおもちゃ仕様）", "");
+      });
+      $("reloadbtn").addEventListener("click", function () { location.reload(); });
+      $("setting").addEventListener("change", function () {
+        save.setting = parseInt(this.value, 10) || 1;
+        this.blur();
+        persist();
+        setMsg("設定" + save.setting + " に変更しました（次のゲームから）", "");
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.repeat) return;
+        if (e.code === "Space") { e.preventDefault(); ac(); startGame(); }
+        else if (e.key === "1") stopReel(0);
+        else if (e.key === "2") stopReel(1);
+        else if (e.key === "3") stopReel(2);
+      });
+
+      /* ---------- 初期化 ---------- */
+      $("setting").value = String(save.setting);
+      soundBtn.textContent = save.sound ? "🔊 音 ON" : "🔇 音 OFF";
+      refreshData();
+      draw();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2091 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CPVCDXEBK6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-CPVCDXEBK6');
+</script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>グラウンドゴルフ スコア表示</title>
+    <style>
+      :root {
+        --bg: #f6f4ea;
+        --card: #ffffff;
+        --card-soft: #eef3e2;
+        --ink: #22301c;
+        --ink-soft: #55624c;
+        --line: #d8dfc9;
+        --green: #2e7d32;
+        --green-deep: #1b5e20;
+        --green-soft: #dcebd2;
+        --gold: #b97f06;
+        --gold-bg: #fdf0cd;
+        --danger: #b3352b;
+        --danger-bg: #fbe9e6;
+        --shadow: 0 2px 10px rgba(34, 48, 28, 0.10);
+        --radius: 18px;
+        --base: 20px;
+      }
+      html.ts-s { --base: 16px; }
+      html.ts-m { --base: 18px; }
+      html.ts-l { --base: 20px; }
+      html.ts-xl { --base: 24px; }
+      html.ts-xxl { --base: 28px; }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141a11;
+          --card: #20281b;
+          --card-soft: #28331f;
+          --ink: #eef3e2;
+          --ink-soft: #b6c2a6;
+          --line: #3d4a30;
+          --green: #7cc47f;
+          --green-deep: #a5d6a7;
+          --green-soft: #2c3d24;
+          --gold: #f0c75e;
+          --gold-bg: #4a3d16;
+          --danger: #ef9a92;
+          --danger-bg: #47241f;
+          --shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", "Meiryo", sans-serif;
+        font-size: var(--base);
+        line-height: 1.5;
+      }
+      button, input, select { font: inherit; color: inherit; }
+      button { cursor: pointer; touch-action: manipulation; }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 16px 14px 56px;
+      }
+
+      /* ---------- 画面先頭のタイトル ---------- */
+      .app-title {
+        margin: 2px 0 14px;
+        text-align: center;
+        font-size: 1.85em;
+        font-weight: 800;
+        line-height: 1.25;
+        color: var(--green-deep);
+        letter-spacing: 0.02em;
+      }
+
+      /* ---------- 上部の状況表示 ---------- */
+      .status-bar {
+        background: var(--green-deep);
+        color: #fff;
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px 22px;
+        box-shadow: var(--shadow);
+      }
+      @media (prefers-color-scheme: dark) {
+        .status-bar { background: #2c4a26; }
+      }
+      .status-hole { font-size: 2em; font-weight: 800; line-height: 1.1; }
+      .status-hole small { font-size: 0.5em; font-weight: 700; opacity: 0.85; }
+      .status-team { font-size: 1.05em; font-weight: 800; background: rgba(255,255,255,0.18); border-radius: 999px; padding: 4px 16px; }
+      .status-date { font-size: 1.05em; font-weight: 800; background: rgba(255,255,255,0.18); border-radius: 999px; padding: 4px 16px; }
+      .status-rest { margin-left: auto; text-align: right; font-weight: 700; }
+      .status-rest .rest-num { font-size: 1.5em; font-weight: 800; }
+      .textsize-wrap { display: flex; align-items: center; gap: 10px 12px; flex-wrap: wrap; width: 100%; margin-top: 4px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.35); }
+      .textsize-label { font-weight: 800; font-size: 0.95em; white-space: nowrap; }
+      .textsize-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
+      .textsize-toggle button {
+        min-height: 56px; min-width: 64px;
+        border-radius: 999px;
+        border: 2px solid rgba(255,255,255,0.65);
+        background: transparent; color: #fff;
+        font-weight: 700; font-size: 0.95em;
+        padding: 6px 16px;
+      }
+      .textsize-toggle button[aria-pressed="true"] { background: #fff; color: var(--green-deep); border-color: #fff; }
+
+      section.card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin-top: 18px;
+      }
+      h2.sec-title {
+        margin: 0 0 14px;
+        font-size: 1.35em;
+        font-weight: 800;
+        display: flex; align-items: center; gap: 10px;
+      }
+      h2.sec-title .step {
+        background: var(--green); color: #fff;
+        border-radius: 999px;
+        min-width: 1.9em; height: 1.9em;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.85em; flex: none;
+      }
+      .hint { color: var(--ink-soft); font-size: 0.9em; margin: 6px 0 0; }
+
+      /* ---------- 設定 ---------- */
+      .count-row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .count-row button {
+        min-width: 64px; min-height: 64px;
+        font-size: 1.3em; font-weight: 800;
+        border-radius: 14px;
+        border: 2px solid var(--line);
+        background: var(--card-soft);
+      }
+      .count-row button[aria-pressed="true"] {
+        background: var(--green); border-color: var(--green); color: #fff;
+      }
+      .start-row button { min-width: 56px; }
+      .team-field { margin-top: 18px; }
+      .team-field label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95em; }
+      .team-field input {
+        width: 100%;
+        min-height: 60px;
+        font-size: 1.1em; font-weight: 700;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 2px solid var(--line);
+        background: var(--card);
+      }
+      .team-field input:focus { outline: 3px solid var(--green); outline-offset: 1px; border-color: var(--green); }
+      .date-field { margin-top: 18px; }
+      .date-field label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95em; }
+      .date-field input {
+        width: 100%;
+        min-height: 60px;
+        font-size: 1.1em; font-weight: 700;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 2px solid var(--line);
+        background: var(--card);
+      }
+      .date-field input:focus { outline: 3px solid var(--green); outline-offset: 1px; border-color: var(--green); }
+      .rule-field { margin-top: 18px; }
+      .rule-label { font-weight: 700; margin: 0 0 8px; font-size: 0.95em; }
+      .cap-sub-label { font-weight: 700; margin: 14px 0 8px; font-size: 0.95em; }
+      .cap-num-row button { min-width: 58px; min-height: 58px; font-size: 1.15em; }
+      .rule-row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .rule-row button {
+        flex: 1 1 180px;
+        min-height: 68px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 2px solid var(--line);
+        background: var(--card-soft);
+        font-weight: 800; font-size: 1em; line-height: 1.35;
+      }
+      .rule-row button small { display: block; font-size: 0.78em; font-weight: 700; color: var(--ink-soft); margin-top: 2px; }
+      .rule-row button[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+      .rule-row button[aria-pressed="true"] small { color: #fff; }
+      .name-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .name-field label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.95em; }
+      .name-field input {
+        width: 100%;
+        min-height: 60px;
+        font-size: 1.1em; font-weight: 700;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 2px solid var(--line);
+        background: var(--card);
+      }
+      .name-field input:focus { outline: 3px solid var(--green); outline-offset: 1px; border-color: var(--green); }
+      .big-action {
+        display: block; width: 100%;
+        margin-top: 20px;
+        min-height: 76px;
+        font-size: 1.35em; font-weight: 800;
+        border: none; border-radius: 16px;
+        background: var(--green); color: #fff;
+      }
+      .big-action:active { background: var(--green-deep); }
+      .setup-done { display: none; align-items: center; gap: 14px; flex-wrap: wrap; }
+      .setup-done .names { font-weight: 700; }
+      .ghost-btn {
+        min-height: 52px; padding: 8px 20px;
+        border-radius: 999px;
+        border: 2px solid var(--line);
+        background: var(--card); font-weight: 700;
+      }
+
+      /* ---------- 周（ラウンド）切替 ---------- */
+      .round-label { font-weight: 800; margin: 0 0 8px; }
+      .round-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+      .round-tabs button {
+        min-height: 56px;
+        padding: 6px 20px;
+        border-radius: 999px;
+        border: 2px solid var(--green);
+        background: var(--card);
+        color: var(--green-deep);
+        font-weight: 800; font-size: 1.05em;
+        position: relative;
+      }
+      .round-tabs button.current { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
+      @media (prefers-color-scheme: dark) {
+        .round-tabs button.current { background: var(--green); border-color: var(--green); color: #14230f; }
+      }
+      .round-tabs button.done::after {
+        content: "済";
+        position: absolute; top: -8px; right: -4px;
+        background: var(--gold); color: #fff;
+        font-size: 0.6em; font-weight: 800;
+        border-radius: 999px; padding: 2px 7px;
+      }
+      .next-round-btn {
+        display: none;
+        width: 100%;
+        margin-top: 16px;
+        min-height: 76px;
+        font-size: 1.3em; font-weight: 800;
+        border: none; border-radius: 16px;
+        background: var(--gold); color: #fff;
+      }
+      .next-round-btn.show { display: block; }
+      .next-round-btn:active { filter: brightness(0.92); }
+
+      /* ---------- ホール切替 ---------- */
+      .hole-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+      .hole-tabs button {
+        min-width: 56px; min-height: 56px;
+        border-radius: 999px;
+        border: 2px solid var(--line);
+        background: var(--card-soft);
+        font-weight: 800; font-size: 1.05em;
+        position: relative;
+      }
+      .hole-tabs button.current { background: var(--green); border-color: var(--green); color: #fff; }
+      .hole-tabs button.done::after {
+        content: "済";
+        position: absolute; top: -8px; right: -4px;
+        background: var(--gold); color: #fff;
+        font-size: 0.55em; font-weight: 800;
+        border-radius: 999px; padding: 2px 7px;
+      }
+      .hole-heading { font-size: 1.6em; font-weight: 800; margin: 0 0 4px; }
+      .hole-heading .par-note { font-size: 0.55em; color: var(--ink-soft); font-weight: 700; margin-left: 8px; }
+
+      /* ---------- このホールの打順 ---------- */
+      .order-box {
+        background: var(--green-soft);
+        border: 2px solid var(--green);
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin: 14px 0 6px;
+      }
+      .order-title { font-weight: 800; font-size: 1.1em; margin: 0 0 8px; }
+      .order-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 20px; }
+      .order-list li { display: flex; align-items: center; gap: 8px; font-size: 1.2em; }
+      .order-no {
+        font-weight: 800; color: var(--green-deep);
+        background: var(--card); border: 2px solid var(--green);
+        border-radius: 999px; padding: 2px 12px; font-size: 0.85em; white-space: nowrap;
+      }
+      .order-name { font-weight: 800; word-break: break-all; }
+      .order-note { margin: 10px 0 0; font-size: 0.85em; color: var(--ink-soft); font-weight: 700; }
+      .stopped-badge {
+        display: none;
+        background: var(--card); color: var(--danger);
+        border: 2px solid var(--danger);
+        font-weight: 800; border-radius: 999px;
+        padding: 4px 14px; font-size: 0.85em;
+      }
+      .entry-row.stopped .stopped-badge { display: inline-block; }
+      .quick-row button.stop-btn { min-width: auto; padding: 6px 16px; font-size: 0.95em; color: var(--danger); border-color: var(--danger); }
+      .quick-row button.stop-btn.selected { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+      /* ---------- 打数入力 ---------- */
+      .entry-row {
+        border: 2px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        margin-top: 12px;
+        background: var(--card);
+      }
+      .entry-row.filled { border-color: var(--green); background: var(--card-soft); }
+      .entry-row.missing { border: 4px solid var(--danger); background: var(--danger-bg); }
+      .missing-badge {
+        display: none;
+        background: var(--danger); color: #fff;
+        font-weight: 800; border-radius: 999px;
+        padding: 4px 14px; font-size: 0.85em;
+      }
+      .entry-row.missing .missing-badge { display: inline-block; }
+      .entry-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .entry-name { font-size: 1.25em; font-weight: 800; flex: 1 1 140px; min-width: 120px; word-break: break-all; }
+      .hio-badge {
+        display: none;
+        background: var(--gold-bg); color: var(--gold);
+        border: 2px solid var(--gold);
+        font-weight: 800; border-radius: 999px;
+        padding: 4px 14px; font-size: 0.85em;
+      }
+      .entry-row.hio .hio-badge { display: inline-block; }
+      .stepper { display: flex; align-items: center; gap: 12px; }
+      .stepper button {
+        width: 76px; height: 76px;
+        border-radius: 50%;
+        border: none;
+        font-size: 2em; font-weight: 800; line-height: 1;
+        background: var(--green); color: #fff;
+        flex: none;
+      }
+      .stepper button.minus { background: var(--card); color: var(--green-deep); border: 3px solid var(--green); }
+      .stepper button:active { transform: scale(0.94); }
+      .stepper .score-num {
+        min-width: 92px; text-align: center;
+        font-size: 2.6em; font-weight: 800; line-height: 1;
+      }
+      .stepper .score-num.unset { color: var(--ink-soft); }
+      .stepper .score-unit { font-size: 1em; font-weight: 700; color: var(--ink-soft); margin-left: -6px; }
+      .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+      .quick-row span { font-weight: 700; color: var(--ink-soft); align-self: center; margin-right: 2px; font-size: 0.9em; }
+      .quick-row button {
+        min-width: 58px; min-height: 58px;
+        border-radius: 12px;
+        border: 2px solid var(--line);
+        background: var(--card);
+        font-size: 1.15em; font-weight: 800;
+      }
+      .quick-row button.selected { background: var(--green); border-color: var(--green); color: #fff; }
+      .quick-row button.clear-btn { color: var(--danger); border-color: var(--danger); font-size: 0.95em; min-width: 84px; }
+
+      /* 最後のホールでは、進むボタンの名前が変わったことを知らせる注意書き */
+      .last-hole-note {
+        margin: 18px 0 0;
+        background: var(--gold-bg);
+        border: 2px solid var(--gold);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-weight: 800;
+      }
+      /* ホール移動ボタンは入力カードの下に吸着させ、どれだけスクロールしても
+         「前のホール」「次のホール」が常時画面内に見えるようにする */
+      .hole-nav {
+        display: flex; gap: 12px; margin-top: 14px;
+        position: sticky; bottom: 10px; z-index: 5;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 8px;
+        box-shadow: var(--shadow);
+      }
+      .hole-nav button {
+        flex: 1; min-height: 72px;
+        border-radius: 16px; font-size: 1.2em; font-weight: 800;
+        border: 2px solid var(--green);
+      }
+      .hole-nav .prev-btn { background: var(--card); color: var(--green-deep); }
+      .hole-nav .next-btn { background: var(--green); color: #fff; border-color: var(--green); }
+      .hole-nav button:disabled { opacity: 0.35; }
+
+      /* ---------- この周の内訳 ---------- */
+      .round-summary { margin-top: 18px; border-top: 2px solid var(--line); padding-top: 14px; }
+      .round-summary h3 { margin: 0 0 8px; font-size: 1.1em; font-weight: 800; }
+      .summary-list { list-style: none; margin: 0; padding: 0; }
+      .summary-list li {
+        display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline;
+        padding: 8px 2px;
+        border-bottom: 1px dashed var(--line);
+        font-weight: 700;
+      }
+      .summary-list li:last-child { border-bottom: none; }
+      .summary-list .s-name { flex: 1 1 7em; min-width: 6em; font-weight: 800; word-break: break-all; }
+      .summary-list .s-final { font-size: 1.25em; font-weight: 800; color: var(--green-deep); }
+      .summary-list .s-adj { color: var(--danger); font-weight: 800; }
+
+      /* ---------- 順位 ---------- */
+      .rank-list { list-style: none; margin: 0; padding: 0; }
+      .rank-list li {
+        display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        padding: 14px 6px;
+        border-bottom: 2px solid var(--line);
+      }
+      .rank-list li:last-child { border-bottom: none; }
+      .rank-no {
+        flex: none;
+        width: 84px; text-align: center;
+        font-size: 1.5em; font-weight: 800;
+        color: var(--green-deep);
+      }
+      .rank-list li.first .rank-no { color: var(--gold); }
+      .rank-list li.first { background: var(--gold-bg); border-radius: 12px; padding-left: 12px; padding-right: 12px; }
+      .rank-name { font-size: 1.2em; font-weight: 800; flex: 1 1 7em; min-width: 7em; }
+      .rank-detail { text-align: right; margin-left: auto; }
+      .rank-total { font-size: 1.7em; font-weight: 800; line-height: 1.1; }
+      .rank-total small { font-size: 0.5em; font-weight: 700; color: var(--ink-soft); }
+      .rank-sub { font-size: 0.85em; color: var(--ink-soft); font-weight: 700; }
+      .rank-sub .adj { color: var(--danger); }
+
+      /* ---------- スコア表 ---------- */
+      .score-table-wrap {
+        margin-top: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+      }
+      .table-scroll-hint { display: none; }
+      /* 名前列と合計列は横スクロールしても両端に残る */
+      .score-table th.name-col, .score-table td.name-col {
+        position: sticky; left: 0; z-index: 2;
+        box-shadow: 4px 0 6px -4px rgba(34, 48, 28, 0.35);
+      }
+      .score-table td.name-col { background: var(--card); }
+      .score-table th.name-col { background: var(--card-soft); z-index: 3; }
+      .score-table th.total-col, .score-table td.total-col {
+        position: sticky; right: 0; z-index: 2;
+        background: var(--card-soft);
+        box-shadow: -4px 0 6px -4px rgba(34, 48, 28, 0.35);
+      }
+      .score-table th.total-col { z-index: 3; }
+      .table-round-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+      .table-round-tabs button {
+        min-height: 52px;
+        padding: 6px 18px;
+        border-radius: 999px;
+        border: 2px solid var(--line);
+        background: var(--card-soft);
+        font-weight: 800; font-size: 0.95em;
+      }
+      .table-round-tabs button.current { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
+      @media (prefers-color-scheme: dark) {
+        .table-round-tabs button.current { background: var(--green); border-color: var(--green); color: #14230f; }
+      }
+      table.score-table { border-collapse: collapse; width: 100%; }
+      .score-table th, .score-table td {
+        border: 1px solid var(--line);
+        text-align: center;
+        padding: 10px 2px;
+        font-size: 0.95em;
+      }
+      .score-table thead th { background: var(--card-soft); font-weight: 800; }
+      .score-table th.name-col, .score-table td.name-col {
+        text-align: left; font-weight: 800; padding-left: 10px;
+        max-width: 130px; word-break: break-all;
+      }
+      .score-table td.cell-hio { background: var(--gold-bg); font-weight: 800; color: var(--gold); font-size: 1.15em; }
+      .score-table td.cell-now { outline: 3px solid var(--green); outline-offset: -3px; font-weight: 800; }
+      .score-table td.raw-col { font-weight: 700; }
+      .score-table td.hio-col { font-weight: 800; color: var(--gold); }
+      .score-table td.adj-col { font-weight: 800; color: var(--danger); }
+      .score-table td.total-col { font-weight: 800; font-size: 1.15em; background: var(--card-soft); }
+      .score-table .unset-mark { color: var(--ink-soft); }
+
+      /* ---------- 結果の共有・保存 ---------- */
+      .share-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+      .share-btn {
+        display: flex; align-items: center; justify-content: center;
+        width: 100%; min-height: 80px;
+        padding: 10px 16px;
+        border-radius: 16px;
+        font-size: 1.3em; font-weight: 800; line-height: 1.3; text-align: center;
+        text-decoration: none; border: none;
+      }
+      .share-btn small { display: block; font-size: 0.62em; font-weight: 700; opacity: 0.9; }
+      .share-btn.line { background: #06c755; color: #fff; }
+      .share-btn.mail { background: var(--green); color: #fff; }
+      .share-btn.csv { background: var(--card-soft); color: var(--green-deep); border: 3px solid var(--green); }
+      .share-btn.copy { background: var(--gold); color: #fff; }
+      .share-btn.pdf { background: var(--green-deep); color: #fff; border: 3px solid var(--green-deep); min-height: 100px; font-size: 1.45em; }
+      .share-btn:active { filter: brightness(0.93); }
+      @media (min-width: 860px) {
+        .share-grid { flex-direction: row; flex-wrap: wrap; }
+        .share-btn { flex: 1 1 200px; }
+      }
+      .copy-done {
+        display: none;
+        margin-top: 14px;
+        background: var(--green-soft);
+        border: 3px solid var(--green);
+        border-radius: 16px;
+        padding: 18px 16px;
+        text-align: center;
+        font-size: 1.45em; font-weight: 800; line-height: 1.45;
+        color: var(--green-deep);
+      }
+      .copy-done.show { display: block; }
+      .copy-done small { display: block; font-size: 0.62em; font-weight: 700; margin-top: 4px; }
+      .mail-note { margin: 12px 0 0; font-size: 0.9em; color: var(--ink-soft); font-weight: 700; }
+      .copy-fallback { display: none; margin-top: 14px; }
+      .copy-fallback.show { display: block; }
+      .copy-fallback p { margin: 0 0 8px; font-weight: 700; }
+      .copy-fallback textarea {
+        width: 100%;
+        min-height: 180px;
+        font-size: 0.95em; line-height: 1.6;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 2px solid var(--line);
+        background: var(--card);
+        color: var(--ink);
+      }
+
+      /* ---------- 終了・リセット ---------- */
+      .finish-banner {
+        display: none;
+        background: var(--gold-bg);
+        border: 2px solid var(--gold);
+        border-radius: var(--radius);
+        padding: 18px 20px; margin-top: 18px;
+        font-size: 1.15em; font-weight: 800; text-align: center;
+      }
+      .finish-banner.show { display: block; }
+      .finish-banner .winner { font-size: 1.5em; color: var(--gold); }
+      .finish-banner .breakdown { display: block; margin-top: 8px; font-size: 0.85em; font-weight: 700; }
+      .danger-zone { margin-top: 26px; text-align: center; }
+      .danger-btn {
+        min-height: 60px; padding: 10px 26px;
+        border-radius: 14px;
+        border: 2px solid var(--danger);
+        background: var(--card); color: var(--danger);
+        font-weight: 800;
+      }
+      .confirm-box {
+        display: none;
+        background: var(--danger-bg);
+        border: 2px solid var(--danger);
+        border-radius: var(--radius);
+        padding: 18px; margin-top: 14px;
+        text-align: center; font-weight: 700;
+      }
+      .confirm-box.show { display: block; }
+      .confirm-box .btns { display: flex; gap: 12px; margin-top: 14px; }
+      .confirm-box button { flex: 1; min-height: 64px; border-radius: 14px; font-weight: 800; font-size: 1.05em; }
+      .confirm-box .yes { background: var(--danger); color: #fff; border: none; }
+      .confirm-box .no { background: var(--card); border: 2px solid var(--line); }
+
+      /* ---------- 記載漏れの確認ダイアログ ---------- */
+      .missing-overlay {
+        display: none;
+        position: fixed; inset: 0; z-index: 50;
+        background: rgba(20, 26, 16, 0.55);
+        align-items: center; justify-content: center;
+        padding: 16px;
+      }
+      .missing-overlay.show { display: flex; }
+      .missing-dialog {
+        background: var(--card);
+        border: 4px solid var(--danger);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        max-width: 560px; width: 100%;
+        padding: 26px 22px;
+        text-align: center;
+      }
+      .missing-dialog .missing-title {
+        font-size: 1.5em; font-weight: 800; line-height: 1.5; margin: 0;
+      }
+      .missing-dialog .missing-names {
+        font-size: 1.35em; font-weight: 800; color: var(--danger);
+        line-height: 1.5; margin: 12px 0 0; word-break: break-all;
+      }
+      .missing-dialog .missing-ask { font-size: 1.2em; font-weight: 700; margin: 14px 0 0; }
+      .missing-dialog .btns { display: flex; gap: 14px; margin-top: 22px; }
+      .missing-dialog .btns button {
+        flex: 1; min-height: 88px;
+        border-radius: 16px; font-weight: 800; font-size: 1.15em; line-height: 1.35;
+      }
+      .missing-dialog .btns .no { background: var(--green); color: #fff; border: none; }
+      .missing-dialog .btns .yes { background: var(--card); color: var(--danger); border: 3px solid var(--danger); }
+      @media (max-width: 600px) {
+        .missing-dialog .btns { flex-direction: column; }
+      }
+
+      .howto { margin-top: 18px; color: var(--ink-soft); font-size: 0.92em; }
+      .howto summary { font-weight: 800; color: var(--ink); min-height: 48px; display: flex; align-items: center; cursor: pointer; }
+      .howto ul { margin: 8px 0 0; padding-left: 1.3em; }
+      .howto li { margin: 6px 0; }
+
+      /* ---------- フッター（作成者・バージョン） ---------- */
+      .app-footer {
+        margin-top: 28px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 0.85em;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      .author-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px 14px;
+        margin-top: 12px;
+      }
+      .author-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 8px 18px;
+        border: 2px solid var(--green);
+        border-radius: 999px;
+        background: var(--card);
+        color: var(--green-deep);
+        font-size: 1em;
+        font-weight: 800;
+        text-decoration: none;
+      }
+      .author-links a:active { background: var(--green-soft); }
+      .author-links a .soon {
+        font-size: 0.85em;
+        font-weight: 700;
+        color: var(--ink-soft);
+        margin-left: 6px;
+      }
+
+      @media (min-width: 860px) {
+        .play-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; align-items: start; }
+        .play-grid section.card { margin-top: 18px; }
+      }
+      /* ---------- スマートフォン（縦画面） ---------- */
+      @media (max-width: 600px) {
+        .status-bar { padding: 14px; gap: 8px 14px; }
+        .status-hole { font-size: 1.55em; }
+        .status-rest { font-size: 0.9em; }
+        .textsize-toggle button { min-height: 52px; min-width: 58px; padding: 6px 12px; }
+        .table-scroll-hint { display: block; margin: 0 0 8px; }
+        .score-table th, .score-table td { padding: 8px 1px; font-size: 0.82em; }
+        .score-table th.name-col, .score-table td.name-col { max-width: 88px; padding-left: 6px; }
+        .entry-name { flex-basis: 100%; }
+        .stepper { margin-left: auto; }
+        .rank-name { min-width: 6em; }
+        .confirm-box .btns { flex-direction: column; }
+      }
+      @media (max-width: 480px) {
+        main { padding: 10px 8px 48px; }
+        section.card { padding: 14px; }
+        .stepper button { width: 68px; height: 68px; }
+        .stepper .score-num { min-width: 74px; font-size: 2.3em; }
+        .rank-no { width: 64px; font-size: 1.3em; }
+        .score-table th, .score-table td { padding: 7px 1px; font-size: 0.78em; }
+        .score-table th.name-col, .score-table td.name-col { max-width: 76px; padding-left: 5px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .stepper button:active { transform: none; }
+      }
+
+      /* ---------- 印刷用シート（画面には出ない。PDF保存・印刷の時だけ出す） ---------- */
+      #printSheet { display: none; }
+      @media print {
+        /* 公式スコアカードは横長の書式なので、印刷はA4横向きにする */
+        @page { size: A4 landscape; margin: 10mm; }
+        body { background: #fff; color: #000; font-size: 11pt; }
+        main, .missing-overlay { display: none !important; }
+        #printSheet {
+          display: block !important;
+          color: #000;
+          font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", "Meiryo", sans-serif;
+        }
+        /* 周ごとの公式スコアカード（1周＝1枚） */
+        .print-card { page-break-after: always; }
+        .print-card:last-of-type { page-break-after: auto; }
+        .print-title { font-size: 19pt; font-weight: 800; margin: 0 0 3mm; text-align: center; letter-spacing: 0.04em; }
+        .print-round-line { font-size: 12pt; font-weight: 800; margin: 0 0 2mm; }
+        .print-meta { border-collapse: collapse; width: 100%; margin-bottom: 3mm; }
+        .print-meta td {
+          border: 1.5px solid #000; padding: 4px 10px; font-size: 11.5pt; white-space: nowrap;
+        }
+        .print-meta .pm-date { text-align: right; }
+        .print-table { border-collapse: collapse; width: 100%; margin-bottom: 3mm; }
+        .print-table th, .print-table td {
+          border: 1.5px solid #000; padding: 0; text-align: center; font-size: 11pt; line-height: 1.3;
+        }
+        .print-table thead th { font-weight: 800; padding: 4px 2px; }
+        .print-table td.p-no, .print-table th.p-no { width: 34px; }
+        .print-table td.p-name { text-align: left; font-weight: 800; padding: 4px 8px; min-width: 110px; }
+        .print-table td.p-num { font-weight: 700; padding: 4px 2px; }
+        .print-table td.p-total { font-weight: 800; font-size: 12pt; padding: 4px 2px; }
+        .print-table td.p-sign { min-width: 74px; }
+        /* 氏名見出しの斜め区切り（左下＝氏名、右上＝ホールNo.） */
+        .p-diag-head { position: relative; min-width: 110px; height: 40px; padding: 0 !important; }
+        .p-diag-head .diag-line, .diag-cell .diag-line {
+          position: absolute; inset: 0; pointer-events: none;
+          background: linear-gradient(to top right, transparent calc(50% - 0.75px), #000 calc(50% - 0.75px), #000 calc(50% + 0.75px), transparent calc(50% + 0.75px));
+        }
+        .p-diag-head .dh-name { position: absolute; left: 6px; bottom: 3px; font-weight: 800; }
+        .p-diag-head .dh-hole { position: absolute; right: 6px; top: 3px; font-weight: 800; font-size: 9.5pt; }
+        /* ホールセル：斜め区切りの2段（左上＝打数、右下＝累計） */
+        .print-table td.p-hole { padding: 0; width: 56px; }
+        .diag-cell { position: relative; height: 40px; }
+        .diag-cell .dc-score { position: absolute; left: 5px; top: 2px; font-weight: 800; font-size: 11.5pt; }
+        .diag-cell .dc-score.hio { font-size: 13pt; }
+        .diag-cell .dc-cum { position: absolute; right: 5px; bottom: 2px; font-weight: 700; font-size: 10.5pt; }
+        .print-notes { font-size: 8.5pt; line-height: 1.55; margin: 1mm 0 0; }
+        .print-notes p { margin: 0; }
+        .print-footer { font-size: 8pt; color: #555; text-align: right; margin: 2mm 0 0; line-height: 1.3; }
+        /* 総合順位表 */
+        /* 順位表は最後のカードの改ページに続けて新しいページから始まる */
+        .print-rank { }
+        .print-h2 { font-size: 15pt; font-weight: 800; margin: 0 0 3mm; border-bottom: 2.5px solid #000; padding-bottom: 1mm; }
+        .print-rank-table { border-collapse: collapse; width: 100%; }
+        .print-rank-table th, .print-rank-table td {
+          border: 1.5px solid #000; padding: 5px 4px; text-align: center; font-size: 11.5pt; line-height: 1.35;
+        }
+        .print-rank-table thead th { font-weight: 800; }
+        .print-rank-table td.p-name { text-align: left; font-weight: 800; padding-left: 8px; }
+        .print-rank-table td.p-total { font-weight: 800; font-size: 12.5pt; }
+        .print-rank-table td.p-rank { font-weight: 800; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 class="app-title">グラウンド・ゴルフ スコアカード</h1>
+      <!-- 状況表示 -->
+      <div class="status-bar" role="status" aria-live="polite">
+        <div class="status-hole"><span id="statusHole">準備中</span></div>
+        <span class="status-date" id="statusDate"></span>
+        <span class="status-team" id="statusTeam" style="display:none;"></span>
+        <div class="status-rest" id="statusRest"></div>
+        <div class="textsize-wrap">
+          <span class="textsize-label" id="textsizeLabel">文字サイズ</span>
+          <div class="textsize-toggle" role="group" aria-labelledby="textsizeLabel">
+            <button type="button" data-textsize="s" aria-pressed="false">小</button>
+            <button type="button" data-textsize="m" aria-pressed="false">中</button>
+            <button type="button" data-textsize="l" aria-pressed="true">大</button>
+            <button type="button" data-textsize="xl" aria-pressed="false">特大</button>
+            <button type="button" data-textsize="xxl" aria-pressed="false">超特大</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. 設定 -->
+      <section class="card" id="setupCard" aria-labelledby="setupTitle">
+        <h2 class="sec-title" id="setupTitle"><span class="step">1</span>参加者とチーム名</h2>
+        <div id="setupForm">
+          <p style="margin:0 0 10px; font-weight:700;">何人でプレーしますか？</p>
+          <div class="count-row" id="countRow" role="group" aria-label="参加人数"></div>
+          <div class="team-field">
+            <label for="teamNameInput">チーム名（なくても大丈夫です）</label>
+            <input type="text" id="teamNameInput" autocomplete="off" placeholder="例：さくらチーム" />
+          </div>
+          <div class="team-field">
+            <label for="eventNameInput">大会名（あれば。PDFの表紙に載ります）</label>
+            <input type="text" id="eventNameInput" autocomplete="off" placeholder="例：第12回 さくら杯" />
+          </div>
+          <div class="team-field">
+            <label for="courseNameInput">コース名（あれば。公式カードの「（　）コース」に入ります）</label>
+            <input type="text" id="courseNameInput" autocomplete="off" placeholder="例：さくら" />
+          </div>
+          <div class="rule-field">
+            <p class="rule-label" id="startHoleLabel">スタートホール（何番ホールから始めますか？）</p>
+            <div class="count-row start-row" id="startHoleRow" role="group" aria-labelledby="startHoleLabel"></div>
+            <p class="hint">入力はスタートホールから進み、8番の次は1番に折り返します。打順のローテーションもその順番に合わせます。</p>
+          </div>
+          <div class="date-field">
+            <label for="playDateInput">プレーした日（日付）</label>
+            <input type="date" id="playDateInput" />
+            <p class="hint">この日付が、結果テキスト・画面・CSVのすべての記録に入ります。大会の日と違う時はここで直してください。</p>
+          </div>
+          <div class="rule-field">
+            <p class="rule-label" id="capLabel">打ち止めルール（大会の決まりに合わせてください）</p>
+            <p class="cap-sub-label" id="capNumLabel">打ち止め打数（この打数まで打ったら、そのホールは終わり）</p>
+            <div class="count-row cap-num-row" id="capRow" role="group" aria-labelledby="capNumLabel"></div>
+            <div id="capRecordWrap" style="display:none;">
+              <p class="cap-sub-label" id="capRecordLabel">記録打数（打ち止めで入らなかった時に記録する打数）</p>
+              <div class="count-row cap-num-row" id="capRecordRow" role="group" aria-labelledby="capRecordLabel"></div>
+              <p class="hint">いちばん多いのは「打ち止め6打・記録7打」です。ローカルルールで「記録6打（打ち止めと同じ打数）」の所もあります。</p>
+            </div>
+            <p class="hint">打ち止めがある時は、その打数までしか入力できません。入らなかった時は、各プレイヤーの入力欄にある「入らなかった」ボタンを押すと記録打数が入って、「打ち止め」の表示が付きます。この設定はこの端末に保存されます。</p>
+          </div>
+          <div class="name-grid" id="nameGrid"></div>
+          <p class="hint">名前はそのままでも始められます。変えたい所だけ押して直してください。</p>
+          <button type="button" class="big-action" id="startBtn">この内容で始める</button>
+        </div>
+        <div class="setup-done" id="setupDone">
+          <span class="names" id="setupDoneNames"></span>
+          <button type="button" class="ghost-btn" id="editSetupBtn">参加者を直す</button>
+        </div>
+      </section>
+
+      <div class="play-grid">
+        <!-- 2. 打数入力 -->
+        <section class="card" id="playCard" aria-labelledby="playTitle">
+          <h2 class="sec-title" id="playTitle"><span class="step">2</span>打数を入れる</h2>
+          <p class="round-label">いまの周（ラウンド）</p>
+          <div class="round-tabs" id="roundTabs" role="group" aria-label="周の選択"></div>
+          <div class="hole-tabs" id="holeTabs" role="group" aria-label="ホール選択"></div>
+          <p class="hole-heading"><span id="holeHeading">第1周目・第1ホール</span></p>
+          <p class="hint" style="margin-top:0;">打った回数を入れてください。1打で入ればホールインワンで、スコア表には「①」と書かれます。</p>
+          <div class="order-box">
+            <p class="order-title">このホールの打順</p>
+            <ol class="order-list" id="orderList"></ol>
+            <p class="order-note">ホールが進むごとに、先頭の人が1人ずつずれていきます（公式のローテーション方式）。</p>
+          </div>
+          <div id="entryList"></div>
+          <p class="last-hole-note" id="lastHoleNote" style="display:none;">ここがこの周の最後のホール（プレー順で8番目）です。次のホールはありません。「次のホール」を押すと、この周の結果と「次の周を始める」ボタンが出ます。</p>
+          <div class="hole-nav">
+            <button type="button" class="prev-btn" id="prevHoleBtn">← 前のホール</button>
+            <button type="button" class="next-btn" id="nextHoleBtn">次のホール →</button>
+          </div>
+          <button type="button" class="next-round-btn" id="nextRoundBtn">次の周を始める</button>
+          <p class="hint" id="nextRoundHint" style="display:none;">この周が終わりました。次の周を始められます（記録は5周目まで残せます）。</p>
+          <div class="round-summary" id="roundSummary"></div>
+        </section>
+
+        <!-- 3. 順位 -->
+        <section class="card" aria-labelledby="rankTitle">
+          <h2 class="sec-title" id="rankTitle"><span class="step">3</span><span id="rankTitleText">いまの順位</span></h2>
+          <p class="hint" style="margin:0 0 8px;">最終合計（打数からホールインワン1回につき3打を引いた数）が少ない人が上です。同点の時はホールインワンの多い人、次に2打の多い人が上になります。</p>
+          <ol class="rank-list" id="rankList"></ol>
+        </section>
+      </div>
+
+      <div class="finish-banner" id="finishBanner" role="status"></div>
+
+      <!-- スコア表 -->
+      <section class="card" aria-labelledby="tableTitle">
+        <h2 class="sec-title" id="tableTitle">スコア表</h2>
+        <p class="hint" id="tableDateLine" style="margin:0 0 4px; font-weight:700;"></p>
+        <p class="hint" id="tableTeamLine" style="margin:0 0 10px; font-weight:700;"></p>
+        <div class="table-round-tabs" id="tableRoundTabs" role="group" aria-label="スコア表の周の選択"></div>
+        <p class="hint table-scroll-hint">表は横に指で動かせます。名前と合計は両端に残って見えます。</p>
+        <div class="score-table-wrap">
+          <table class="score-table" id="scoreTable" aria-label="スコア表"></table>
+        </div>
+        <p class="hint">「①」はホールインワン（1打）です。「実打数」は打った回数の合計、「調整」はホールインワン1回につき −3打、「合計」が最終の点数です。「・」はまだ入力していないホールです。周のボタンで、前の周の記録も見返せます（5周目まで）。</p>
+      </section>
+
+      <!-- 4. 結果を送る・残す -->
+      <section class="card" aria-labelledby="shareTitle">
+        <h2 class="sec-title" id="shareTitle"><span class="step">4</span>結果を送る・残す</h2>
+        <p class="hint" style="margin:0 0 12px;">残し方は3つの形式があります。TXT（コピー用テキスト：人が読む結果）、PDF（見やすい枠ありの表：印刷して保存）、CSV（Excelで集計する明細データ）です。LINEやメールで送ることもできます。全周が終わってから送ると確実です。</p>
+        <div class="share-grid">
+          <button type="button" class="share-btn pdf" id="pdfBtn">PDFで保存・印刷<small>見やすい枠ありの表で印刷できます。印刷画面で「PDFとして保存」を選んでください</small></button>
+          <button type="button" class="share-btn copy" id="copyBtn">結果テキストをコピー（TXT）<small>メールでもLINEでも貼って送れます（全周の内訳つき）</small></button>
+          <a class="share-btn line" id="lineBtn" href="#" target="_blank" rel="noopener">LINEで送る<small>LINEの友だちやグループへ</small></a>
+          <a class="share-btn mail" id="mailBtn" href="#">メールで送る<small>LINEが無い人向け（短い要約だけ送ります）</small></a>
+          <button type="button" class="share-btn csv" id="csvBtn">CSVで保存<small>1行＝1人×1ホールの明細データ（Excel集計用）</small></button>
+        </div>
+        <p class="hint" style="margin:12px 0 0;">CSVは「日付,大会名,チーム名,コース名,スタートホール,周,プレイヤー名,ホール,打数,ホールインワン」の列で、全周・全員・全ホールの入力済み記録を全部出します。各組の記録者のCSVを縦に繋げて、Excelでそのまま集計できます。ファイル名は「グラウンドゴルフ記録_チーム名_プレー日_出力時刻（時分）」の形になるので、運営側で集めても上書きされず、同じチームの訂正分も別ファイルとして残ります。PDFのファイル名も同じ考え方で「スコアカード_チーム名_プレー日_出力時刻」になります。</p>
+        <div class="copy-done" id="copyDone" role="status">コピーしました<small>メールやLINEを開いて、本文の所に貼り付けて送ってください</small></div>
+        <p class="mail-note">メールが開かない時は『コピー』してメールに貼ってください。端末によっては、メールアプリが設定されていないと「メールで送る」が開けないことがあります。</p>
+        <div class="copy-fallback" id="copyFallback">
+          <p>自動でコピーできませんでした。下の文字を長押し（または全部選んで）コピーしてください。</p>
+          <textarea id="copyTextArea" readonly aria-label="結果テキスト"></textarea>
+        </div>
+      </section>
+
+      <div class="danger-zone">
+        <button type="button" class="danger-btn" id="resetBtn">スコアを全部消して、最初からにする</button>
+        <div class="confirm-box" id="confirmBox">
+          <div>入力したスコア（全ての周）が全部消えます。よろしいですか？</div>
+          <div class="btns">
+            <button type="button" class="yes" id="confirmYes">消して最初から</button>
+            <button type="button" class="no" id="confirmNo">やめる</button>
+          </div>
+        </div>
+      </div>
+
+      <details class="howto">
+        <summary>■使い方とルール</summary>
+        <ul>
+          <li>参加人数を選び、チーム名と名前を入れて「この内容で始める」を押します。チーム名は空でも大丈夫です。</li>
+          <li>ホールごとに、全員の打数を ＋ と − のボタン（または数字ボタン）で入れます。</li>
+          <li>「次のホール」「前のホール」で移動したり、周を切り替えたりすると、入力エリアの一番上（プレイヤー1の所）まで画面が自動で戻ります。毎回手でスクロールし直す必要はありません。「前のホール」「次のホール」のボタンは入力エリアの下に常に見えているので、スクロールしても見失いません。</li>
+          <li>最後のホール（8ホール目）でも、ボタンの名前は「次のホール」のままです。押すと、この周の結果と「次の周を始める」ボタンが出ます。</li>
+          <li>まだ入力していない人がいるまま「次のホール」を押すと、記載漏れの確認が出ます。「いいえ」を押すと、漏れている人の入力欄が赤く目立つので、そのまま直せます。</li>
+          <li>間違えたら、その場で ＋ − を押して直せます。消したい時は「消す」ボタンです。</li>
+          <li>ホールインワン（第1打でトマリに入る）は、公式ルールでスコア欄に「①」と書きます。この表でも「①」で表示されます。</li>
+          <li>ホールインワンは1回につき、合計打数から3打を引きます（公式ルール）。「実打数」「ホールインワン回数」「調整（−3×回数）」「最終合計」を分けて表示しています。</li>
+          <li>順位は最終合計の少ない順です。同点の場合はホールインワンの回数が多い方、次に2打の回数が多い方が上になります。</li>
+          <li>1周は8ホールです。最後のホールまで来ると「次の周を始める」ボタンが出ます。まだ入力していない所があっても、確認の上で次の周を始められます（空欄の所は、後から周のボタンでその周に戻って直せます）。記録は5周目まで残せて、周のボタンでいつでも見返せます。</li>
+          <li>順位は全ての周を合わせた総合順位です。各周ごとの合計も順位の下に表示されます。</li>
+          <li>記録はこの端末の中に自動で残ります。画面を閉じて開き直しても、前回のスコア・設定・チーム名がそのまま戻ります。「スコアを全部消して、最初からにする」を押した時だけ、残っていた記録も消えます。</li>
+          <li>打順は公式のローテーション方式です。1ホール目は登録した順番で、ホールが進むごとに先頭の人が1人ずつずれます。入力画面の「このホールの打順」を見てください。</li>
+          <li>打ち止めルールは設定で数字で決められます。「打ち止め打数」（なし、または4〜12打）と「記録打数」（打ち止めで入らなかった時に記録する打数）を別々に選べます。いちばん多いのは打ち止め6打・記録7打で、ローカルルールで記録6打（打ち止めと同じ打数）の所もあります。打ち止めがある時はその打数までしか入力できず、入らなかった時は入力欄の「入らなかった」ボタンを押すと記録打数が入って「打ち止め」の表示が付きます。設定はこの端末に保存され、PDFと結果テキストにも「打ち止め○打（記録○打）」の形で出ます。CSVの打数には記録打数がそのまま入ります。</li>
+          <li>日付は設定の「プレーした日」で決まります。画面上部・スコア表・結果テキスト・CSVのすべてに同じ日付が入ります。大会の日と違う時は、始める前に直してください。</li>
+          <li>終わったら「結果を送る・残す」から、LINEやメールで結果を送れます。コピー用テキストは人が読む結果で、総合順位に加えて、周ごとの内訳（各周の実打数と、ホールインワン調整後の打数）も全周分入ります。CSVはそれとは別で、1行に「1人×1ホール」の記録を「日付,大会名,チーム名,コース名,スタートホール,周,プレイヤー名,ホール,打数,ホールインワン」の列で並べた明細データです。入力済みの全周（最大5周）・全員・全ホール分が出るので、各組の記録者のCSVを縦に繋げれば、Excelで大会全体を集計できます。ホールインワンの列は①の時だけ「1」、他は「0」です。</li>
+          <li>「メールで送る」を押してもメールが開かない時は、端末にメールアプリが設定されていない場合があります。その時は「結果テキストをコピー」を押して、メールやLINEの本文に貼り付けて送ってください。メールで送る本文は短い要約（順位・名前・合計・ホールインワン回数）だけです。詳しい結果はコピー用テキストとCSVに入っています。</li>
+          <li>スタートホールは設定で選べます。入力はスタートホールから進み、8番の次は1番に折り返します。打順のローテーションもその進行順に合わせます。コース名とスタートホールは、PDFの公式カードとCSVにも入ります。</li>
+          <li>「PDFで保存・印刷」を押すと印刷画面が開き、入力画面やボタンは印刷されず、グラウンド・ゴルフのスコアカードと同じ書式のカード（タイトル・大会名・コース・スタートホール・年月日（曜日）の欄つき）が、周ごとに1枚ずつ出ます。各ホールのセルは斜め区切りで、左上に打数、右下にそのホールまでの累計が入り、ホールインワンの打数は「①」で表示されます。合計はホールインワン1回につき3を引いた数で、確認サインの欄は手書き用に空欄です。カードの後には総合順位表が付きます。スマホやPCの印刷画面で「PDFとして保存」を選ぶと、PDFファイルとして残せます。</li>
+        </ul>
+      </details>
+
+      <footer class="app-footer">
+        <div>作成：Snow Moon　Ver.20261115.1.0</div>
+        <!-- 作者リンク：下の href の ★〜★ の部分を、ここを自分のURLに書き換える（ブログと動画、それぞれ本物のURLに差し替えてください。差し替えたらリンク横の「（準備中）」も消してください） -->
+        <nav class="author-links" aria-label="作者のリンク">
+          <a href="https://xsnowmoon.blogspot.com/" target="_blank" rel="noopener">作者のブログ<span class="soon">（らぶあげ）</span></a>
+          <a href="https://www.tiktok.com/@snow.moon2025" target="_blank" rel="noopener">作者の動画<span class="soon">（TikTok）</span></a>
+          <a href="https://www.youtube.com/@SnowMoon-Music" target="_blank" rel="noopener">作者の動画<span class="soon">（YouTube Music）</span></a>
+          <a href="https://www.youtube.com/@snow.moon2025" target="_blank" rel="noopener">作者の動画<span class="soon">（YouTube）</span></a>
+        </nav>
+      </footer>
+    </main>
+
+    <!-- 印刷専用シート（画面には表示されず、印刷・PDF保存の時だけ出る） -->
+    <div id="printSheet" aria-hidden="true"></div>
+
+    <!-- 記載漏れの確認ダイアログ -->
+    <div class="missing-overlay" id="missingOverlay">
+      <div class="missing-dialog" role="alertdialog" aria-modal="true" aria-labelledby="missingTitle" aria-describedby="missingNames missingAsk">
+        <p class="missing-title" id="missingTitle">スコアの記載漏れがあります</p>
+        <p class="missing-names" id="missingNames"></p>
+        <p class="missing-ask" id="missingAsk">このまま次のホールへ進めますか？</p>
+        <div class="btns">
+          <button type="button" class="no" id="missingNo">いいえ<br>戻って入力する</button>
+          <button type="button" class="yes" id="missingYes">はい<br>このまま進む</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var HOLES = 8;
+        var MAX_PLAYERS = 6;
+        var MAX_ROUNDS = 5;
+        var HIO_BONUS = 3;
+        var DEFAULT_NAMES = ["プレイヤー1", "プレイヤー2", "プレイヤー3", "プレイヤー4", "プレイヤー5", "プレイヤー6"];
+
+        function emptyRound() {
+          var rows = [];
+          for (var i = 0; i < MAX_PLAYERS; i++) {
+            var row = [];
+            for (var h = 0; h < HOLES; h++) row.push(null);
+            rows.push(row);
+          }
+          return rows;
+        }
+
+        var state = {
+          playerCount: 4,
+          teamName: "",
+          eventName: "",
+          courseName: "",
+          startHole: 1,
+          playDate: "",
+          names: DEFAULT_NAMES.slice(),
+          rounds: [emptyRound()],
+          currentRound: 0,
+          tableRound: 0,
+          currentHole: 0,
+          started: false,
+          cap: 0,
+          capRecord: 7,
+          stopped: {},
+          textSize: "l",
+          missingKey: null,
+          missingPlayers: []
+        };
+
+        var $ = function (id) { return document.getElementById(id); };
+        var countRow = $("countRow"), nameGrid = $("nameGrid"),
+            roundTabs = $("roundTabs"), holeTabs = $("holeTabs"), entryList = $("entryList"),
+            rankList = $("rankList"), scoreTable = $("scoreTable"),
+            tableRoundTabs = $("tableRoundTabs"), roundSummary = $("roundSummary");
+
+        /* ---------- 記録の自動保存（この端末の中に残す） ---------- */
+        var STORAGE_KEY = "groundgolf-score-v1";
+        function save() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+              playerCount: state.playerCount,
+              teamName: state.teamName,
+              eventName: state.eventName,
+              courseName: state.courseName,
+              startHole: state.startHole,
+              playDate: state.playDate,
+              names: state.names,
+              rounds: state.rounds,
+              currentRound: state.currentRound,
+              tableRound: state.tableRound,
+              currentHole: state.currentHole,
+              started: state.started,
+              cap: state.cap,
+              capRecord: state.capRecord,
+              stopped: state.stopped,
+              textSize: state.textSize
+            }));
+          } catch (e) { /* 保存できない環境では、そのまま続ける */ }
+        }
+        function load() {
+          var data = null;
+          try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (e) { data = null; }
+          if (!data || !Array.isArray(data.rounds) || data.rounds.length === 0) return;
+          var rounds = [];
+          for (var r = 0; r < Math.min(data.rounds.length, MAX_ROUNDS); r++) {
+            var src = data.rounds[r];
+            var rows = [];
+            for (var i = 0; i < MAX_PLAYERS; i++) {
+              var srow = (src && Array.isArray(src[i])) ? src[i] : [];
+              var row = [];
+              for (var h = 0; h < HOLES; h++) {
+                var v = srow[h];
+                row.push(typeof v === "number" && v >= 1 && v <= 20 ? Math.floor(v) : null);
+              }
+              rows.push(row);
+            }
+            rounds.push(rows);
+          }
+          if (rounds.length === 0) return;
+          state.rounds = rounds;
+          if (data.playerCount >= 1 && data.playerCount <= MAX_PLAYERS) state.playerCount = data.playerCount;
+          if (typeof data.teamName === "string") state.teamName = data.teamName;
+          if (typeof data.eventName === "string") state.eventName = data.eventName;
+          if (typeof data.courseName === "string") state.courseName = data.courseName;
+          if (data.startHole >= 1 && data.startHole <= HOLES) state.startHole = data.startHole | 0;
+          if (typeof data.playDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.playDate)) state.playDate = data.playDate;
+          if (Array.isArray(data.names)) {
+            for (var n = 0; n < MAX_PLAYERS; n++) {
+              if (typeof data.names[n] === "string") state.names[n] = data.names[n];
+            }
+          }
+          state.currentRound = Math.min(Math.max(data.currentRound | 0, 0), rounds.length - 1);
+          state.tableRound = Math.min(Math.max(data.tableRound | 0, 0), rounds.length - 1);
+          state.currentHole = Math.min(Math.max(data.currentHole | 0, 0), HOLES - 1);
+          state.started = !!data.started;
+          /* 打ち止めは数字指定（なし＝0、または4〜12打）。旧形式の固定値
+             （6打・8打）もそのまま引き継げる */
+          state.cap = (typeof data.cap === "number" && data.cap >= 4 && data.cap <= 12) ? Math.floor(data.cap) : 0;
+          if (state.cap > 0) {
+            if (typeof data.capRecord === "number" && data.capRecord >= state.cap && data.capRecord <= state.cap + 2) {
+              state.capRecord = Math.floor(data.capRecord);
+            } else {
+              /* 旧形式（記録打数の設定が無かった頃）からの移行：
+                 6打で打ち止め→記録7打、8打で打ち止め→記録8打（当時の動作のまま） */
+              state.capRecord = state.cap === 8 ? 8 : state.cap + 1;
+            }
+          }
+          /* 打ち止めで入れたセルの印（「周-プレイヤー-ホール」→ true）。
+             記録打数＝打ち止め打数のルールでも、正規にその打数で入れた人と
+             見分けられるように、打数とは別に持つ */
+          state.stopped = {};
+          if (data.stopped && typeof data.stopped === "object") {
+            for (var skey in data.stopped) {
+              if (data.stopped[skey] === true && /^\d+-\d+-\d+$/.test(skey)) state.stopped[skey] = true;
+            }
+          }
+          if (["s", "m", "l", "xl", "xxl"].indexOf(data.textSize) >= 0) state.textSize = data.textSize;
+        }
+
+        function esc(s) {
+          return String(s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        }
+        function playerName(i) {
+          var n = (state.names[i] || "").trim();
+          return n ? n : DEFAULT_NAMES[i];
+        }
+        function cell(r, i, h) { return state.rounds[r][i][h]; }
+        /* 打数を入れ直す時は、打ち止めの印も合わせて付け外しする。
+           stopped=true で呼ぶのは「入らなかった」ボタンからだけ */
+        function setCell(r, i, h, v, stopped) {
+          state.rounds[r][i][h] = v;
+          var key = r + "-" + i + "-" + h;
+          if (stopped && v !== null) state.stopped[key] = true;
+          else delete state.stopped[key];
+        }
+
+        /* ---------- スタートホール順の進行 ----------
+           ホールはスタートホールから始まり、8の次は1に折り返す。
+           holeOrder() は「プレーする順番に並んだホール番号（0始まりの添字）」を返す。 */
+        function holeOrder() {
+          var order = [];
+          for (var k = 0; k < HOLES; k++) order.push((state.startHole - 1 + k) % HOLES);
+          return order;
+        }
+        function holePos(holeIdx) { return holeOrder().indexOf(holeIdx); }
+        function lastHoleIdx() { return holeOrder()[HOLES - 1]; }
+
+        /* ----- ある周・ある人の集計 ----- */
+        function rawOf(r, i) {
+          var t = 0;
+          for (var h = 0; h < HOLES; h++) if (cell(r, i, h) !== null) t += cell(r, i, h);
+          return t;
+        }
+        function playedOf(r, i) {
+          var n = 0;
+          for (var h = 0; h < HOLES; h++) if (cell(r, i, h) !== null) n++;
+          return n;
+        }
+        function countOf(r, i, v) {
+          var n = 0;
+          for (var h = 0; h < HOLES; h++) if (cell(r, i, h) === v) n++;
+          return n;
+        }
+        function hioOf(r, i) { return countOf(r, i, 1); }
+        function adjOf(r, i) { return -HIO_BONUS * hioOf(r, i); }
+        function finalOf(r, i) { return rawOf(r, i) + adjOf(r, i); }
+
+        /* ----- 全周の総合集計 ----- */
+        function allRaw(i) { var t = 0; for (var r = 0; r < state.rounds.length; r++) t += rawOf(r, i); return t; }
+        function allHio(i) { var t = 0; for (var r = 0; r < state.rounds.length; r++) t += hioOf(r, i); return t; }
+        function allTwo(i) { var t = 0; for (var r = 0; r < state.rounds.length; r++) t += countOf(r, i, 2); return t; }
+        function allAdj(i) { return -HIO_BONUS * allHio(i); }
+        function allFinal(i) { return allRaw(i) + allAdj(i); }
+        function allPlayed(i) { var t = 0; for (var r = 0; r < state.rounds.length; r++) t += playedOf(r, i); return t; }
+
+        function holeComplete(r, h) {
+          for (var i = 0; i < state.playerCount; i++) if (cell(r, i, h) === null) return false;
+          return true;
+        }
+        function roundComplete(r) {
+          for (var h = 0; h < HOLES; h++) if (!holeComplete(r, h)) return false;
+          return true;
+        }
+        function lastRound() { return state.rounds.length - 1; }
+
+        /* ---------- 設定 ---------- */
+        function renderCount() {
+          countRow.innerHTML = "";
+          for (var n = 1; n <= MAX_PLAYERS; n++) {
+            (function (n) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.textContent = n + "人";
+              b.setAttribute("aria-pressed", n === state.playerCount ? "true" : "false");
+              b.addEventListener("click", function () {
+                state.playerCount = n;
+                renderCount(); renderNames(); refresh();
+              });
+              countRow.appendChild(b);
+            })(n);
+          }
+        }
+        function renderNames() {
+          nameGrid.innerHTML = "";
+          for (var i = 0; i < state.playerCount; i++) {
+            (function (i) {
+              var wrap = document.createElement("div");
+              wrap.className = "name-field";
+              var lab = document.createElement("label");
+              lab.setAttribute("for", "nameInput" + i);
+              lab.textContent = (i + 1) + "人目";
+              var inp = document.createElement("input");
+              inp.type = "text";
+              inp.id = "nameInput" + i;
+              inp.value = state.names[i];
+              inp.setAttribute("autocomplete", "off");
+              inp.addEventListener("input", function () {
+                state.names[i] = inp.value;
+                refresh();
+              });
+              wrap.appendChild(lab); wrap.appendChild(inp);
+              nameGrid.appendChild(wrap);
+            })(i);
+          }
+        }
+        /* 打ち止めルールは数字指定：打ち止め打数（なし／4〜12打）と
+           記録打数（打ち止めと同じ〜+2打）を別々に選ぶ。
+           打ち止め打数を変えた時は、記録打数との差（+0／+1／+2）を保つ */
+        function renderCap() {
+          var row = $("capRow");
+          row.innerHTML = "";
+          var opts = [0, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+          opts.forEach(function (n) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.textContent = n === 0 ? "なし" : n + "打";
+            b.setAttribute("aria-pressed", n === state.cap ? "true" : "false");
+            b.setAttribute("aria-label", n === 0 ? "打ち止めなし" : "打ち止め" + n + "打");
+            b.addEventListener("click", function () {
+              var offset = state.cap > 0 ? state.capRecord - state.cap : 1;
+              state.cap = n;
+              if (n > 0) state.capRecord = n + Math.min(Math.max(offset, 0), 2);
+              renderCap(); renderPlay(); refresh();
+            });
+            row.appendChild(b);
+          });
+          var wrap = $("capRecordWrap");
+          var rrow = $("capRecordRow");
+          rrow.innerHTML = "";
+          if (state.cap > 0) {
+            wrap.style.display = "";
+            [state.cap, state.cap + 1, state.cap + 2].forEach(function (n) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.textContent = n + "打";
+              b.setAttribute("aria-pressed", n === state.capRecord ? "true" : "false");
+              b.setAttribute("aria-label", "記録打数" + n + "打");
+              b.addEventListener("click", function () {
+                state.capRecord = n;
+                renderCap(); renderPlay(); refresh();
+              });
+              rrow.appendChild(b);
+            });
+          } else {
+            wrap.style.display = "none";
+          }
+        }
+        function renderStartHole() {
+          var row = $("startHoleRow");
+          row.innerHTML = "";
+          for (var n = 1; n <= HOLES; n++) {
+            (function (n) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.textContent = n + "番";
+              b.setAttribute("aria-pressed", n === state.startHole ? "true" : "false");
+              b.setAttribute("aria-label", "スタートホール " + n + "番");
+              b.addEventListener("click", function () {
+                state.startHole = n;
+                if (!state.started) state.currentHole = n - 1;
+                renderStartHole(); renderSetupDone(); refresh(); renderPlay();
+              });
+              row.appendChild(b);
+            })(n);
+          }
+        }
+        function renderSetupDone() {
+          var names = [];
+          for (var i = 0; i < state.playerCount; i++) names.push(playerName(i));
+          var team = state.teamName.trim();
+          var ev = state.eventName.trim();
+          var course = state.courseName.trim();
+          $("setupDoneNames").textContent =
+            "日付：" + playDateStr() + " ／ " + (ev ? "大会名：" + ev + " ／ " : "") + (course ? "コース：" + course + " ／ " : "") + "スタートホール：" + state.startHole + "番 ／ " + (team ? "チーム名：" + team + " ／ " : "") + state.playerCount + "人：" + names.join("、");
+        }
+
+        /* ---------- 周タブ ---------- */
+        function makeRoundTabs(container, selected, onPick) {
+          container.innerHTML = "";
+          for (var r = 0; r < state.rounds.length; r++) {
+            (function (r) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.textContent = (r + 1) + "周目";
+              b.setAttribute("aria-label", "第" + (r + 1) + "周目");
+              if (r === selected) b.className = "current";
+              if (roundComplete(r)) b.classList.add("done");
+              b.addEventListener("click", function () { onPick(r); });
+              container.appendChild(b);
+            })(r);
+          }
+        }
+        function renderRoundTabs() {
+          makeRoundTabs(roundTabs, state.currentRound, function (r) {
+            state.currentRound = r;
+            state.tableRound = r;
+            renderPlay(); renderTable(); renderStatus();
+            scrollToEntryTop();
+          });
+          makeRoundTabs(tableRoundTabs, state.tableRound, function (r) {
+            state.tableRound = r;
+            renderTable();
+          });
+          var btn = $("nextRoundBtn");
+          var hint = $("nextRoundHint");
+          var complete = roundComplete(state.currentRound);
+          /* 最終ホールまで来たら、未入力が残っていても次の周へ進む道を出す。
+             未入力がある時は、ボタンを押した時点で確認ダイアログで知らせる。
+             （以前は「全ホール入力済み」の時だけボタンを出していたため、
+             空欄を1つ残すと次の周へ進めなくなっていた） */
+          var canNext = state.started && state.currentRound === lastRound()
+            && state.rounds.length < MAX_ROUNDS
+            && (complete || state.currentHole === lastHoleIdx());
+          if (canNext) {
+            btn.textContent = (state.rounds.length + 1) + "周目を始める";
+            btn.classList.add("show");
+            hint.textContent = complete
+              ? "この周が終わりました。次の周を始められます（記録は5周目まで残せます）。"
+              : "この周には、まだ入力していない所があります。次の周を始める時に確認が出ます（空欄は後からでも直せます）。";
+            hint.style.display = "";
+          } else {
+            btn.classList.remove("show");
+            hint.style.display = "none";
+          }
+        }
+
+        /* ---------- 入力 ---------- */
+        function renderHoleTabs() {
+          holeTabs.innerHTML = "";
+          var order = holeOrder();
+          for (var k = 0; k < HOLES; k++) {
+            (function (h) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.textContent = (h + 1);
+              b.setAttribute("aria-label", "第" + (h + 1) + "ホール");
+              if (h === state.currentHole) b.className = "current";
+              if (holeComplete(state.currentRound, h)) b.classList.add("done");
+              b.addEventListener("click", function () {
+                state.currentHole = h;
+                renderPlay();
+                scrollToEntryTop();
+              });
+              holeTabs.appendChild(b);
+            })(order[k]);
+          }
+        }
+        function renderEntries() {
+          $("holeHeading").textContent = "第" + (state.currentRound + 1) + "周目・第" + (state.currentHole + 1) + "ホール";
+          entryList.innerHTML = "";
+          var r = state.currentRound, curHole = state.currentHole;
+          /* このホールの打順（公式ローテーション：プレー順にホールが進むごとに先頭が1人ずれる。
+             進行順はスタートホールから数える） */
+          var shift = (r * HOLES + holePos(curHole)) % state.playerCount;
+          var orderHtml = "";
+          for (var k = 0; k < state.playerCount; k++) {
+            var oi = (shift + k) % state.playerCount;
+            orderHtml += "<li><span class='order-no'>" + (k + 1) + "番</span><span class='order-name'>" + esc(playerName(oi)) + "さん</span></li>";
+          }
+          $("orderList").innerHTML = orderHtml;
+          for (var i = 0; i < state.playerCount; i++) {
+            (function (i) {
+              var v = cell(r, i, curHole);
+              var isMissing = v === null && state.missingKey === r + "-" + curHole && state.missingPlayers.indexOf(i) >= 0;
+              var isStopped = v !== null && !!state.stopped[r + "-" + i + "-" + curHole];
+              var row = document.createElement("div");
+              row.className = "entry-row" + (v !== null ? " filled" : "") + (v === 1 ? " hio" : "") + (isStopped ? " stopped" : "") + (isMissing ? " missing" : "");
+
+              var top = document.createElement("div");
+              top.className = "entry-top";
+              var nm = document.createElement("div");
+              nm.className = "entry-name";
+              nm.textContent = playerName(i);
+              var badge = document.createElement("span");
+              badge.className = "hio-badge";
+              badge.textContent = "ホールインワン！ ①";
+              var missBadge = document.createElement("span");
+              missBadge.className = "missing-badge";
+              missBadge.textContent = "まだ入力していません";
+              var stopBadge = document.createElement("span");
+              stopBadge.className = "stopped-badge";
+              stopBadge.textContent = "打ち止め" + (v !== null ? "（" + v + "打で記録）" : "");
+              var stepper = document.createElement("div");
+              stepper.className = "stepper";
+
+              var minus = document.createElement("button");
+              minus.type = "button"; minus.className = "minus"; minus.textContent = "−";
+              minus.setAttribute("aria-label", playerName(i) + "の打数を1減らす");
+              var num = document.createElement("span");
+              num.className = "score-num" + (v === null ? " unset" : "");
+              num.textContent = v === null ? "？" : (v === 1 ? "①" : v);
+              var unit = document.createElement("span");
+              unit.className = "score-unit"; unit.textContent = "打";
+              var plus = document.createElement("button");
+              plus.type = "button"; plus.textContent = "＋";
+              plus.setAttribute("aria-label", playerName(i) + "の打数を1増やす");
+
+              minus.addEventListener("click", function () {
+                var cur = state.rounds[r][i][curHole];
+                if (cur === null) return;
+                setCell(r, i, curHole, cur <= 1 ? null : cur - 1);
+                updateAll();
+              });
+              plus.addEventListener("click", function () {
+                var cur = state.rounds[r][i][curHole];
+                /* 打ち止めがある時は、入力の上限は打ち止め打数まで */
+                var maxV = state.cap > 0 ? state.cap : 20;
+                if (cur !== null && cur >= maxV) return;
+                var nv = cur === null ? 1 : Math.min(cur + 1, maxV);
+                setCell(r, i, curHole, nv);
+                updateAll();
+              });
+
+              stepper.appendChild(minus); stepper.appendChild(num); stepper.appendChild(unit); stepper.appendChild(plus);
+              top.appendChild(nm); top.appendChild(badge); top.appendChild(stopBadge); top.appendChild(missBadge); top.appendChild(stepper);
+              row.appendChild(top);
+
+              var quick = document.createElement("div");
+              quick.className = "quick-row";
+              var qlab = document.createElement("span");
+              qlab.textContent = "押して入力：";
+              quick.appendChild(qlab);
+              var qMax = state.cap ? state.cap : 6;
+              for (var q = 1; q <= qMax; q++) {
+                (function (q) {
+                  var qb = document.createElement("button");
+                  qb.type = "button"; qb.textContent = q === 1 ? "①" : q;
+                  if (v === q) qb.className = "selected";
+                  qb.setAttribute("aria-label", playerName(i) + "を" + q + "打にする");
+                  qb.addEventListener("click", function () {
+                    setCell(r, i, curHole, q);
+                    updateAll();
+                  });
+                  quick.appendChild(qb);
+                })(q);
+              }
+              if (state.cap > 0) {
+                var stopBtn = document.createElement("button");
+                stopBtn.type = "button";
+                stopBtn.className = "stop-btn" + (isStopped ? " selected" : "");
+                stopBtn.textContent = "入らなかった（" + state.capRecord + "打）";
+                stopBtn.setAttribute("aria-label", playerName(i) + "を打ち止めで" + state.capRecord + "打にする");
+                stopBtn.addEventListener("click", function () {
+                  setCell(r, i, curHole, state.capRecord, true);
+                  updateAll();
+                });
+                quick.appendChild(stopBtn);
+              }
+              var clr = document.createElement("button");
+              clr.type = "button"; clr.className = "clear-btn"; clr.textContent = "消す";
+              clr.setAttribute("aria-label", playerName(i) + "のこのホールの入力を消す");
+              clr.addEventListener("click", function () {
+                setCell(r, i, curHole, null);
+                updateAll();
+              });
+              quick.appendChild(clr);
+              row.appendChild(quick);
+
+              entryList.appendChild(row);
+            })(i);
+          }
+          $("prevHoleBtn").disabled = holePos(state.currentHole) === 0;
+          /* 「次のホール」ボタンは、最後のホールでも名前を変えない。
+             （以前は最終ホールで「結果を見る」に表示が変わり、ボタン自体が
+             消えたように見えていた。押した時の動作は今まで通りで、
+             結果や「次の周を始める」ボタンの所へ案内する） */
+          var nextBtn = $("nextHoleBtn");
+          nextBtn.textContent = "次のホール →";
+          nextBtn.disabled = false;
+          $("lastHoleNote").style.display = state.currentHole === lastHoleIdx() ? "" : "none";
+        }
+
+        /* ---------- この周の内訳 ---------- */
+        function renderRoundSummary() {
+          var r = state.currentRound;
+          var html = "<h3>第" + (r + 1) + "周目の内訳</h3><ul class='summary-list'>";
+          for (var i = 0; i < state.playerCount; i++) {
+            var hio = hioOf(r, i);
+            html += "<li><span class='s-name'>" + esc(playerName(i)) + "</span>" +
+              "<span>実打数 " + rawOf(r, i) + "打</span>" +
+              "<span>ホールインワン " + hio + "回</span>" +
+              "<span class='s-adj'>調整 " + (hio > 0 ? "−" + (HIO_BONUS * hio) : "0") + "打</span>" +
+              "<span class='s-final'>合計 " + finalOf(r, i) + "打</span></li>";
+          }
+          html += "</ul>";
+          roundSummary.innerHTML = html;
+        }
+        function renderPlay() { renderRoundTabs(); renderHoleTabs(); renderEntries(); renderRoundSummary(); renderPrint(); save(); }
+        function updateAll() { renderPlay(); renderRank(); renderTable(); renderStatus(); }
+
+        /* ---------- 順位（総合） ---------- */
+        function renderRank() {
+          var multi = state.rounds.length > 1;
+          $("rankTitleText").textContent = multi ? "総合順位（全" + state.rounds.length + "周）" : "いまの順位";
+          var idx = [];
+          for (var i = 0; i < state.playerCount; i++) idx.push(i);
+          idx.sort(function (a, b) {
+            var d = allFinal(a) - allFinal(b);
+            if (d !== 0) return d;
+            d = allHio(b) - allHio(a);
+            if (d !== 0) return d;
+            return allTwo(b) - allTwo(a);
+          });
+          rankList.innerHTML = "";
+          var lastKey = null, lastRank = 0;
+          idx.forEach(function (pi, pos) {
+            var key = allFinal(pi) + "/" + allHio(pi) + "/" + allTwo(pi);
+            var rank = (lastKey !== null && key === lastKey) ? lastRank : pos + 1;
+            lastKey = key; lastRank = rank;
+            var li = document.createElement("li");
+            if (rank === 1) li.className = "first";
+            var hio = allHio(pi), adj = allAdj(pi);
+            var sub = "実打数 " + allRaw(pi) + "打";
+            if (hio > 0) sub += "／ホールインワン " + hio + "回（<span class='adj'>調整 " + adj + "打</span>）";
+            sub += "／" + allPlayed(pi) + "ホール終了";
+            if (multi) {
+              var parts = [];
+              for (var r = 0; r < state.rounds.length; r++) parts.push((r + 1) + "周目 " + finalOf(r, pi) + "打");
+              sub += "<br>" + parts.join("・");
+            }
+            li.innerHTML =
+              '<span class="rank-no">' + rank + '位</span>' +
+              '<span class="rank-name">' + esc(playerName(pi)) + '</span>' +
+              '<span class="rank-detail"><span class="rank-total">' + allFinal(pi) + '<small> 打</small></span>' +
+              '<div class="rank-sub">' + sub + '</div></span>';
+            rankList.appendChild(li);
+          });
+        }
+
+        /* ---------- スコア表 ---------- */
+        function renderTable() {
+          var r = state.tableRound;
+          $("tableTitle").textContent = "スコア表（第" + (r + 1) + "周目）";
+          $("tableDateLine").textContent = "日付：" + playDateStr();
+          var team = state.teamName.trim();
+          var course = state.courseName.trim();
+          $("tableTeamLine").textContent = (team ? "チーム名：" + team + "　" : "") + (course ? "コース：" + course + "　" : "") + "スタートホール：" + state.startHole + "番";
+          var order = holeOrder();
+          var html = "<thead><tr><th class='name-col'>名前</th>";
+          for (var h = 0; h < HOLES; h++) html += "<th>" + (order[h] + 1) + "</th>";
+          html += "<th>実打数</th><th>①回数</th><th>調整</th><th class='total-col'>合計</th></tr></thead><tbody>";
+          for (var i = 0; i < state.playerCount; i++) {
+            html += "<tr><td class='name-col'>" + esc(playerName(i)) + "</td>";
+            for (var h2 = 0; h2 < HOLES; h2++) {
+              var v = cell(r, i, order[h2]);
+              var cls = "";
+              if (v === 1) cls = "cell-hio";
+              if (r === state.currentRound && order[h2] === state.currentHole) cls += " cell-now";
+              var shown = v === null ? "<span class='unset-mark'>・</span>" : (v === 1 ? "①" : v);
+              html += "<td class='" + cls.trim() + "'>" + shown + "</td>";
+            }
+            var hio = hioOf(r, i);
+            html += "<td class='raw-col'>" + rawOf(r, i) + "</td>" +
+              "<td class='hio-col'>" + hio + "</td>" +
+              "<td class='adj-col'>" + (hio > 0 ? "−" + (HIO_BONUS * hio) : "0") + "</td>" +
+              "<td class='total-col'>" + finalOf(r, i) + "</td></tr>";
+          }
+          html += "</tbody>";
+          scoreTable.innerHTML = html;
+        }
+
+        /* ---------- 印刷用（PDF保存）シート ----------
+           画面には出さず、印刷の時だけ表示する。グラウンド・ゴルフの
+           スコアカードの書式に合わせ、周ごとに1枚のカードを作る。
+           各ホールのセルは斜め区切りで、左上に打数、右下にそのホールまでの
+           累計（実打数の累計）を入れる。ホールインワンの打数は「①」。
+           合計は実打数からホールインワン1回につき3を引いた数。
+           カードの後に総合順位表を置く。 */
+        function playDateWeekdayStr() {
+          var parts = playDateIso().split("-");
+          var d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          var wd = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
+          return parseInt(parts[0], 10) + "年" + parseInt(parts[1], 10) + "月" + parseInt(parts[2], 10) + "日（" + wd + "）";
+        }
+        function renderPrint() {
+          var sheet = $("printSheet");
+          if (!sheet) return;
+          var team = state.teamName.trim();
+          var ev = state.eventName.trim();
+          var course = state.courseName.trim();
+          var order = holeOrder();
+          var html = "";
+          for (var r = 0; r < state.rounds.length; r++) {
+            html += "<div class='print-card'>";
+            html += "<h1 class='print-title'>グラウンド・ゴルフ スコアカード</h1>";
+            html += "<p class='print-round-line'>第" + (r + 1) + "周目" + (team ? "　チーム名：" + esc(team) : "") + (state.cap > 0 ? "　" + esc(capLabel()) : "") + "</p>";
+            /* 公式カード上部の欄：大会名（　）／（　）コース／スタートホール（　）番／年月日（　） */
+            html += "<table class='print-meta'><tbody><tr>";
+            html += "<td>大会名（　" + esc(ev) + "　）</td>";
+            html += "<td>（　" + esc(course) + "　）コース</td>";
+            html += "<td>スタートホール（　" + state.startHole + "　）番</td>";
+            html += "<td class='pm-date'>" + esc(playDateWeekdayStr()) + "</td>";
+            html += "</tr></tbody></table>";
+            html += "<table class='print-table'><thead><tr>";
+            html += "<th class='p-no'>No.</th>";
+            html += "<th class='p-diag-head'><span class='diag-line'></span><span class='dh-name'>氏名</span><span class='dh-hole'>ホールNo.</span></th>";
+            for (var h = 0; h < HOLES; h++) html += "<th>" + (order[h] + 1) + "</th>";
+            html += "<th>実打数</th><th>1打回数</th><th>合計</th><th>確認サイン</th>";
+            html += "</tr></thead><tbody>";
+            for (var i = 0; i < state.playerCount; i++) {
+              html += "<tr><td class='p-no'>" + (i + 1) + "</td><td class='p-name'>" + esc(playerName(i)) + "</td>";
+              var cum = 0;
+              for (var h2 = 0; h2 < HOLES; h2++) {
+                var v = cell(r, i, order[h2]);
+                if (v === null) {
+                  html += "<td class='p-hole'><div class='diag-cell'><span class='diag-line'></span></div></td>";
+                } else {
+                  cum += v;
+                  html += "<td class='p-hole'><div class='diag-cell'><span class='diag-line'></span>" +
+                    "<span class='dc-score" + (v === 1 ? " hio" : "") + "'>" + (v === 1 ? "①" : v) + "</span>" +
+                    "<span class='dc-cum'>" + cum + "</span></div></td>";
+                }
+              }
+              var hio = hioOf(r, i);
+              html += "<td class='p-num'>" + rawOf(r, i) + "</td><td class='p-num'>" + hio + "</td><td class='p-total'>" + finalOf(r, i) + "</td><td class='p-sign'></td></tr>";
+            }
+            html += "</tbody></table>";
+            html += "<div class='print-notes'>";
+            html += "<p>留意点</p>";
+            html += "<p>（1）打数は算用数字または正の字で記入してください。斜めセルの左上が打数、右下が累計です。</p>";
+            html += "<p>（2）ホールインワンの場合、打数欄には①と記入し、累計欄には1をプラスした数を記入、合計欄にはホールインワン1回につき3を引いた数を記入してください。</p>";
+            html += "</div>";
+            html += "<p class='print-footer'>作成：Snow Moon　Ver.20261115.1.0</p>";
+            html += "</div>";
+          }
+          /* 総合順位表（全周のカードの後） */
+          html += "<div class='print-rank'>";
+          html += "<h2 class='print-h2'>総合順位表（全" + state.rounds.length + "周）　" + esc(playDateWeekdayStr()) + "</h2>";
+          html += "<table class='print-rank-table'><thead><tr><th>順位</th><th class='p-name'>氏名</th><th>実打数</th><th>1打回数</th><th>調整</th><th>最終合計</th></tr></thead><tbody>";
+          var idx = rankedIdx();
+          var lastKey = null, lastRank = 0;
+          idx.forEach(function (pi, pos) {
+            var key = allFinal(pi) + "/" + allHio(pi) + "/" + allTwo(pi);
+            var rank = (lastKey !== null && key === lastKey) ? lastRank : pos + 1;
+            lastKey = key; lastRank = rank;
+            var hio = allHio(pi);
+            html += "<tr><td class='p-rank'>" + rank + "位</td><td class='p-name'>" + esc(playerName(pi)) + "</td><td>" + allRaw(pi) + "</td><td>" + hio + "</td><td>" + (hio > 0 ? "−" + (HIO_BONUS * hio) : "0") + "</td><td class='p-total'>" + allFinal(pi) + "打</td></tr>";
+          });
+          html += "</tbody></table>";
+          html += "<div class='print-notes'><p>打ち止めルール：" + esc(capLabel()) + "／「調整」はホールインワン1回につき −3打です。同点の時はホールインワンの多い人、次に2打の多い人が上位です。</p></div>";
+          html += "<p class='print-footer'>作成：Snow Moon　Ver.20261115.1.0</p>";
+          html += "</div>";
+          sheet.innerHTML = html;
+        }
+
+        /* ---------- 状況表示・終了 ---------- */
+        function renderStatus() {
+          $("statusDate").textContent = playDateStr();
+          var team = state.teamName.trim();
+          var teamEl = $("statusTeam");
+          if (team) { teamEl.textContent = team; teamEl.style.display = ""; }
+          else { teamEl.textContent = ""; teamEl.style.display = "none"; }
+
+          var doneRounds = 0;
+          for (var r = 0; r < state.rounds.length; r++) if (roundComplete(r)) doneRounds++;
+          var doneHoles = 0;
+          for (var h = 0; h < HOLES; h++) if (holeComplete(state.currentRound, h)) doneHoles++;
+          var lastDone = roundComplete(lastRound());
+
+          if (!state.started) {
+            $("statusHole").innerHTML = "準備中";
+            $("statusRest").innerHTML = "参加者を決めて<br>「始める」を押してください";
+          } else if (lastDone && state.currentRound === lastRound()) {
+            $("statusHole").innerHTML = "第" + (lastRound() + 1) + "周目 終了";
+            $("statusRest").innerHTML = state.rounds.length < MAX_ROUNDS
+              ? "次の周を始められます"
+              : "5周分すべて終了<br>おつかれさまでした";
+          } else {
+            $("statusHole").innerHTML = "第" + (state.currentRound + 1) + "周目・第" + (state.currentHole + 1) + "ホール <small>／ 全" + HOLES + "ホール</small>";
+            $("statusRest").innerHTML = "終わった周 <span class='rest-num'>" + doneRounds + "</span> ／ この周のホール <span class='rest-num'>" + doneHoles + "</span> ／ " + HOLES;
+          }
+
+          var banner = $("finishBanner");
+          if (state.started && lastDone) {
+            var bestFinal = Infinity;
+            for (var i = 0; i < state.playerCount; i++) if (allFinal(i) < bestFinal) bestFinal = allFinal(i);
+            var winners = [];
+            for (var j = 0; j < state.playerCount; j++) if (allFinal(j) === bestFinal) winners.push(j);
+            var lead = winners[0];
+            var title = state.rounds.length > 1
+              ? "全" + state.rounds.length + "周の総合優勝は "
+              : "優勝は ";
+            banner.innerHTML = title +
+              "<span class='winner'>" + esc(winners.map(playerName).join(" さん、")) + " さん</span>（最終合計 " + bestFinal + "打）です。おめでとうございます！" +
+              "<span class='breakdown'>内訳：実打数 " + allRaw(lead) + "打 − ホールインワン " + allHio(lead) + "回 × 3打（調整 " + allAdj(lead) + "打）＝ " + bestFinal + "打</span>";
+            banner.classList.add("show");
+          } else {
+            banner.classList.remove("show");
+            banner.innerHTML = "";
+          }
+        }
+        function refresh() { renderRank(); renderTable(); renderStatus(); updateShareLinks(); renderPrint(); save(); }
+
+        /* ---------- 結果テキスト・CSV ---------- */
+        function todayFileStr() {
+          var d = new Date();
+          function p(n) { return (n < 10 ? "0" : "") + n; }
+          return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+        }
+        function playDateIso() {
+          return state.playDate && /^\d{4}-\d{2}-\d{2}$/.test(state.playDate) ? state.playDate : todayFileStr();
+        }
+        function playDateStr() {
+          var iso = playDateIso();
+          var parts = iso.split("-");
+          return parseInt(parts[0], 10) + "年" + parseInt(parts[1], 10) + "月" + parseInt(parts[2], 10) + "日";
+        }
+        function todayStr() { return playDateStr(); }
+        function capLabel() {
+          if (state.cap > 0) return "打ち止め" + state.cap + "打（記録" + state.capRecord + "打）";
+          return "なし";
+        }
+        /* ---------- 出力ファイル名の一意化 ----------
+           運営側でメールを集めた時、全部同じ名前だと上書きされてしまうので、
+           CSV・PDFのファイル名にチーム名・プレー日・出力時刻（時分）を入れる。
+           同じチームが訂正分を後から送っても、時刻が違うので名前が重ならない。 */
+        function sanitizeFilePart(s) {
+          /* ファイル名に使えない文字（ / \ : * ? " < > | と制御文字）は「_」に置き換える */
+          return String(s).replace(/[\/\\:*?"<>|\u0000-\u001F]/g, "_").replace(/^[ .]+|[ .]+$/g, "");
+        }
+        function outputTimeStr() {
+          /* 出力した時点の時刻（時分4桁。例：14時30分 → "1430"） */
+          var d = new Date();
+          function p(n) { return (n < 10 ? "0" : "") + n; }
+          return p(d.getHours()) + p(d.getMinutes());
+        }
+        function fileTeamName() {
+          var s = sanitizeFilePart(state.teamName.trim());
+          return s ? s : "チーム未設定";
+        }
+        function csvFileName() {
+          return "グラウンドゴルフ記録_" + fileTeamName() + "_" + playDateIso() + "_" + outputTimeStr() + ".csv";
+        }
+        function pdfTitleName() {
+          return "スコアカード_" + fileTeamName() + "_" + playDateIso() + "_" + outputTimeStr();
+        }
+        function rankedIdx() {
+          var idx = [];
+          for (var i = 0; i < state.playerCount; i++) idx.push(i);
+          idx.sort(function (a, b) {
+            var d = allFinal(a) - allFinal(b);
+            if (d !== 0) return d;
+            d = allHio(b) - allHio(a);
+            if (d !== 0) return d;
+            return allTwo(b) - allTwo(a);
+          });
+          return idx;
+        }
+        function buildResultText() {
+          var lines = [];
+          lines.push("【グラウンドゴルフ結果】");
+          var team = state.teamName.trim();
+          if (team) lines.push("チーム名：" + team);
+          var evName = state.eventName.trim();
+          if (evName) lines.push("大会名：" + evName);
+          var courseName = state.courseName.trim();
+          if (courseName) lines.push("コース：" + courseName);
+          lines.push("日付：" + todayStr());
+          lines.push("スタートホール：" + state.startHole + "番");
+          lines.push("全" + state.rounds.length + "周（" + (state.rounds.length * HOLES) + "ホール）／打ち止め：" + capLabel());
+          lines.push("");
+          var idx = rankedIdx();
+          var lastKey = null, lastRank = 0;
+          idx.forEach(function (pi, pos) {
+            var key = allFinal(pi) + "/" + allHio(pi) + "/" + allTwo(pi);
+            var rank = (lastKey !== null && key === lastKey) ? lastRank : pos + 1;
+            lastKey = key; lastRank = rank;
+            lines.push(rank + "位 " + playerName(pi) + "さん：最終合計 " + allFinal(pi) + "打（実打数 " + allRaw(pi) + "打／ホールインワン " + allHio(pi) + "回／調整 " + allAdj(pi) + "打）");
+          });
+          lines.push("");
+          lines.push("【周ごとの内訳】実打数 → ホールインワン調整後の打数");
+          for (var i = 0; i < state.playerCount; i++) {
+            var parts = [];
+            for (var r = 0; r < state.rounds.length; r++) {
+              parts.push((r + 1) + "周目 " + rawOf(r, i) + "打 → " + finalOf(r, i) + "打");
+            }
+            lines.push(playerName(i) + "さん：" + parts.join("、"));
+          }
+          var anyIncomplete = false;
+          for (var rr = 0; rr < state.rounds.length; rr++) if (!roundComplete(rr)) anyIncomplete = true;
+          if (anyIncomplete) lines.push("※まだ入力していないホールがある周は、入力済み分だけの合計です。");
+          return lines.join("\n");
+        }
+        /* メール用は要約版（順位・名前・最終合計・ホールインワン回数だけ）。
+           本文が長いと mailto: のURLが長くなりすぎて開けない端末があるため。 */
+        function buildMailText() {
+          var lines = [];
+          lines.push("【グラウンドゴルフ結果】");
+          var team = state.teamName.trim();
+          if (team) lines.push("チーム名：" + team);
+          lines.push("日付：" + todayStr());
+          lines.push("");
+          var idx = rankedIdx();
+          var lastKey = null, lastRank = 0;
+          idx.forEach(function (pi, pos) {
+            var key = allFinal(pi) + "/" + allHio(pi) + "/" + allTwo(pi);
+            var rank = (lastKey !== null && key === lastKey) ? lastRank : pos + 1;
+            lastKey = key; lastRank = rank;
+            lines.push(rank + "位 " + playerName(pi) + "さん：合計 " + allFinal(pi) + "打（ホールインワン " + allHio(pi) + "回）");
+          });
+          lines.push("");
+          lines.push("詳しい結果はコピー用テキストとCSVにあります。");
+          return lines.join("\n");
+        }
+        function updateShareLinks() {
+          var text = buildResultText();
+          $("lineBtn").href = "https://line.me/R/msg/text/?" + encodeURIComponent(text);
+          var subject = "グラウンドゴルフ結果（" + todayStr() + "）";
+          $("mailBtn").href = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(buildMailText());
+        }
+        function csvEsc(v) {
+          var s = String(v);
+          if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+          return s;
+        }
+        /* CSVはデータベース形式の明細データ（コピー用テキストの順位サマリーとは別物）。
+           1行＝1プレイヤー×1ホール。列構成は常に同一なので、各組の記録者のCSVを
+           縦に繋げてExcelで集計できる。未入力ホールは出さない。 */
+        function buildCsv() {
+          var rows = [];
+          rows.push(["日付", "大会名", "チーム名", "コース名", "スタートホール", "周", "プレイヤー名", "ホール", "打数", "ホールインワン"]);
+          var date = playDateIso();
+          var ev = state.eventName.trim();
+          var team = state.teamName.trim();
+          var course = state.courseName.trim();
+          var order = holeOrder();
+          for (var r = 0; r < state.rounds.length; r++) {
+            for (var i = 0; i < state.playerCount; i++) {
+              for (var k = 0; k < HOLES; k++) {
+                var h = order[k];
+                var v = cell(r, i, h);
+                if (v === null) continue;
+                rows.push([date, ev, team, course, state.startHole, r + 1, playerName(i), h + 1, v, v === 1 ? 1 : 0]);
+              }
+            }
+          }
+          return rows.map(function (row) { return row.map(csvEsc).join(","); }).join("\r\n");
+        }
+
+        /* ---------- イベント ---------- */
+        $("teamNameInput").addEventListener("input", function () {
+          state.teamName = $("teamNameInput").value;
+          renderSetupDone();
+          renderTable(); renderStatus(); updateShareLinks(); renderPrint(); save();
+        });
+        $("eventNameInput").addEventListener("input", function () {
+          state.eventName = $("eventNameInput").value;
+          renderSetupDone();
+          renderPrint(); save();
+        });
+        $("courseNameInput").addEventListener("input", function () {
+          state.courseName = $("courseNameInput").value;
+          renderSetupDone();
+          renderTable(); renderPrint(); save();
+        });
+        $("playDateInput").addEventListener("change", function () {
+          state.playDate = $("playDateInput").value || todayFileStr();
+          renderSetupDone();
+          renderTable(); renderStatus(); updateShareLinks(); save();
+        });
+        $("playDateInput").addEventListener("input", function () {
+          if ($("playDateInput").value) {
+            state.playDate = $("playDateInput").value;
+            renderSetupDone();
+            renderTable(); renderStatus(); updateShareLinks(); save();
+          }
+        });
+        $("startBtn").addEventListener("click", function () {
+          if (!state.playDate) state.playDate = $("playDateInput").value || todayFileStr();
+          if (!state.started) state.currentHole = state.startHole - 1;
+          state.started = true;
+          save();
+          $("setupForm").style.display = "none";
+          var done = $("setupDone");
+          done.style.display = "flex";
+          renderSetupDone();
+          renderStatus();
+          $("playCard").scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        $("editSetupBtn").addEventListener("click", function () {
+          $("setupForm").style.display = "";
+          $("setupDone").style.display = "none";
+        });
+        /* ホールや周が切り替わったら、入力エリアの一番上（プレイヤー1の行）まで
+           自動でスクロールして戻る。毎回手で戻さなくてよいように。 */
+        function scrollToEntryTop() {
+          var target = entryList.querySelector(".entry-row") || $("playCard");
+          var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        }
+        $("prevHoleBtn").addEventListener("click", function () {
+          var pos = holePos(state.currentHole);
+          if (pos > 0) { state.currentHole = holeOrder()[pos - 1]; renderPlay(); renderTable(); scrollToEntryTop(); }
+        });
+        function proceedNextHole() {
+          state.missingKey = null;
+          state.missingPlayers = [];
+          var pos = holePos(state.currentHole);
+          if (pos < HOLES - 1) {
+            state.currentHole = holeOrder()[pos + 1];
+            renderPlay(); renderTable();
+            scrollToEntryTop();
+          } else {
+            if (roundComplete(lastRound())) {
+              $("finishBanner").scrollIntoView({ behavior: "smooth", block: "center" });
+            } else if ($("nextRoundBtn").classList.contains("show")) {
+              /* 未入力が残っていても、次の周へ進むボタンの所まで案内する */
+              $("nextRoundBtn").scrollIntoView({ behavior: "smooth", block: "center" });
+            } else {
+              $("scoreTable").scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }
+        }
+        $("nextHoleBtn").addEventListener("click", function () {
+          var missing = [];
+          for (var i = 0; i < state.playerCount; i++) {
+            if (cell(state.currentRound, i, state.currentHole) === null) missing.push(i);
+          }
+          if (missing.length === 0) { proceedNextHole(); return; }
+          var names = missing.map(function (i) { return playerName(i); });
+          $("missingTitle").textContent = "スコアの記載漏れがあります";
+          $("missingNames").textContent = names.join("さん、") + " さんの記載漏れがあります";
+          $("missingAsk").textContent = "このまま次のホールへ進めますか？";
+          $("missingOverlay").classList.add("show");
+          $("missingNo").focus();
+          $("missingYes").onclick = function () {
+            $("missingOverlay").classList.remove("show");
+            proceedNextHole();
+          };
+          $("missingNo").onclick = function () {
+            $("missingOverlay").classList.remove("show");
+            state.missingKey = state.currentRound + "-" + state.currentHole;
+            state.missingPlayers = missing.slice();
+            renderEntries();
+            var first = entryList.querySelector(".entry-row.missing");
+            if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+          };
+        });
+        function startNextRound() {
+          if (state.rounds.length >= MAX_ROUNDS) return;
+          state.missingKey = null;
+          state.missingPlayers = [];
+          state.rounds.push(emptyRound());
+          state.currentRound = lastRound();
+          state.tableRound = state.currentRound;
+          state.currentHole = state.startHole - 1;
+          updateAll();
+          scrollToEntryTop();
+        }
+        $("nextRoundBtn").addEventListener("click", function () {
+          if (state.rounds.length >= MAX_ROUNDS) return;
+          /* この周に未入力が残っていたら、先に確認を出す。
+             空欄があっても「はい」で次の周を始められる（後から周タブで戻って直せる）。 */
+          var missingHoles = [];
+          for (var h = 0; h < HOLES; h++) {
+            if (!holeComplete(state.currentRound, h)) missingHoles.push(h);
+          }
+          if (missingHoles.length === 0) { startNextRound(); return; }
+          var parts = [];
+          for (var m = 0; m < missingHoles.length; m++) {
+            var hh = missingHoles[m];
+            var pnames = [];
+            for (var i = 0; i < state.playerCount; i++) {
+              if (cell(state.currentRound, i, hh) === null) pnames.push(playerName(i));
+            }
+            parts.push("第" + (hh + 1) + "ホール：" + pnames.join("さん、") + "さん");
+          }
+          $("missingTitle").textContent = "この周には、まだ入力していない所があります";
+          $("missingNames").textContent = parts.join(" ／ ");
+          $("missingAsk").textContent = "このまま次の周を始めますか？";
+          $("missingOverlay").classList.add("show");
+          $("missingNo").focus();
+          $("missingYes").onclick = function () {
+            $("missingOverlay").classList.remove("show");
+            startNextRound();
+          };
+          $("missingNo").onclick = function () {
+            $("missingOverlay").classList.remove("show");
+          };
+        });
+        /* ---------- 結果テキストをコピー（メールが開けない時の確実な予備手段） ---------- */
+        var copyDoneTimer = null;
+        function showCopyDone() {
+          var box = $("copyDone");
+          box.classList.add("show");
+          box.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (copyDoneTimer) clearTimeout(copyDoneTimer);
+          copyDoneTimer = setTimeout(function () { box.classList.remove("show"); }, 6000);
+        }
+        function showCopyFallback(text) {
+          $("copyTextArea").value = text;
+          var fb = $("copyFallback");
+          fb.classList.add("show");
+          fb.scrollIntoView({ behavior: "smooth", block: "center" });
+          var ta = $("copyTextArea");
+          ta.focus();
+          ta.select();
+        }
+        $("copyBtn").addEventListener("click", function () {
+          var text = buildResultText();
+          $("copyFallback").classList.remove("show");
+          function fallbackCopy() {
+            var ta = document.createElement("textarea");
+            ta.value = text;
+            ta.setAttribute("readonly", "");
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            var ok = false;
+            try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+            document.body.removeChild(ta);
+            if (ok) showCopyDone();
+            else showCopyFallback(text);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(showCopyDone, fallbackCopy);
+          } else {
+            fallbackCopy();
+          }
+        });
+        /* ---------- PDFで保存・印刷（印刷画面で「PDFとして保存」が選べる） ---------- */
+        var ORIGINAL_TITLE = document.title;
+        $("pdfBtn").addEventListener("click", function () {
+          renderPrint();
+          /* 印刷画面で「PDFとして保存」を選んだ時の初期ファイル名は、
+             ページのタイトル（document.title）から決まる。押した時点で
+             「スコアカード_チーム名_プレー日_出力時刻」に切り替えておくと、
+             PDFのファイル名もCSVと同じ考え方で重ならない名前になる */
+          document.title = pdfTitleName();
+          window.print();
+        });
+        window.addEventListener("beforeprint", renderPrint);
+        window.addEventListener("afterprint", function () {
+          /* 印刷が終わったら、画面のタイトルは元の名前に戻す */
+          document.title = ORIGINAL_TITLE;
+        });
+        $("csvBtn").addEventListener("click", function () {
+          var blob = new Blob(["\uFEFF" + buildCsv()], { type: "text/csv;charset=utf-8" });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = csvFileName();
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        });
+        $("resetBtn").addEventListener("click", function () {
+          $("confirmBox").classList.add("show");
+          $("confirmBox").scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+        $("confirmNo").addEventListener("click", function () {
+          $("confirmBox").classList.remove("show");
+        });
+        $("confirmYes").addEventListener("click", function () {
+          /* 保存データを消してからページを自動で再読み込みし、
+             手動でブラウザを更新しなくても、まっさらな初期状態がすぐ表示されるようにする */
+          try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* そのまま続ける */ }
+          location.reload();
+        });
+
+        /* ---------- 文字サイズ（5段階） ---------- */
+        var TEXT_SIZES = ["s", "m", "l", "xl", "xxl"];
+        function setTextSize(size) {
+          state.textSize = size;
+          var root = document.documentElement;
+          TEXT_SIZES.forEach(function (s) { root.classList.remove("ts-" + s); });
+          root.classList.add("ts-" + size);
+          var btns = document.querySelectorAll(".textsize-toggle button[data-textsize]");
+          btns.forEach(function (b) {
+            b.setAttribute("aria-pressed", b.getAttribute("data-textsize") === size ? "true" : "false");
+          });
+          save();
+        }
+        document.querySelectorAll(".textsize-toggle button[data-textsize]").forEach(function (b) {
+          b.addEventListener("click", function () { setTextSize(b.getAttribute("data-textsize")); });
+        });
+
+        /* ---------- 前回の記録を復元して開始 ---------- */
+        load();
+        if (!state.playDate) state.playDate = todayFileStr();
+        $("teamNameInput").value = state.teamName;
+        $("eventNameInput").value = state.eventName;
+        $("courseNameInput").value = state.courseName;
+        $("playDateInput").value = state.playDate;
+        renderCount();
+        renderNames();
+        renderStartHole();
+        renderCap();
+        setTextSize(state.textSize);
+        if (state.started) {
+          $("setupForm").style.display = "none";
+          $("setupDone").style.display = "flex";
+          renderSetupDone();
+        }
+        renderPlay();
+        refresh();
+      })();
+    </script>
+  </body>
+</html>
