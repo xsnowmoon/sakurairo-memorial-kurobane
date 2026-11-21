@@ -425,6 +425,8 @@ function fullStatsHTML(){
 }
 function migrateState(st){
  const d=defaultState(st.last||"黒羽",st.first||"白夜",st.nick||"グレイ","4月","love");
+ if(!st.stats||typeof st.stats!=="object")st.stats=d.stats;
+ if(!st.aff||typeof st.aff!=="object")st.aff=d.aff;
  if(typeof st.lastYomi!=="string"||!st.lastYomi)st.lastYomi=d.lastYomi;
  if(typeof st.firstYomi!=="string"||!st.firstYomi)st.firstYomi=d.firstYomi;
  if(typeof st.nickYomi!=="string"||!st.nickYomi)st.nickYomi=d.nickYomi;
