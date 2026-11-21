@@ -289,3 +289,10 @@ body.kb-on .stage .bgimg.trans-fog{animation:transFog 2.5s ease both}
 .three-views figure{margin:0}
 .three-views img{width:100%;border-radius:12px;border:2px solid var(--line);background:#fff;display:block}
 .three-views figcaption{font-size:12px;font-weight:900;text-align:center;margin-top:5px;color:var(--navy)}
+
+/* --- エンドロール（2.45） --- */
+.endroll-stage{height:100%;overflow:hidden;display:flex;justify-content:center}
+.endroll-text{color:#f5eeda;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;text-align:center;font-size:19px;line-height:2.6;white-space:pre-line;padding:0 16px;animation:endrollUp 45s linear forwards}
+@keyframes endrollUp{from{transform:translateY(92vh)}to{transform:translateY(-115%)}}
+.endroll-hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;color:#8a8a9a;font-size:12px;margin:0}
+@media (prefers-reduced-motion: reduce){.endroll-text{animation-duration:12s}}
