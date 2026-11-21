@@ -379,8 +379,9 @@ function show(id){const __pg=$("page-no-badge");if(__pg&&id!=="screen-game"&&id!
 /* petals */
 (function(){const w=$("petals");for(let i=0;i<14;i++){const p=document.createElement("div");p.className="petal";const s=rnd(9,17);p.style.width=s+"px";p.style.height=s+"px";p.style.left=(Math.random()*100)+"%";p.style.animationDuration=(9+Math.random()*10)+"s";p.style.animationDelay=(-Math.random()*14)+"s";w.appendChild(p)}})();
 
-function defaultState(last,first,nick,birth,goal){
+function defaultState(last,first,nick,birth,goal,lastYomi,firstYomi,nickYomi){
 return {last,first,nick,birth,goal,turn:1,
+lastYomi:lastYomi||(last==="黒羽"?"くろは":last),firstYomi:firstYomi||(first==="白夜"?"びゃくや":first),nickYomi:nickYomi||nick,
 stats:{tairyoku:70,gakuryoku:32,undou:32,miryoku:32,kihin:28,geijutsu:32,kansei:35,shakou:30,moral:40,stress:12},
 skills:{reigi:22,bungaku:20,ongaku:18,ryouri:15,souji:20,kidate:30},
 aff:{sakura:18,akari:5,yuki:5,rin:5},met:{sakura:true,akari:false,yuki:false,rin:false},
@@ -424,6 +425,9 @@ function fullStatsHTML(){
 }
 function migrateState(st){
  const d=defaultState(st.last||"黒羽",st.first||"白夜",st.nick||"グレイ","4月","love");
+ if(typeof st.lastYomi!=="string"||!st.lastYomi)st.lastYomi=d.lastYomi;
+ if(typeof st.firstYomi!=="string"||!st.firstYomi)st.firstYomi=d.firstYomi;
+ if(typeof st.nickYomi!=="string"||!st.nickYomi)st.nickYomi=d.nickYomi;
  ["tairyoku","gakuryoku","undou","miryoku","kihin","geijutsu","kansei","shakou","moral","stress"].forEach(k=>{if(typeof st.stats[k]!=="number")st.stats[k]=d.stats[k]});
  if(!st.skills)st.skills=d.skills;else SKILL_DEFS.forEach(sk=>{if(typeof st.skills[sk.key]!=="number")st.skills[sk.key]=d.skills[sk.key]});
  if(!st.picCursor||typeof st.picCursor!=="object")st.picCursor={};
@@ -510,7 +514,8 @@ $("btn-name-back").onclick=()=>show("screen-title");
 $("btn-start-story").onclick=()=>{
 const last=$("in-last").value.trim()||"黒羽",first=$("in-first").value.trim()||"白夜";
 const nick=$("in-nick").value.trim()||"グレイ";
-S=defaultState(last,first,nick,$("in-birth").value,$("in-goal").value);resetPlayState();
+const lastYomi=$("in-last-yomi").value.trim(),firstYomi=$("in-first-yomi").value.trim(),nickYomi=$("in-nick-yomi").value.trim();
+S=defaultState(last,first,nick,$("in-birth").value,$("in-goal").value,lastYomi,firstYomi,nickYomi);resetPlayState();
 if(META.clears>0){const b=Math.min(META.clears,3);HEROINES.forEach(h=>{S.aff[h.id]=clamp(S.aff[h.id]+3*b);S.prevAff[h.id]=S.aff[h.id]});Object.keys(S.stats).forEach(k=>{if(k!=="stress")S.stats[k]=clamp(S.stats[k]+2*b)});S.money+=1500*b;S.clears=META.clears;setTimeout(()=>toast("🌸 周回特典："+META.clears+"周クリア済みボーナス適用（好感度・能力・所持金アップ）"),800)}
 S.memories.forEach(id=>albumUnlocked.add(id));persistAlbum();chime();
 unlockMem("mem_op01");
@@ -2250,11 +2255,31 @@ if($("special-video")){
 }
 
 /* ================= 読み上げ（端末の音声合成） ================= */
+/* 2.41 読み上げ用よみ変換：画面表示は漢字のまま、音声だけ読みに変える。
+   主人公の苗字は単独では変換しない（町の「黒羽＝くろばね」と区別するため、
+   フルネーム・「苗字くん／さん」の形だけを本人のよみに変える） */
+const YOMI_DICT=[["藤原千鶴","ふじわら ちづる"],["桜井さくら","さくらい さくら"],["星野あかり","ほしの あかり"],["月島ゆき","つきしま ゆき"],["藤原りん","ふじわら りん"],["蒼井翼","あおい つばさ"],["大関和","おおぜき ちか"],["羽田沼","はねたぬま"],["那珂川","なかがわ"],["雲巌寺","うんがんじ"],["芭蕉","ばしょう"]];
+function yomiForSpeak(t){
+ try{
+  if(typeof S!=="undefined"&&S&&S.last){
+   const ly=S.lastYomi||S.last,fy=S.firstYomi||S.first,ny=S.nickYomi||S.nick;
+   t=t.split(S.last+" "+S.first).join(ly+" "+fy);
+   t=t.split(S.last+S.first).join(ly+fy);
+   t=t.split(S.last+"くん").join(ly+"くん");
+   t=t.split(S.last+"さん").join(ly+"さん");
+   if(S.nick&&ny&&S.nick!==ny)t=t.split(S.nick).join(ny);
+   t=t.split(S.first+"くん").join(fy+"くん");
+   if(S.first&&fy&&fy!==S.first)t=t.split(S.first).join(fy);
+  }
+ }catch(e){}
+ YOMI_DICT.forEach(p=>{t=t.split(p[0]).join(p[1])});
+ return t;
+}
 function speakJa(text){
  try{
   if(!("speechSynthesis" in window)||typeof SpeechSynthesisUtterance==="undefined")return false;
   speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);u.lang="ja-JP";u.rate=speakRate;u.pitch=1.0;
+  const u=new SpeechSynthesisUtterance(yomiForSpeak(text));u.lang="ja-JP";u.rate=speakRate;u.pitch=1.0;
   try{const vs=speechSynthesis.getVoices?speechSynthesis.getVoices():[];const jv=vs.find(function(v){return /^ja/i.test(v.lang||"")});if(jv)u.voice=jv}catch(e){}
   speechSynthesis.speak(u);return true;
  }catch(e){return false}
