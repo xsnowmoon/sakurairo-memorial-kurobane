@@ -843,9 +843,9 @@ playNovel([{who:"　",text:"昼休み、屋上への階段の前で、先輩た�
 ()=>{addLog("屋上の伝説を聞いた");show("screen-game");render();done()},"🏫 屋上の伝説")}
 function evPool(done){unlockMem("mem_pool");const win=S.stats.undou+rnd(-8,8)>=50;
 playNovel([{who:"　",text:"水泳大会。プールサイドは声援で熱気に包まれていた。"},
-{hero:"akari",who:"星野 あかり",variant:"pool",text:"自由形、あんたも出るんでしょ？水の中でも負けないからね！"},
+{hero:"akari",who:"星野 あかり",variant:"pool",text:"自由形、{call}も出るんでしょ？水の中でも負けないからね！"},
 {who:"　",text:win?"号砲とともに飛び込む。結果は見事に上位入賞！クラスの人気者になった気分だ。":"懸命に泳いだが入賞は逃した。それでも、夏の始まりの水しぶきは最高に気持ちよかった。"},
-{hero:"akari",who:"星野 あかり",variant:"smile",text:win?"やるじゃん！プールでも陸でも、あんたは私のライバルだね！":"お疲れ！夏はまだ始まったばかりだよ。海もプールも、今年は遊び尽くそうね！"}],
+{hero:"akari",who:"星野 あかり",variant:"smile",text:win?"やるじゃん！プールでも陸でも、{call}は私のライバルだね！":"お疲れ！夏はまだ始まったばかりだよ。海もプールも、今年は遊び尽くそうね！"}],
 ()=>{S.aff.akari=clamp(S.aff.akari+(win?9:6));S.lastMeet.akari=S.turn;S.met.akari=true;HEROINES.forEach(h=>{if(h.id!=="akari"&&S.met[h.id])S.aff[h.id]=clamp(S.aff[h.id]+2)});addLog("水泳大会（活躍がみんなの評価に波及）");show("screen-game");render();done()},"🏊 水泳大会")}
 function evSea(done){unlockMem("mem_sea");
 const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
@@ -876,7 +876,7 @@ playNovel([{who:"　",text:"今日は"+h.name+"の誕生日（"+h.profile.birthd
 {hero:h.id,who:"　",text:"誕生日を覚えていてくれること。それが何より嬉しいのだと、彼女の笑顔が語っていた。"}],
 ()=>{S.lastMeet[h.id]=S.turn;S.met[h.id]=true;addHurt(h.id,-20);checkProfileUnlocks();addLog(h.short+"の誕生日を祝った");show("screen-game");render();done()},"🎂 誕生日")}
 function evBirthdaySakura(done){birthdayEvent(hero("sakura"),"桜の小物、探してくれたんだ…！ありがとう、大事にするね！",done)}
-function evBirthdayAkari(done){birthdayEvent(hero("akari"),"スポーツドリンク一ケース！？分かってるじゃん、あんた！",done)}
+function evBirthdayAkari(done){birthdayEvent(hero("akari"),"スポーツドリンク一ケース！？分かってるじゃん、{call}！",done)}
 function evBirthdayYuki(done){birthdayEvent(hero("yuki"),"星空の栞…。私の好きな物、覚えててくれたんだっぺね…",done)}
 function evBirthdayRin(done){birthdayEvent(hero("rin"),"高級チョコ…。ふふ、よく知ってるのね。…ありがとう",done)}
 function evSki(done){unlockMem("mem_ski");
@@ -910,9 +910,9 @@ playNovel([{who:"　",text:"卒業式を明日に控えた放課後。屋上へ�
 {who:"　",text:"夕日に染まる屋上。1年間のすべてが、明日の一日に集まっていく。――神話の扉が、開こうとしていた。"}],
 ()=>{addLog("卒業前日、屋上への誘いを受けた");show("screen-game");render();done()},"🌇 卒業前日・屋上の誘い")}
 function evSports(done){unlockMem("mem_festival_sport");const win=S.stats.undou+rnd(-8,8)>=55;
-playNovel([{who:"　",text:"体育祭当日。クラス対抗リレーのアンカーに選ばれた。"},{hero:"sakura",who:"桜井 さくら",variant:"gym",text:"開会前のグラウンド。体操着姿のさくらが、ハチマキを結び直してくれた。「転んでも、最後まで走るあんたが見たいな」"},{hero:"akari",who:"星野 あかり",variant:"gym",text:"バトンはあんたに託すから！全力で走って！"},
+playNovel([{who:"　",text:"体育祭当日。クラス対抗リレーのアンカーに選ばれた。"},{hero:"sakura",who:"桜井 さくら",variant:"gym",text:"開会前のグラウンド。体操着姿のさくらが、ハチマキを結び直してくれた。「転んでも、最後まで走る{call}が見たいな」"},{hero:"akari",who:"星野 あかり",variant:"gym",text:"バトンは{call}に託すから！全力で走って！"},
 {who:"　",text:win?"あかりからのバトンを受け取り、全力で駆け抜けた――ゴールテープを切った瞬間、クラス中が沸いた！":"懸命に走ったが、わずかの差で2位。悔しいけれど、あかりは笑った。「ナイスラン！」"},
-{hero:"akari",who:"星野 あかり",variant:"gym",text:win?"やったー！！あんた最高！…ね、来年はもうないんだよね。だから今日のこと、絶対忘れない。":"負けても、いい汗かいたね！これが青春ってやつだよ！"}],
+{hero:"akari",who:"星野 あかり",variant:"gym",text:win?"やったー！！{call}最高！…ね、来年はもうないんだよね。だから今日のこと、絶対忘れない。":"負けても、いい汗かいたね！これが青春ってやつだよ！"}],
 ()=>{S.aff.akari=clamp(S.aff.akari+(win?10:6));S.lastMeet.akari=S.turn;S.met.akari=true;if(win)HEROINES.forEach(h=>{if(h.id!=="akari"&&S.met[h.id])S.aff[h.id]=clamp(S.aff[h.id]+2)});addLog("体育祭（あかり 好感度+"+(win?10:6)+(win?"、活躍が全員の評価に波及":"")+"）");show("screen-game");render();done()},"🏃 体育祭")}
 function evTest(done){unlockMem("mem_test");const good=S.stats.gakuryoku+rnd(-8,8)>=55;const red=!good&&S.stats.gakuryoku<35;
 const scenes=[{who:"　",text:"期末テストの結果が返ってきた。"},{who:"　",text:good?"順位は大きくアップ！努力が実を結んだ。":red?"赤点だった…。放課後、補習が言い渡された。":"順位は伸び悩んだ…。次はもっと頑張ろう。"},
@@ -942,7 +942,7 @@ playNovel([{who:"　",text:"文化祭当日。クラスの出し物は大盛況�
 function evTrip(done){unlockMem("mem_trip");
 playNovel([{who:"　",text:"修学旅行。班行動で古い街並みを歩いた。"},
 {hero:"yuki",who:"月島 ゆき",text:"この街の本屋さん、古い文学全集があって…。…あ、ごめんなさい、私だけ楽しんで…"},
-{hero:"akari",who:"星野 あかり",text:"ねえ、将来さ、あんたは何してるんだろうね。…私は、あんたの近くにいたいな。なんてね！"},
+{hero:"akari",who:"星野 あかり",text:"ねえ、将来さ、{call}は何してるんだろうね。…私は、{call}の近くにいたいな。なんてね！"},
 {who:"　",text:"夜、布団の中で将来の話をした。夢、進路、そして――言い出せない気持ちの話。"},
 {hero:"rin",who:"藤原 りん",text:"…静かにしなさい、先生が見回りに来るわ。…でも、もう少しだけ、話していたい気もするの"},
 {who:"　",text:"卒業はまだ先だと思っていたのに、時間は静かに進んでいた。"},
@@ -990,10 +990,10 @@ playNovel([{who:"　",text:"冬の夕方。駅前のイルミネーションが�
 ()=>{S.lastMeet[cand.id]=S.turn;S.stats.stress=clamp(S.stats.stress-7);addLog("冬のイルミネーションを"+cand.short+"と見た");show("screen-game");render();done()},"✨ 冬のイルミネーション")}
 function evBallGame(done){unlockMem("mem_ballgame");const win=S.stats.undou>=45;
 playNovel([{who:"　",text:"球技大会。体育館はクラス対抗の熱気に包まれていた。"},
-{hero:"akari",who:"星野 あかり",variant:"gym",text:"決勝だよ！あんたのシュートが鍵だから。…緊張してる？大丈夫、私がパスを回すから！"},
+{hero:"akari",who:"星野 あかり",variant:"gym",text:"決勝だよ！{call}のシュートが鍵だから。…緊張してる？大丈夫、私がパスを回すから！"},
 {who:"　",text:"試合は一進一退。残り10秒、同点。あかりからのパスが、目の前に転がってきた。"},
 {who:"　",text:win?"放ったシュートは、リングに吸い込まれた――逆転優勝！体育館の歓声が天井を揺らした。":"シュートはリングに弾かれた。あと一歩で優勝を逃し、床に座り込むクラスメイトたちと悔しさを分け合った。"},
-{hero:"akari",who:"星野 あかり",variant:"smile",text:win?"やったぁ！！見た！？あんたのシュート、鳥肌立った！…ねえ、私たち、いいコンビだね":"惜しかった…！でも最後まで走り切った。あんたの頑張り、私はちゃんと見てたよ"}],
+{hero:"akari",who:"星野 あかり",variant:"smile",text:win?"やったぁ！！見た！？{call}のシュート、鳥肌立った！…ねえ、私たち、いいコンビだね":"惜しかった…！でも最後まで走り切った。{call}の頑張り、私はちゃんと見てたよ"}],
 ()=>{S.aff.akari=clamp(S.aff.akari+(win?9:6));S.lastMeet.akari=S.turn;S.met.akari=true;addLog("球技大会（あかり 好感度+"+(win?9:6)+"）");show("screen-game");render();done()},"🏀 球技大会")}
 function evMarathon(done){unlockMem("mem_marathon");unlockMem("mem_ev03");
 const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
@@ -1040,12 +1040,12 @@ playNovel([{who:"　",text:"昼休み。校庭の「伝説の桜」の下で、�
 {who:"　",text:"花びらが舞う中で、さくらが小さく笑った。",choices:[
  {label:"「卒業式の日も、ここで会おう」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+8)}},
  {label:"「その前に、屋上だね」",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+6)}}]},
-{hero:"sakura",who:"桜井 さくら",variant:"shy",text:"…うん、約束。桜の下でも、屋上でも。…あんたとなら、どこでも特別だよ"}],
+{hero:"sakura",who:"桜井 さくら",variant:"shy",text:"…うん、約束。桜の下でも、屋上でも。…{call}となら、どこでも特別だよ"}],
 ()=>{S.lastMeet.sakura=S.turn;addLog("伝説の桜の下でさくらと約束した");show("screen-game");render();done()},"🌸 伝説の桜の下で")}
 function evCulturePrep(done){unlockMem("mem_cultureprep");
 playNovel([{who:"　",text:"文化祭まで、あと少し。放課後の教室は、段ボールと絵の具の匂いがした。"},
 {hero:"rin",who:"藤原 りん",variant:"gyouji",text:"準備は順調？…看板の文字、あなたの字が一番丁寧だから、任せたいの"},
-{hero:"akari",who:"星野 あかり",text:"こっちは模擬店の試食係、募集中だよ！あんた、第一号ね！"},
+{hero:"akari",who:"星野 あかり",text:"こっちは模擬店の試食係、募集中だよ！{call}、第一号ね！"},
 {who:"　",text:"祭りの前のざわめき。誰と準備を進めるかで、当日の景色が変わる気がした。",choices:[
  {label:"りんと看板を仕上げる",effect:()=>{S.aff.rin=clamp(S.aff.rin+7);S.met.rin=true;S.lastMeet.rin=S.turn}},
  {label:"あかりと模擬店の試食をする",effect:()=>{S.aff.akari=clamp(S.aff.akari+7);S.met.akari=true;S.lastMeet.akari=S.turn}}]},
@@ -1123,7 +1123,7 @@ playNovel([{who:"　",text:"期末テストが近づき、放課後の図書室�
 function evSummerPlan(done){
 const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
 playNovel([{who:"　",text:"夏休み直前。下校路で、夏の計画の話になった。"},
-{hero:cand.id,who:cand.name,variant:"smile",text:"夏休み、あんたはどう過ごすの？…私はね、できれば、あんたと過ごす日を増やしたいな"},
+{hero:cand.id,who:cand.name,variant:"smile",text:"夏休み、{call}はどう過ごすの？…私はね、できれば、{call}と過ごす日を増やしたいな"},
 {who:"　",text:"海、夏祭り、花火、宿題。短い夏の予定表に、二人の名前が少しずつ増えていく。",choices:[
  {label:"「夏祭り、一緒に行こう」",effect:()=>{S.aff[cand.id]=clamp(S.aff[cand.id]+8)}},
  {label:"「海にも行こう」",effect:()=>{S.aff[cand.id]=clamp(S.aff[cand.id]+7)}}]},
@@ -1136,11 +1136,11 @@ playNovel([{who:"　",text:"夏休みの夜。スマホが鳴った。"+cand.nam
 {who:"　",text:"他愛ない話が、気づけば1時間。花火の音、宿題の愚痴、明日の天気。切るきっかけが、なかなか見つからなかった。",choices:[
  {label:"「また明日も電話しよう」",effect:()=>{S.aff[cand.id]=clamp(S.aff[cand.id]+9)}},
  {label:"「夏祭り、楽しみにしてる」",effect:()=>{S.aff[cand.id]=clamp(S.aff[cand.id]+7)}}]},
-{hero:cand.id,who:cand.name,variant:"smile",text:"…うん。…ねえ、電話の向こうのあんた、なんだか近く感じるね。…おやすみ、いい夢を"}],
+{hero:cand.id,who:cand.name,variant:"smile",text:"…うん。…ねえ、電話の向こうの{call}、なんだか近く感じるね。…おやすみ、いい夢を"}],
 ()=>{S.lastMeet[cand.id]=S.turn;S.stats.stress=clamp(S.stats.stress-5);addLog("夏休みの夜、"+cand.short+"と長電話した");show("screen-game");render();done()},"📱 夏休みの夜の電話")}
 function evShopping(done){unlockMem("mem_op05");
 playNovel([{who:"　",text:"文化祭直前。出し物の買い出しで、放課後の商店街が賑わっていた。"},
-{hero:"sakura",who:"桜井 さくら",variant:"date",text:"買い出しリスト、こっちは完了！…ねえ、帰りに寄り道してかない？短い時間でも、あんたとなら楽しいの"},
+{hero:"sakura",who:"桜井 さくら",variant:"date",text:"買い出しリスト、こっちは完了！…ねえ、帰りに寄り道してかない？短い時間でも、{call}となら楽しいの"},
 {hero:"rin",who:"藤原 りん",text:"予算管理は完璧よ。…でも、たまには予算外の寄り道も、悪くないわね"},
 {who:"　",text:"荷物で両手が塞がった帰り道。祭りの前のざわめきが、夕日の商店街に満ちていた。",choices:[
  {label:"さくらと寄り道する",effect:()=>{S.aff.sakura=clamp(S.aff.sakura+8);S.lastMeet.sakura=S.turn}},
@@ -1158,7 +1158,7 @@ playNovel([{who:"　",text:"文化祭の翌週。校舎の片付けと、小さ�
 function evTripPrep(done){unlockMem("mem_tripprep");
 playNovel([{who:"　",text:"修学旅行を前に、班決めとしおり作りの放課後。教室は旅行への期待でざわめいていた。"},
 {hero:"rin",who:"藤原 りん",variant:"gyouji",text:"しおりの表紙、あなたの案が採用されたわ。…班も同じになったし、楽しみにしてる"},
-{hero:"akari",who:"星野 あかり",text:"旅行先での自由行動、あんたと回る約束、忘れてないよね？"},
+{hero:"akari",who:"星野 あかり",text:"旅行先での自由行動、{call}と回る約束、忘れてないよね？"},
 {who:"　",text:"旅行は始まる前から始まっていた。しおりの余白に、小さく「屋上の伝説、現地でも有効？」と誰かが書き込んでいた。",choices:[
  {label:"りんとしおりを仕上げる",effect:()=>{S.aff.rin=clamp(S.aff.rin+7);S.lastMeet.rin=S.turn}},
  {label:"あかりと自由行動の計画を立てる",effect:()=>{S.aff.akari=clamp(S.aff.akari+7);S.lastMeet.akari=S.turn}}]}],
