@@ -1925,7 +1925,20 @@ $("btn-op-title").onclick=()=>{beep(660,.08);goTitle()};
 $("btn-to-title2").onclick=()=>{beep(660,.08);goTitle()};
 $("btn-opening").onclick=()=>{beep(784,.1);startOpening()};
 if($("btn-opening-title"))$("btn-opening-title").onclick=()=>{beep(784,.1);startOpening()};
-async function hardRefresh(){try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}try{const u=new URL(location.href);u.searchParams.set("r",String(Date.now()));location.replace(u.toString())}catch(e){location.reload()}}
+async function hardRefresh(){
+ /* 2.43 強化版：ページ遷移だけではCDN/ブラウザのキャッシュを抜けられない事があるため、
+    まず index と css/js を「キャッシュ無効」で取り直して最新を確定させてから遷移する */
+ const bust="r="+Date.now();
+ try{
+  const base=location.href.split("?")[0].split("#")[0];
+  const res=await fetch(base+"?"+bust,{cache:"no-store"});
+  const html=await res.text();
+  const subs=[...html.matchAll(/(style\.css|data\.js|story\.js|engine\.js)\?b=([0-9]+)/g)];
+  await Promise.all(subs.map(x=>fetch(x[1]+"?b="+x[2],{cache:"no-store"}).catch(()=>{})));
+ }catch(e){}
+ try{if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}
+ try{const u=new URL(location.href);u.searchParams.set("r",String(Date.now()));location.replace(u.toString())}catch(e){location.reload()}
+}
 if($("btn-refresh"))$("btn-refresh").onclick=()=>{hardRefresh()};
 if($("btn-refresh-loading"))$("btn-refresh-loading").onclick=()=>{hardRefresh()};
 const BGM_ALBUM_LIST=[["opening","オープニング","プロローグ","assets/op01.webp"],["title","タイトル","タイトル画面","assets/op10.webp"],["daily","通常（原曲）","本編の通常週（季節で下の4曲に変化）","assets/op16.webp"],["daily_spring","通常・春","春（3〜5月）のメイン画面","assets/sakura-smile.webp"],["daily_summer","通常・夏","夏（6〜8月）のメイン画面","assets/akari-sea.webp"],["daily_autumn","通常・秋","秋（9〜11月）のメイン画面","assets/op08.webp"],["daily_winter","通常・冬","冬（12〜2月）のメイン画面","assets/rin-winter.webp"],["event","イベント","行事などのイベント全般","assets/op22.webp"],["choice","選択肢・ドキドキ","選択肢・やきもち・秘密の場面","assets/rin.webp"],["date","デート","デート・お部屋デート","assets/sakura-date.webp"],["sad","悲しい場面","病気・別れの場面","assets/yuki-sick.webp"],["ending","エンディング","卒業・告白の場面","assets/sakura-ending.webp"],["hokkori","ほっこり","ほっこりイベント","assets/akari-smile.webp"],["local","黒羽の出来事","地域イベント","assets/basho-yakata.webp"],["kuhi","句碑めぐり","芭蕉の句碑めぐり","assets/kuhi01.webp"],["story","個別ストーリー","ヒロインの物語（章）","assets/yuki.webp"],["matsuri","夏祭り","夏祭り・花火大会・線香花火","assets/sakura-yukata.webp"],["sports","スポーツ行事","体育祭・球技大会・マラソン","assets/akari-gym.webp"],["culture","文化祭","文化祭と準備・片付け","assets/rin-gyouji.webp"],["sea","海・夏","海の一日","assets/sakura-sea.webp"],["snow","雪・冬","スキー合宿・雪の日","assets/akari-ski.webp"],["sakura","桜","伝説の桜の下で","assets/sakura-shy.webp"],["rain","梅雨・雨","梅雨の図書室","assets/yuki-smile.webp"],["tanabata","七夕","七夕","assets/rin-planet.webp"],["xmas","クリスマス","クリスマス","assets/sakura-winter.webp"],["illumination","イルミネーション","冬のイルミネーション","assets/rin-date.webp"],["newyear","初詣・正月","初詣・合格お守り","assets/yuki-yukata.webp"],["valentine","バレンタイン","バレンタイン・ホワイトデー・チョコ作り","assets/rin-shy.webp"],["halloween","ハロウィン","ハロウィン","assets/op20.webp"],["trip","修学旅行","修学旅行とその準備","assets/op18.webp"],["concert","コンサート","秋の音楽室コンサート","assets/rin-club.webp"],["exam","テスト・受験","期末テスト・勉強会","assets/sakura-gyouji.webp"],["birthday","誕生日","ヒロインの誕生日","assets/akari-date.webp"],["night","夜","夏休みの夜の電話・水族館の夜・プラネタリウム","assets/akari-planet.webp"],["pool","プール","水泳大会・プール","assets/akari-club.webp"],["summer","夏休み","夏休みの計画","assets/op06.webp"],["rooftop","屋上","屋上の伝説・卒業前日の屋上","assets/rin-grad.webp"],["sick","看病","看病の場面","assets/rin-sick.webp"],["phone","電話・メール","電話・メールの場面","assets/akari.webp"],["memory","回想","回想アルバムを開いている時","assets/op21.webp"]];
