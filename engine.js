@@ -1666,20 +1666,21 @@ function playEndRoll(){
  const bar=$("endroll-bar"),act=$("endroll-actions"),cl=$("endroll-closing"),ci=$("endroll-closing-img");
  const showActions=function(){
   clearTimeout(rollTimer);rollPhase=3;
-  t.style.animation="none";
+  t.style.animation="none";t.style.display="none";
   if(cl)cl.classList.add("hidden");
   if(bar)bar.classList.add("hidden");
   if(act)act.classList.remove("hidden");
  };
  const showClosing=function(step){
   clearTimeout(rollTimer);
-  t.style.animation="none";
-  if(step===0){rollPhase=1;if(ci)ci.src="assets/snow-moon-logo.webp";if(cl)cl.classList.remove("hidden");rollTimer=setTimeout(()=>showClosing(1),4500)}
-  else{rollPhase=2;if(ci)ci.src="assets/kurobane-forest-channel.webp";if(cl)cl.classList.remove("hidden");rollTimer=setTimeout(showActions,5500)}
+  t.style.animation="none";t.style.display="none";
+  if(step===0){rollPhase=1;if(ci){ci.onerror=()=>showClosing(1);ci.src="assets/snow-moon-logo.webp"}if(cl)cl.classList.remove("hidden");rollTimer=setTimeout(()=>showClosing(1),4500)}
+  else{rollPhase=2;if(ci){ci.onerror=()=>showActions();ci.src="assets/kurobane-forest-channel.webp"}if(cl)cl.classList.remove("hidden");rollTimer=setTimeout(showActions,5500)}
  };
  const finishRoll=function(){showClosing(0)};
  const start=function(txt){
   rollPhase=0;
+  t.style.display="";
   t.textContent=txt.split("{主人公}").join(S?pName():"黒羽 白夜");
   if(act)act.classList.add("hidden");
   if(cl)cl.classList.add("hidden");
