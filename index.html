@@ -21,7 +21,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611220256">
+<link rel="stylesheet" href="style.css?b=202611220260">
 
 </head>
 <body>
@@ -42,7 +42,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 最新版に更新（キャッシュを消して読み直す）</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261122.2.56</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261122.2.60</p>
   </div>
 </main>
 
@@ -79,8 +79,8 @@
       <button class="btn" id="btn-howto">❓ あそびかた</button>
       <button class="btn" id="btn-intro-open" style="text-align:center">🌸 ゲーム紹介</button>
       <button class="btn" id="btn-opening-title">🎬 オープニングを見る</button>
-      <button class="btn gold" id="btn-bgm-recommend">🎵 推奨BGMに変更（オリジナル曲）</button>
-      <button class="btn" id="btn-bgm-default">↩️ BGMを元に戻す（標準）</button>
+      <button class="btn gold" id="btn-bgm-recommend">🎵 推奨BGM（標準） ● 使用中</button>
+      <button class="btn" id="btn-bgm-default">🎹 シンセBGM（軽量）</button>
       <button class="btn" id="btn-refresh">🔄 最新版に更新（キャッシュを消して読み直す）</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin:12px auto 0;max-width:430px;padding:0 6px">
@@ -89,7 +89,7 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="管理メニュー（メンテナンス用）">Snow Moon Games</span> Ver.20261122.2.56</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="管理メニュー（メンテナンス用）">Snow Moon Games</span> Ver.20261122.2.60</div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
     <h2 class="section-title">❓ あそびかた</h2>
@@ -575,13 +575,13 @@
     <p class="adm-note">作者名クリックで開く管理画面です。制作・著作： Snow Moon Games（『桜色メモリアル 〜ときめき学園物語〜』／1人用・育成シミュレーション）。設定はこの端末のブラウザに自動保存されます。別の端末へ移す時は一番下の「管理データをファイルに保存」で書き出してください。詳しい使い方は <a href="https://xsnowmoon.github.io/sakurairo-memorial-kurobane/#" id="adm-readme-link">📖 説明ページ（このページ内）</a> を参照。</p>
 
     <h4 class="adm-sec">🎵 BGM差し替え（MP3 URL）</h4>
-    <p class="adm-note">曲ごとにMP3のURLを指定できます。空欄の曲は標準の合成BGMのままです。「ほっこり／黒羽の出来事／句碑めぐり／個別ストーリー」の欄が空欄の時は、「イベント」の曲が流れます。</p>
+    <p class="adm-note">曲ごとにMP3のURLを指定できます。初期状態は「推奨BGM（標準）」モードで、未設定の場面には推奨の歌が自動で流れます（欄を空欄にすると、その場面は合成BGMに戻ります）。タイトル画面の「シンセBGM（軽量）」を選ぶと、曲ファイルを一切読み込まず内蔵の合成BGMだけで再生します（低速回線向け）。「ほっこり／黒羽の出来事／句碑めぐり／個別ストーリー」の欄が空欄の時は、「イベント」の曲が流れます。</p>
     <div id="adm-bgm-list"></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
       <button class="btn primary" id="adm-bgm-apply">🎵 BGM設定を反映させる</button>
-      <button class="btn" id="adm-bgm-default">↩️ BGMを元に戻す</button>
+      <button class="btn" id="adm-bgm-default">🎹 シンセBGM（軽量）にする</button>
     </div>
-    <p class="adm-note">「推奨BGM」を押すと、全場面にSnow Moonの歌が割り当てられます（オープニング・タイトル＝op01主題歌／エンディング＝ed01／修学旅行＝song01／デート＝song09／電話＝song10／句碑＝song15／夏祭り＝song27／クリスマス＝song08 など30場面）。さらに場面固定の曲（プロローグ＝song02校歌、ライスシャワー＝song05、黒い白鳥＝song14、聖地巡礼画面＝song04「黒羽の森」、五峰の湯＝song13、大関和記念日＝song30、雲巌寺＝song37、那珂川のやな・鮎＝song36、迷子の子供＝song06、夢の語り合い＝song28、下校路＝song16、雪の日の図書室＝song11、修学旅行の準備＝song12）は、設定なしでも流れます（ファイルが無い場面は標準BGMになります）。曲ファイルは bgm フォルダに入れてください。</p>
+    <p class="adm-note">「推奨BGM」を押すと、全場面にSnow Moonの歌が割り当てられます（オープニング・タイトル＝op01主題歌／エンディング＝ed01／修学旅行＝song01／デート＝song09／電話＝song10／句碑＝song15／夏祭り＝song27／クリスマス＝song08 など30場面）。さらに場面固定の曲（プロローグ＝song02校歌、ライスシャワー＝song05、黒い白鳥＝song14、聖地巡礼画面＝song04「黒羽の森」、五峰の湯＝song13、大関和記念日＝song30、雲巌寺＝song37、那珂川のやな・鮎＝song36、迷子の子供＝song06、夢の語り合い＝song28、下校路＝song16、雪の日の図書室＝song11、修学旅行の準備＝song12）は、設定なしでも流れます（ファイルが無い場面は標準BGMになります）。曲ファイルは bgm フォルダに入れてください。コマンド選択画面の曲は「年×季節」の専用スロット（bgm/year1-spring.mp3 〜 bgm/year3-winter.mp3 の12曲）が最優先で、ファイルがあれば自動で流れます。</p>
 
     <h4 class="adm-sec">✏️ ストーリー上書き編集</h4>
     <p class="adm-note">画面右下に表示されるストーリーNoを指定して、絵・セリフ・パラメーター効果を上書きします。セリフ差替と効果はJSON形式です（書き方は説明ページ参照）。</p>
@@ -636,9 +636,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611220256"></script>
-<script src="story.js?b=202611220256"></script>
-<script src="engine.js?b=202611220256"></script>
+<script src="data.js?b=202611220260"></script>
+<script src="story.js?b=202611220260"></script>
+<script src="engine.js?b=202611220260"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){

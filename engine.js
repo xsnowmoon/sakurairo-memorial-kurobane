@@ -33,7 +33,7 @@ function persistSlots(){return lsSet(LS_KEYS.slots,slots)}
 function persistMeta(){lsSet(LS_KEYS.meta,{clears:META.clears,endings:Array.from(META.endings),ach:Array.from(META.ach),textSize:META.textSize||100})}
 function persistAlbum(){lsSet(LS_KEYS.album,Array.from(albumUnlocked))}
 function persistAdmin(){if(typeof ADMIN!=="undefined")lsSet(LS_KEYS.admin,ADMIN)}
-function restorePersisted(){const sl=lsGet(LS_KEYS.slots);if(Array.isArray(sl))slots=[sl[0]||null,sl[1]||null,sl[2]||null];const mt=lsGet(LS_KEYS.meta);if(mt&&typeof mt==="object"){META.clears=typeof mt.clears==="number"?mt.clears:0;META.endings=new Set(Array.isArray(mt.endings)?mt.endings:[]);META.ach=new Set(Array.isArray(mt.ach)?mt.ach:[]);META.textSize=(typeof mt.textSize==="number"&&mt.textSize>=80&&mt.textSize<=140)?mt.textSize:100}const al=lsGet(LS_KEYS.album);if(Array.isArray(al))albumUnlocked=new Set(al);const bh=lsGet(LS_KEYS.bgmHeard);if(Array.isArray(bh))bgmHeardSet=new Set(bh);const vs=lsGet(LS_KEYS.videoSeen);if(Array.isArray(vs))videoSeenSet=new Set(vs);const ad=lsGet(LS_KEYS.admin);if(ad&&typeof ad==="object"&&typeof ADMIN!=="undefined")ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[]}}
+function restorePersisted(){const sl=lsGet(LS_KEYS.slots);if(Array.isArray(sl))slots=[sl[0]||null,sl[1]||null,sl[2]||null];const mt=lsGet(LS_KEYS.meta);if(mt&&typeof mt==="object"){META.clears=typeof mt.clears==="number"?mt.clears:0;META.endings=new Set(Array.isArray(mt.endings)?mt.endings:[]);META.ach=new Set(Array.isArray(mt.ach)?mt.ach:[]);META.textSize=(typeof mt.textSize==="number"&&mt.textSize>=80&&mt.textSize<=140)?mt.textSize:100}const al=lsGet(LS_KEYS.album);if(Array.isArray(al))albumUnlocked=new Set(al);const bh=lsGet(LS_KEYS.bgmHeard);if(Array.isArray(bh))bgmHeardSet=new Set(bh);const vs=lsGet(LS_KEYS.videoSeen);if(Array.isArray(vs))videoSeenSet=new Set(vs);const ad=lsGet(LS_KEYS.admin);if(ad&&typeof ad==="object"&&typeof ADMIN!=="undefined")ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[],bgmMode:ad.bgmMode==="light"?"light":"rec"}}
 const ENDING_LABELS={love:"恋愛成就エンド",almost:"もう少しだった春",solo:"それぞれの春",rival:"ライバルエンド",friend:"親友エンド",life_work:"人生型：仕事成功型",life_hobby:"人生型：趣味没頭型",life_friends:"人生型：友人関係充実型",life_free:"人生型：独身自由人型",life_none:"人生型：何も成し遂げられなかった型"};
 let albumReturn="title";
 let soundOn=true, actx=null;
@@ -347,6 +347,7 @@ function bgmTick(){
  bgmTimer=setTimeout(bgmTick,tr.step);
 }
 function setBGM(name){
+ slotToken++;
  if(name==="daily"&&typeof S!=="undefined"&&S){const __m=((3+Math.floor(((S.turn-1)%48)/4))%12)+1;name=(__m>=3&&__m<=5)?"daily_spring":(__m>=6&&__m<=8)?"daily_summer":(__m>=9&&__m<=11)?"daily_autumn":"daily_winter"}
  if(bgmName===name)return;
  bgmName=name;bgmStep=0;
@@ -354,6 +355,7 @@ function setBGM(name){
  if(!soundOn||!name)return;
  if(bgmBlocked)return;
  markBgmHeard(name);
+ if(name.indexOf("daily_")===0&&typeof S!=="undefined"&&S&&typeof ADMIN!=="undefined"&&ADMIN.bgmMode!=="light"){const __slot=seasonSlotFile(name);if(__slot&&!bgmFailedUrls.has(__slot)){trySeasonSlot(__slot,name);return}} /* 2.57: コマンド画面は年×季節の専用曲スロットを最優先 */
  if(adminBgmUrl(name)){adminPlayMp3(name);return}
  adminStopMp3();bgmAudio.dataset.track="";mp3FilePlaying="";
  try{
@@ -484,7 +486,7 @@ const ov=ADMIN.overrides[no];
 let scs=scenes;
 if(ov){scs=scenes.map((sc,i)=>{const c=Object.assign({},sc);if(ov.img)c.img=ov.img;if(ov.variant&&c.hero)c.variant=ov.variant;if(ov.texts&&ov.texts[i]!=null)c.text=ov.texts[i];return c})}
 scs=applyOpImg(scs,no);
-const __f0=scs[0];if(__f0&&!__f0.img&&!__f0.hero){$("novel-img").src=lastStageSrc||"assets/op01.webp";$("novel-img-chip").classList.add("hidden")}
+const __f0=scs[0];if(__f0&&!__f0.img&&!__f0.hero){const __rain=tag&&(tag.indexOf("雨")>=0||tag.indexOf("梅雨")>=0);$("novel-img").src=__rain?"assets/scene-rain.webp":(lastStageSrc||"assets/op01.webp");$("novel-img-chip").classList.add("hidden")} /* 2.60: 雨の物語は雨の風景から */
 show("screen-novel");novelQueue=scs;novelIdx=0;novelDone=done||null;
 if(ov&&ov.fx){const d0=novelDone;novelDone=()=>{applyAdminFx(ov.fx);if(d0)d0()}}
 $("novel-tag").textContent=tag||"物語";setBGM(bgmForNovel(tag));renderNovel();
@@ -576,10 +578,28 @@ document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>doCommand(b.dat
 checkAddrUnlocks();
 renderSys();
 }
+function seasonOfTurn(turn){const m=((3+Math.floor(((turn-1)%48)/4))%12)+1;return (m>=3&&m<=5)?"spring":(m>=6&&m<=8)?"summer":(m>=9&&m<=11)?"autumn":"winter"}
+function setStageScenery(){ /* 2.58: 人物のいない季節の風景（assets/scene-{季節}.webp）。無ければ op01 に落とす */
+const img=$("game-img");if(!img)return;
+const src="assets/scene-"+seasonOfTurn(S?S.turn:1)+".webp";
+img.onerror=()=>{img.onerror=null;img.src="assets/op01.webp";lastStageSrc="assets/op01.webp"};
+img.src=src;lastStageSrc=src;
+$("game-img-chip").classList.add("hidden");
+img.classList.remove("swap");void img.offsetWidth;img.classList.add("swap");
+applyImgMotion(img);
+}
+function setStageSceneFile(file){ /* 2.60: 場面専用イラスト（assets/ファイル名）。無ければ季節の風景に落とす */
+const img=$("game-img");if(!img)return;
+img.onerror=()=>{img.onerror=null;setStageScenery()};
+img.src="assets/"+file;lastStageSrc="assets/"+file;
+$("game-img-chip").classList.add("hidden");
+img.classList.remove("swap");void img.offsetWidth;img.classList.add("swap");
+applyImgMotion(img);
+}
 function setStage(heroId,who,text,tag,variant){
 setImgPattern(tag);
-const hid=heroId||"sakura";
-applyStageImg($("game-img"),$("game-img-chip"),hid,pickVariant(hid,variant));
+if(!heroId){setStageScenery()} /* 2.58: 相手未定の場面はさくらではなく風景を出す */
+else applyStageImg($("game-img"),$("game-img-chip"),heroId,pickVariant(heroId,variant));
 const __gi=$("game-img");__gi.classList.remove("motion-slide","motion-shake","motion-jump");void __gi.offsetWidth;__gi.classList.add("motion-slide");
 $("game-who").textContent=who||"　";
 $("game-who").className="who"+(who==="【システム】"?" sys":(S&&who===pName())?" player":"");
@@ -630,11 +650,11 @@ function openGift(){
 const cand=HEROINES.filter(h=>S.met[h.id]);
 if(!cand.length){toast("まだプレゼントを渡せる相手がいない");return}
 gameBusy=true;
-setStage(null,"　","誰にプレゼントを渡そう？プロフィールで「喜ぶプレゼント」を調べるのがコツ。","🎁 プレゼント");
+setStage(null,"　","誰にプレゼントを渡そう？プロフィールで「喜ぶプレゼント」を調べるのがコツ。","🎁 プレゼント");setStageSceneFile("gift-shop.webp"); /* 2.60 */
 const ch=$("game-choices");ch.innerHTML="";ch.classList.remove("hidden");
 cand.forEach(h=>{const b=document.createElement("button");b.textContent=h.name+"（好感度 "+S.aff[h.id]+"）";
 b.onclick=()=>{ch.classList.add("hidden");pickGift(h)};ch.appendChild(b)});
-const cancel=document.createElement("button");cancel.textContent="やっぱりやめる";cancel.onclick=()=>{ch.classList.add("hidden");gameBusy=false;setStage("sakura","　","プレゼントはまた今度にしよう。","📅 "+dateLabel(S.turn).text)};ch.appendChild(cancel);
+const cancel=document.createElement("button");cancel.textContent="やっぱりやめる";cancel.onclick=()=>{ch.classList.add("hidden");gameBusy=false;setStage(null,"　","プレゼントはまた今度にしよう。","📅 "+dateLabel(S.turn).text)};ch.appendChild(cancel);
 }
 function pickGift(h){
 setStage(h.id,h.name,"何を渡そう？"+h.short+"の好きな物はプロフィールに書いてあったはず…。","🎁 贈り物は？");
@@ -672,6 +692,7 @@ function secretEvent(done){
  const month=dateLabel(S.turn).month;
  const pool=SECRET_EVENTS.filter(e=>(!e.months||e.months.includes(month))&&((S.flags["sec_"+e.id]||0)<2));
  if(!pool.length)return false;
+ if(!HEROINES.some(h=>S.met[h.id]))return false; /* 2.59: 誰とも出会う前はヒロイン登場イベントを出さない */
  const ev=pool[rnd(0,pool.length-1)];S.flags["sec_"+ev.id]=(S.flags["sec_"+ev.id]||0)+1;__adminNextNo="SC-"+ev.id;
  if(ev.id==="muscle")unlockMem("mem_ev11");
  const metIds=HEROINES.filter(h=>S.met[h.id]).map(h=>h.id);
@@ -680,6 +701,28 @@ function secretEvent(done){
  addLog("✨ レアな出会い「"+ev.title+"」（"+h.short+" 好感度+4）");
  playNovel([{hero:hid,who:h.name,variant:"normal",text:"――レアな出会い「"+ev.title+"」"},{hero:hid,who:"　",variant:"smile",text:ev.text}],()=>{show("screen-game");render();done()},"✨ レアな出会い");
  return true;
+}
+function soloCommandResult(id,msgs,done){ /* 2.60: 勉強・運動・休養・バイトの一人場面（専用イラスト） */
+ const sum=(msgs&&msgs.length)?("（"+msgs.join("、")+"）"):"";
+ let scenes=null,tag="";
+ if(id==="study"){tag="📚 自宅で勉強";scenes=[
+  {who:"　",img:"assets/study-night.webp",text:"その週は自宅の机に向かった。デスクライトの明かりの下、教科書とノートを広げる。"},
+  {player:true,text:"…よし、今日はここまで頑張ろう。"},
+  {who:"　",text:"静かな夜に、シャーペンの音だけが響いた。"+sum}]}
+ else if(id==="sport"){tag="🏃 河川敷を走る";scenes=[
+  {who:"　",img:"assets/run-morning.webp",text:"その週は那珂川の河川敷を走った。朝の空気が、肺いっぱいに広がる。"},
+  {player:true,text:"はあ、はあ…。風が気持ちいい…！"},
+  {who:"　",text:"川面の光を横目に、最後まで走り切った。"+sum}]}
+ else if(id==="rest"){tag="🛋️ 自宅で休養";scenes=[
+  {who:"　",img:"assets/rest-day.webp",text:"その週は自宅でのんびり過ごした。ベッドに寝転んで、読みかけの漫画を開く。"},
+  {player:true,text:"たまには、こういう日もいいな…。"},
+  {who:"　",text:"午後の日差しの中で、体も心もほぐれていった。"+sum}]}
+ else if(id==="work"){const wimgs=["work-coffee.webp","work-cake.webp","work-service.webp"];const wtexts=["今日はドリップコーヒーの担当。湯気の向こうに、常連さんの笑顔があった。","今日はケーキの仕上げ担当。苺ショートにクリームを絞る手が、少しずつ慣れてきた。","今日は接客担当。トレイを運ぶ背筋が、自然と伸びるようになってきた。"];const wi=((S.turn%3)+3)%3;tag="☕ カフェでバイト";scenes=[
+  {who:"　",img:"assets/"+wimgs[wi],text:"その週はカフェのバイトに励んだ。"+wtexts[wi]},
+  {player:true,text:"いらっしゃいませ…！"},
+  {who:"　",text:"閉店まで、しっかり働いた。"+sum}]}
+ if(!scenes){done();return}
+ playNovel(scenes,done,tag);
 }
 function doCommand(id){
 if(gameBusy||!S||S.ended)return;
@@ -699,7 +742,8 @@ if(S.stats.tairyoku<=18&&!S.sick)sysNotify("⚠ プレイヤーの体力が落�
 /* sickness: stress max or stamina depleted */
 if(!S.sick&&(S.stats.stress>=100||(S.stats.tairyoku<=6&&S.stats.stress>=60))){S.sick=true;S.stats.stress=clamp(S.stats.stress-25);
 addLog("無理がたたって病気で寝込んでしまった…");sysNotify("🤒 プレイヤーが病気で寝込んでしまいました…「休養する」で回復しましょう",1);render();
-playNovel([{sys:true,text:"プレイヤーの体力が限界を超えました。病気で寝込むことになりました…。休養すると回復します。"},{player:true,text:"うう…頭が重い…。まさか自分が寝込むなんて…。"},{who:"　",text:"布団の中で天井を見上げた。無理をしすぎたのかもしれない。今はしっかり休もう。"},{hero:"sakura",who:"桜井 さくら",variant:"sick",text:"（電話で）大丈夫！？…無理しちゃダメだよ。…お見舞い、行ってもいい？"}],()=>{show("screen-game");render();nextTurn()},"🤒 寝込む");
+const __callH=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];const __callSc=__callH?{hero:__callH.id,who:__callH.name,variant:"sick",text:"（電話で）大丈夫！？…無理しちゃダメだよ。…お見舞い、行ってもいい？"}:{who:"　",text:"――電話が鳴った。家族からだった。「無理しないで、ちゃんと休むんだよ」"}; /* 2.59: 出会った相手から電話。出会う前は家族から */
+playNovel([{sys:true,text:"プレイヤーの体力が限界を超えました。病気で寝込むことになりました…。休養すると回復します。"},{player:true,text:"うう…頭が重い…。まさか自分が寝込むなんて…。"},{who:"　",img:"assets/sick-bed.webp",text:"布団の中で天井を見上げた。無理をしすぎたのかもしれない。今はしっかり休もう。"},__callSc],()=>{show("screen-game");render();nextTurn()},"🤒 寝込む");
 gameBusy=false;return}
 if(S.sick&&id==="rest"){sickRest(()=>{gameBusy=false;nextTurn()});render();return}
 if(id==="rest"&&typeof nurseTryOffice==="function"&&nurseTryOffice(()=>{gameBusy=false;nextTurn()})){render();return}
@@ -710,11 +754,12 @@ if(dateLabel(S.turn).month===8&&!S.flags.fireworksDone&&HEROINES.some(h=>S.met[h
 const ev=scheduledEvent();
 if(ev){__adminNextNo="EV-"+String(turnInYear(S.turn)).padStart(2,"0");render();ev(()=>{bonusEvent(id,()=>{gameBusy=false;nextTurn()})});return}
 const roll=Math.random();
-if(roll<0.20){hokkoriEvent(()=>{gameBusy=false;nextTurn()});render();return}
+if(roll<0.20&&hokkoriEvent(()=>{gameBusy=false;nextTurn()})){render();return}
 if(roll<0.44&&extraEvent(()=>{gameBusy=false;nextTurn()})){render();return}
 if(roll<0.50&&secretEvent(()=>{gameBusy=false;nextTurn()})){render();return}
 
 if(roll<0.72){encounter(id,()=>{gameBusy=false;nextTurn()});render();return}
+if(id==="study"||id==="sport"||id==="rest"||id==="work"){soloCommandResult(id,msgs,()=>{gameBusy=false;nextTurn()});render();return} /* 2.60: 専用イラストの一人場面 */
 const leadTxt=cmd.name+"。"+(msgs.length?msgs.join("、")+"。":"")+"その週、黒羽の町で小さな出来事があった。";
 if(S.kuhi&&S.kuhi.length<10&&Math.random()<0.5){kuhiEvent(()=>{gameBusy=false;nextTurn()},leadTxt)}else{localEvent(()=>{gameBusy=false;nextTurn()},leadTxt)}render();return;
 }
@@ -735,6 +780,7 @@ const nx=$("game-next");nx.classList.remove("hidden");nx.onclick=()=>{nx.classLi
 ch.appendChild(b)});
 }
 function hokkoriEvent(done){
+if(!HEROINES.some(h=>S.met[h.id]))return false; /* 2.59: 誰とも出会う前は出さない */
 if(S.flags)S.flags.talk=(S.flags.talk||0)+1;
 const ev=HOKKORI[rnd(0,HOKKORI.length-1)];__adminNextNo="HK-"+ev.id;
  const SPOT_BY_HOK={hok_library:"library",hok_ayu:"nakagawa"};visitSpot(SPOT_BY_HOK[ev.id]);
@@ -745,6 +791,7 @@ unlockMem(ev.id);addLog("ほっこりイベント「"+ev.title+"」（"+h.short+
 const text=ev.text.replaceAll("{hero}",h.short);
 const hv=(S.turn%2===0)?"smile":"shy";
 playNovel([{hero:hid,who:h.name,variant:hv,text:"――ほっこりイベント「"+ev.title+"」"},{hero:hid,who:"　",variant:hv,text}],()=>{show("screen-game");render();done()},"♡ ほっこりイベント");
+return true;
 }
 /* ================= RICE SHOWER（2.50新ストーリー「黒羽に眠る風」・競走馬観世音） ================= */
 function riceshowerTry(done){
@@ -835,10 +882,23 @@ function localEvent(done,lead){
  if(!pool.length){S.localSeen=S.localSeen.filter(id=>{const e=LOCAL_EVENTS.find(x=>x.id===id);return !(e&&inSeason(e))});pool=LOCAL_EVENTS.filter(e=>inSeason(e)&&!S.localSeen.includes(e.id))}
  if(!pool.length)pool=LOCAL_EVENTS.filter(inSeason);
  if(!pool.length){if(done)done();return}
+ const metIds0=HEROINES.filter(h=>S.met[h.id]).map(h=>h.id);
+ if(!metIds0.length){const sp=pool.filter(e=>!e.text.includes("{hero}"));if(!sp.length){const scenes=[];if(lead)scenes.push({sys:true,text:lead});scenes.push({who:"　",text:"その週は一人で黒羽の町を歩いた。知らない道の先に、まだ見ぬ出会いが待っている気がした。"});playNovel(scenes,()=>{stopMp3File();show("screen-game");render();done()},"🏮 黒羽の出来事");return}pool=sp} /* 2.59: 出会う前は一人の出来事だけ */
  const ev=pool[rnd(0,pool.length-1)];S.localSeen.push(ev.id);__adminNextNo="LC-"+ev.id;
  if(typeof localMemHook==="function")localMemHook(ev);
  const SPOT_BY_LOCAL={ozeki_kinenhi:"ozeki",ungan_zazen:"unganji",ungan_kouyou:"unganji",daioji:"daioji",yana:"nakagawa",gohou:"gohou",yoichi:"yoichi",library_seki:"library",joseki_bench:"joseki",illumi:"joseki",basho_yakata:"basho_yakata",kagetsu_mae:"kagetsu",gelato:"yoichi",ayu_shioyaki:"nakagawa",ayu_tsukami:"nakagawa",haiku:"basho_yakata",ajisai:"joseki",ajisai_light:"joseki",ajisai_sketch:"joseki",daioji_saho:"daioji",ungan_bridge:"unganji",yoichi_den:"yoichi",kurohacha:"yoichi"};visitSpot(SPOT_BY_LOCAL[ev.id]);
- const metIds=HEROINES.filter(h=>S.met[h.id]).map(h=>h.id);
+ const metIds=metIds0;
+ if(!metIds.length){ /* 2.59: 一人の黒羽の出来事（ヒロインを登場させない） */
+  S.stats.stress=clamp(S.stats.stress+((ev.fx&&ev.fx.stress)||-6));
+  addLog("黒羽の出来事「"+ev.title+"」（一人で）");
+  const scenes=[];
+  if(lead)scenes.push({sys:true,text:lead});
+  if(ev.pic)scenes.push({who:"　",img:ev.pic,text:"――"+ev.title+"。その景色を、目に焼き付けた。"});
+  scenes.push({who:"　",text:ev.text});
+  playNovel(scenes,()=>{stopMp3File();show("screen-game");render();done()},"🏮 黒羽の出来事");
+  const LOCAL_SONGS_S={gohou:"song13",yana:"song36",ayu_shioyaki:"song36",ayu_tsukami:"song36",ozeki_kinenhi:"song30",ungan_zazen:"song37",ungan_kouyou:"song37",ungan_bridge:"song37"};if(LOCAL_SONGS_S[ev.id])playMp3File("bgm/"+LOCAL_SONGS_S[ev.id]+".mp3","local");
+  return;
+ }
  const hid=(ev.img&&S.met[ev.img])?ev.img:(metIds.length?metIds[rnd(0,metIds.length-1)]:"sakura");const h=hero(hid);
  const fx=ev.fx||{};const affD=fx.aff||4;
  S.aff[hid]=clamp(S.aff[hid]+affD);S.stats.stress=clamp(S.stats.stress+(fx.stress||-6));S.lastMeet[hid]=S.turn;addRel(hid,{close:2});
@@ -858,6 +918,19 @@ function kuhiEvent(done,lead){
  const k=rest[0];S.kuhi.push(k.no);visitSpot("kuhi"+k.no);__adminNextNo="KB-"+k.no;
  unlockMem("mem_kuhi"+String(k.no).padStart(2,"0"));if(k.no===8)unlockMem("mem_op15");
  const metIds=HEROINES.filter(h=>S.met[h.id]).map(h=>h.id);
+ if(!metIds.length){ /* 2.59: 一人の句碑めぐり */
+  S.stats.stress=clamp(S.stats.stress-5);
+  const doneAll=S.kuhi.length>=10;
+  addLog("句碑めぐり「"+k.spot+"」（一人で、"+S.kuhi.length+"/10）");
+  const scenes=[];
+  if(lead)scenes.push({sys:true,text:lead});
+  scenes.push({who:"　",img:KUHI_IMGS[k.no],text:"――"+k.spot+"。石に刻まれた句が、静かに迎えてくれた。"});
+  scenes.push({who:"　",text:k.spot+"へ。一人、石に刻まれた句を声に出して読んだ。\n\n「"+k.haiku+"」\n\n"+k.note});
+  scenes.push({who:"　",text:doneAll?"…これで10か所、全部回った。黒羽の町が、少しだけ自分の町になった気がする":"あと"+(10-S.kuhi.length)+"か所。全部回れたら、きっと黒羽のことがもっと好きになる"});
+  if(doneAll)scenes.push({sys:true,text:"🎉 句碑10か所をすべて巡りました！実績「句碑めぐり制覇」を達成。思い出がアルバムに追加されました。"});
+  playNovel(scenes,()=>{if(doneAll){unlockMem("mem_kuhi");unlockAch("kuhi_master")}show("screen-game");render();done()},"🗿 句碑めぐり");
+  return;
+ }
  const hid=S.met.yuki?"yuki":(metIds.length?metIds[rnd(0,metIds.length-1)]:"sakura");const h=hero(hid);
  S.aff[hid]=clamp(S.aff[hid]+5);S.stats.stress=clamp(S.stats.stress-5);S.lastMeet[hid]=S.turn;addRel(hid,{close:2});
  const doneAll=S.kuhi.length>=10;
@@ -1271,7 +1344,7 @@ setStage(null,"　","誰を誘おう？（好感度が高いほどOKされやす
 const ch=$("game-choices");ch.innerHTML="";ch.classList.remove("hidden");
 cand.forEach(h=>{const b=document.createElement("button");b.textContent=h.name+"（好感度 "+S.aff[h.id]+"）";
 b.onclick=()=>{ch.classList.add("hidden");pickPlace(h)};ch.appendChild(b)});
-const cancel=document.createElement("button");cancel.textContent="やっぱりやめる";cancel.onclick=()=>{ch.classList.add("hidden");gameBusy=false;setStage("sakura","　","デートはまた今度にしよう。","📅 "+dateLabel(S.turn).text)};ch.appendChild(cancel);
+const cancel=document.createElement("button");cancel.textContent="やっぱりやめる";cancel.onclick=()=>{ch.classList.add("hidden");gameBusy=false;setStage(null,"　","デートはまた今度にしよう。","📅 "+dateLabel(S.turn).text)};ch.appendChild(cancel);
 }
 function pickPlace(h){
 setStage(h.id,h.name,"行き先を選ぼう。相手の好みが大事。誘いが成功するかは、好感度・信頼度・魅力で決まるよ。お金も必要だ。","💌 行き先は？");
@@ -1373,7 +1446,7 @@ function sickRest(done){
  if(vis){addRel(vis.id,{aff:6,trust:8,close:8});S.lastMeet[vis.id]=S.turn;addHurt(vis.id,-15);pushHistory(vis.id,"visit","見舞いに来てくれた日");unlockMem("mem_visit");unlockAch("visit");addLog(vis.short+"が見舞いに来てくれた。体力が回復した");
   playNovel([
    {sys:true,text:"休養中――インターホンが鳴りました。"},
-   {player:true,text:"…誰だろう。こんな時に…"},
+   {player:true,img:"assets/sick-bed.webp",text:"…誰だろう。こんな時に…"},
    {hero:vis.id,who:vis.name,variant:"sick",text:"お見舞いに来たよ。…ほら、おかゆとスポーツドリンク。無理ばっかりして…心配したんだから"},
    {player:true,text:"ありがとう…。来てくれて、本当に嬉しい。"},
    {hero:vis.id,who:vis.name,variant:"shy",text:"早く元気になってね。…元気になったら、また一緒に帰ろう？"},
@@ -1381,19 +1454,19 @@ function sickRest(done){
   ],()=>{show("screen-game");render();done()},"🤒 お見舞い");
  }else{addLog("誰も見舞いに来ず、静かに休養した。体力は回復した");
   playNovel([
-   {player:true,text:"…結局、誰も見舞いには来なかったな。"},
+   {player:true,img:"assets/sick-bed.webp",text:"…結局、誰も見舞いには来なかったな。"},
    {who:"　",text:"静かな部屋で一人、天井を見上げた。…もっと、みんなと仲良くなっておけばよかった。"},
    {sys:true,text:"見舞いに来る相手がいませんでした…。好感度55以上・信頼度35以上のヒロインが見舞いに来てくれます。体力は回復しました。"}
   ],()=>{show("screen-game");render();done()},"🤒 一人の休養");
  }
 }
 /* ---------- 電話・メール ---------- */
-function contactCancel(ch){const cancel=document.createElement("button");cancel.textContent="やっぱりやめる";cancel.onclick=()=>{ch.classList.add("hidden");gameBusy=false;setStage("sakura","　","連絡はまた今度にしよう。","📅 "+dateLabel(S.turn).text)};ch.appendChild(cancel)}
+function contactCancel(ch){const cancel=document.createElement("button");cancel.textContent="やっぱりやめる";cancel.onclick=()=>{ch.classList.add("hidden");gameBusy=false;setStage(null,"　","連絡はまた今度にしよう。","📅 "+dateLabel(S.turn).text)};ch.appendChild(cancel)}
 function openContact(){
  const cand=HEROINES.filter(h=>S.met[h.id]&&profStageOf(h.id)>=3);
  if(!cand.length){toast("まだ連絡先を知っている相手がいない。好感度50でメール、70で電話番号がプロフィールに開くよ");return}
  gameBusy=true;
- setStage(null,"【システム】","誰に連絡する？（メール：好感度50以上／電話：好感度70以上で開放）","📱 電話・メール");
+ setStage(null,"【システム】","誰に連絡する？（メール：好感度50以上／電話：好感度70以上で開放）","📱 電話・メール");setStageSceneFile("contact-phone.webp"); /* 2.60 */
  const ch=$("game-choices");ch.innerHTML="";ch.classList.remove("hidden");
  cand.forEach(h=>{const st=profStageOf(h.id);const b=document.createElement("button");b.textContent=h.name+"（"+(st>=4?"📱電話・✉️メール可":"✉️メールのみ")+"）";b.onclick=()=>{pickContactMethod(h)};ch.appendChild(b)});
  contactCancel(ch);
@@ -1765,12 +1838,12 @@ if($("ts-range"))$("ts-range").addEventListener("input",e=>{META.textSize=+e.tar
 if($("ts-reset"))$("ts-reset").onclick=()=>{META.textSize=100;applyTextSize();persistMeta();toast("文字サイズを標準（100%）に戻しました")};
 
 /* ================= ADMIN (maintenance) ================= */
-let ADMIN={bgm:{},overrides:{},custom:[]};
+let ADMIN={bgm:{},overrides:{},custom:[],bgmMode:"rec"};
 let __adminNextNo=null,__adminCurNo=null;
 const BGM_LABELS={opening:"オープニング（プロローグ）",title:"タイトル",daily:"通常（本編）",daily_spring:"通常・春",daily_summer:"通常・夏",daily_autumn:"通常・秋",daily_winter:"通常・冬",event:"イベント",choice:"選択肢・ドキドキ",date:"デート",sad:"悲しい場面",ending:"エンディング",hokkori:"ほっこりイベント",local:"黒羽の出来事（地元イベント）",kuhi:"句碑めぐり",story:"個別ストーリー",matsuri:"夏祭り",sports:"スポーツ行事",culture:"文化祭",sea:"海・夏",snow:"雪・冬",sakura:"桜",rain:"梅雨・雨",tanabata:"七夕",xmas:"クリスマス",illumination:"イルミネーション",newyear:"初詣・正月",valentine:"バレンタイン",halloween:"ハロウィン",trip:"修学旅行",concert:"コンサート",exam:"テスト・受験",birthday:"誕生日",night:"夜",pool:"プール",summer:"夏休み",rooftop:"屋上",sick:"看病",phone:"電話・メール",memory:"回想"};
 const bgmAudio=new Audio();bgmAudio.loop=true;bgmAudio.volume=bgmVolume;
 const bgmFailedUrls=new Set();
-function adminBgmUrl(name){const u=((ADMIN.bgm||{})[name]||"").trim();return bgmFailedUrls.has(u)?"":u}
+function adminBgmUrl(name){if(ADMIN.bgmMode==="light")return "";let u;if(ADMIN.bgm&&Object.prototype.hasOwnProperty.call(ADMIN.bgm,name))u=(ADMIN.bgm[name]||"").trim();else if(typeof RECOMMENDED_BGM!=="undefined"&&RECOMMENDED_BGM[name])u=RECOMMENDED_BGM[name];else u="";return bgmFailedUrls.has(u)?"":u} /* 2.57: 未設定の場面は推奨BGMが既定。軽量モードではMP3なし */
 function fixBgmPath(v){if(typeof v!=="string")return v;let u=v.trim();u=u.replace(/^assets\/(bgm\/)/i,"$1");u=u.replace(/^assets\/(bgm\d+\.mp3)$/i,"bgm/$1");return u}
 function migrateBgmPaths(){if(!ADMIN.bgm)return;let changed=false;Object.keys(ADMIN.bgm).forEach(k=>{let f=fixBgmPath(ADMIN.bgm[k]);if(f==="bgm/bgm01.mp3")f="bgm/op01.mp3";if(f!==ADMIN.bgm[k]){ADMIN.bgm[k]=f;changed=true}});if(changed)persistAdmin()}
 function adminStopMp3(){try{bgmAudio.pause()}catch(e){}}
@@ -1778,9 +1851,12 @@ const RECOMMENDED_BGM={opening:"bgm/op01.mp3",title:"bgm/op01.mp3",ending:"bgm/e
 function refreshBgmNow(){adminStopMp3();bgmAudio.dataset.track="";const cur=bgmName;bgmName=null;if(cur)setBGM(cur)}
 function setBgmVolume(v){bgmVolume=Math.min(1,Math.max(0,+v||0));try{bgmAudio.volume=bgmVolume}catch(e){}lsSet("sakura-memorial-vol-v1",bgmVolume);const pct=Math.round(bgmVolume*100)+"%";const l=$("vol-label");if(l)l.textContent=pct;const s1=$("vol-slider");if(s1)s1.value=Math.round(bgmVolume*100);const s2=$("gvol-range");if(s2)s2.value=Math.round(bgmVolume*100);const gv=$("gvol-val");if(gv)gv.textContent=pct;const sb=$("btn-sound");if(sb)sb.textContent=bgmVolume<=0?"🔇 無音":"🔊 音量"}
 function applyBgmSettings(){adminCollectBgm();persistAdmin();refreshBgmNow();toast("BGM設定を反映しました")}
-function applyRecommendedBgm(){Object.keys(BGM_LABELS).forEach(k=>{ADMIN.bgm[k]=""});Object.keys(RECOMMENDED_BGM).forEach(k=>{ADMIN.bgm[k]=RECOMMENDED_BGM[k]});persistAdmin();refreshBgmNow();toast("推奨BGMを設定しました（全場面に歌を割り当てました）")}
-function resetBgmToDefault(){Object.keys(BGM_LABELS).forEach(k=>{ADMIN.bgm[k]=""});persistAdmin();refreshBgmNow();toast("BGMを元（標準の合成BGM）に戻しました")}
+function applyRecommendedBgm(){ADMIN.bgmMode="rec";Object.keys(BGM_LABELS).forEach(k=>{ADMIN.bgm[k]=""});Object.keys(RECOMMENDED_BGM).forEach(k=>{ADMIN.bgm[k]=RECOMMENDED_BGM[k]});persistAdmin();refreshBgmNow();refreshBgmModeUI();toast("推奨BGMを設定しました（全場面に歌を割り当てました）")}
+function setBgmMode(m){ADMIN.bgmMode=(m==="light")?"light":"rec";persistAdmin();refreshBgmNow();refreshBgmModeUI();toast(ADMIN.bgmMode==="light"?"🎹 シンセBGM（軽量）に切り替えました。曲ファイルは読み込みません":"🎵 推奨BGM（標準）に切り替えました")} /* 2.57 */
+function refreshBgmModeUI(){const r=$("btn-bgm-recommend"),d=$("btn-bgm-default");if(typeof ADMIN==="undefined")return;const light=ADMIN.bgmMode==="light";if(r)r.textContent="🎵 推奨BGM（標準）"+(light?"":" ● 使用中");if(d)d.textContent="🎹 シンセBGM（軽量）"+(light?" ● 使用中":"")} /* 2.57 */
+function resetBgmToDefault(){setBgmMode("light")} /* 2.57: 「元に戻す」は軽量（シンセ）モードとして扱う */
 function adminPlayMp3(name){
+ slotToken++;
  const u=adminBgmUrl(name);if(!u)return false;
  if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
  try{
@@ -1793,6 +1869,8 @@ function adminPlayMp3(name){
 let mp3FilePlaying="";
 function playMp3File(u,fallback){
  if(!u)return false;
+ slotToken++;
+ if(typeof ADMIN!=="undefined"&&ADMIN.bgmMode==="light"){if(fallback){bgmName=null;setBGM(fallback)}return true} /* 2.57: 軽量モードでは曲ファイルを読み込まない */
  if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
  if(bgmFailedUrls.has(u)){if(fallback){bgmName=null;setBGM(fallback)}return false}
  try{
@@ -1802,7 +1880,21 @@ function playMp3File(u,fallback){
   return true;
  }catch(e){return false}
 }
-function stopMp3File(){mp3FilePlaying="";adminStopMp3();if(bgmAudio)bgmAudio.dataset.track="";bgmName=null}
+function stopMp3File(){slotToken++;mp3FilePlaying="";adminStopMp3();if(bgmAudio)bgmAudio.dataset.track="";bgmName=null}
+/* 2.57: コマンド画面の四季スロット（3年×4季=12曲）。ファイルが bgm フォルダにあれば自動で流れ、無ければ従来のBGMに落ちる */
+let slotToken=0;
+const SEASON_SLOT_SONGS={"1-spring":"bgm/op02.mp3","1-summer":"bgm/song26.mp3","1-autumn":"bgm/song31.mp3","1-winter":"bgm/song23.mp3","2-spring":"bgm/song32.mp3","2-summer":"bgm/song36.mp3","2-autumn":"bgm/song15.mp3","2-winter":"bgm/song07.mp3","3-spring":"bgm/song03.mp3","3-summer":"bgm/song16.mp3","3-autumn":"bgm/song21.mp3","3-winter":"bgm/song22.mp3"}; /* 2.60: 既存の歌41曲から、年×季節に合う12曲を選曲 */
+function seasonSlotFile(key){if(typeof S==="undefined"||!S)return "";const season=String(key).replace("daily_","");if(["spring","summer","autumn","winter"].indexOf(season)<0)return "";const y=Math.min(3,Math.max(1,S.year||1));return SEASON_SLOT_SONGS[y+"-"+season]||""}
+function trySeasonSlot(slot,key){
+ if(bgmAudio.dataset.track===slot&&!bgmAudio.paused)return;
+ const tk=slotToken;
+ if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}
+ adminStopMp3();mp3FilePlaying=slot;
+ bgmAudio.src=slot;bgmAudio.loop=true;bgmAudio.dataset.track=slot;setBgmVolume(bgmVolume);
+ const fail=()=>{if(tk!==slotToken)return;bgmFailedUrls.add(slot);if(bgmAudio.dataset.track===slot){bgmAudio.dataset.track="";mp3FilePlaying=""}if(bgmName===key){bgmName=null;setBGM(key)}};
+ bgmAudio.onerror=()=>{if(bgmAudio.dataset.track===slot)fail()};
+ try{const pr=bgmAudio.play();if(pr&&pr.catch)pr.catch(fail)}catch(e){fail()}
+}
 function deriveStoryNo(tag){
  if(!tag)return "ETC-000";
  if(tag.indexOf("プロローグ")>=0)return "P-001";
@@ -1859,7 +1951,7 @@ function openAdmin(){
  Object.keys(BGM_LABELS).forEach(k=>{
   const row=document.createElement("div");row.className="field";
   const lab=document.createElement("label");lab.textContent=BGM_LABELS[k]+"（"+k+"）";row.appendChild(lab);
-  const inp=document.createElement("input");inp.type="text";inp.placeholder="MP3のURL（空欄＝標準の合成BGM）";inp.value=(ADMIN.bgm||{})[k]||"";inp.dataset.bgmKey=k;row.appendChild(inp);
+  const inp=document.createElement("input");inp.type="text";inp.placeholder=(typeof RECOMMENDED_BGM!=="undefined"&&RECOMMENDED_BGM[k])?("未設定なら推奨： "+RECOMMENDED_BGM[k]):"MP3のURL（空欄＝標準の合成BGM）";inp.value=(ADMIN.bgm||{})[k]||"";inp.dataset.bgmKey=k;row.appendChild(inp);
   const btns=document.createElement("div");btns.style.cssText="display:flex;gap:6px;margin-top:6px";
   const t=document.createElement("button");t.className="btn small";t.textContent="▶ 試聴";
   t.onclick=()=>{adminCollectBgm();bgmAudio.dataset.track="";const cur=bgmName;bgmName=null;setBGM(k);toast(adminBgmUrl(k)?"MP3で試聴中です":"標準BGMで試聴中です")};
@@ -1897,13 +1989,13 @@ $("adm-file").addEventListener("change",e=>{
  const f=e.target.files[0];if(!f)return;
  const r=new FileReader();
  r.onload=()=>{try{const d=JSON.parse(r.result);const ad=d.admin||d;if(!ad||typeof ad!=="object")throw 0;
-  ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[]};
-  migrateBgmPaths();persistAdmin();adminStopMp3();bgmAudio.dataset.track="";const cur=bgmName;bgmName=null;if(cur)setBGM(cur);
+  ADMIN={bgm:ad.bgm||{},overrides:ad.overrides||{},custom:Array.isArray(ad.custom)?ad.custom:[],bgmMode:ad.bgmMode==="light"?"light":"rec"};
+  migrateBgmPaths();persistAdmin();refreshBgmModeUI();adminStopMp3();bgmAudio.dataset.track="";const cur=bgmName;bgmName=null;if(cur)setBGM(cur);
   openAdmin();toast("管理データを読み込みました");
  }catch(err){toast("読み込めない管理データでした")}};
  r.readAsText(f);e.target.value="";
 });
-$("adm-reset").onclick=()=>{if(!confirm("管理データをすべて初期化しますか？（BGM設定・上書き・カスタムが消えます）"))return;ADMIN={bgm:{},overrides:{},custom:[]};persistAdmin();adminStopMp3();bgmAudio.dataset.track="";const cur=bgmName;bgmName=null;if(cur)setBGM(cur);openAdmin();toast("管理データを初期化しました")};
+$("adm-reset").onclick=()=>{if(!confirm("管理データをすべて初期化しますか？（BGM設定・上書き・カスタムが消えます）"))return;ADMIN={bgm:{},overrides:{},custom:[],bgmMode:"rec"};persistAdmin();refreshBgmModeUI();adminStopMp3();bgmAudio.dataset.track="";const cur=bgmName;bgmName=null;if(cur)setBGM(cur);openAdmin();toast("管理データを初期化しました")};
 $("adm-bgm-apply").onclick=()=>{applyBgmSettings()};
 $("btn-bgm-recommend").onclick=()=>{applyRecommendedBgm()};
 const __vs=$("vol-slider");if(__vs){__vs.value=Math.round(bgmVolume*100);const __vl=$("vol-label");if(__vl)__vl.textContent=Math.round(bgmVolume*100)+"%";__vs.addEventListener("input",e=>setBgmVolume(e.target.value/100))}
@@ -2037,7 +2129,7 @@ function loadState(state){
  S.memories.forEach(id=>albumUnlocked.add(id));persistAlbum();if(S.clears&&S.clears>META.clears){META.clears=S.clears;persistMeta()}
  $("modal-save").classList.add("hidden");chime();
  if(S.ended){graduation();return}
- show("screen-game");render();setStage("sakura","　","セーブデータを読み込んだ。"+dateLabel(S.turn).text+"から再開！","📂 ロード完了");
+ show("screen-game");render();setStage(null,"　","セーブデータを読み込んだ。"+dateLabel(S.turn).text+"から再開！","📂 ロード完了");
  toast("ロードしました："+pName());
 }
 $("file-load").addEventListener("change",e=>{
@@ -2051,7 +2143,7 @@ $("btn-load-open").onclick=()=>openModal("load");
 $("btn-continue").onclick=()=>{albumReturn="title";openModal("load")};
 $("modal-close").onclick=()=>$("modal-save").classList.add("hidden");
 $("modal-save").addEventListener("click",e=>{if(e.target.id==="modal-save")$("modal-save").classList.add("hidden")});
-restorePersisted();migrateBgmPaths();applyTextSize();
+restorePersisted();migrateBgmPaths();applyTextSize();refreshBgmModeUI();
 
 /* ================= ALBUM ================= */
 function openAlbum(){
@@ -2309,7 +2401,7 @@ const no=scenes.__no||__adminNextNo||deriveStoryNo(tag);__adminNextNo=null;__adm
 const ov=ADMIN.overrides[no];let scs=scenes;
 if(ov){scs=scenes.map((sc,i)=>{const c=Object.assign({},sc);if(ov.img)c.img=ov.img;if(ov.variant&&c.hero)c.variant=ov.variant;if(ov.texts&&ov.texts[i]!=null)c.text=ov.texts[i];return c})}
 scs=applyOpImg(scs,no);
-const __g0=scs[0];if(__g0&&!__g0.img&&!__g0.hero){$("game-img").src=lastStageSrc||"assets/op01.webp";$("game-img-chip").classList.add("hidden")}
+const __g0=scs[0];if(__g0&&!__g0.img&&!__g0.hero){const __rain=tag&&(tag.indexOf("雨")>=0||tag.indexOf("梅雨")>=0);$("game-img").src=__rain?"assets/scene-rain.webp":(lastStageSrc||"assets/op01.webp");$("game-img-chip").classList.add("hidden")} /* 2.60: 雨の物語は雨の風景から */
 igQueue=scs;igIdx=0;igDone=done||null;igActive=true;const __sk=$("game-skip");if(__sk)__sk.classList.remove("hidden");
 if(ov&&ov.fx){const d0=igDone;igDone=()=>{applyAdminFx(ov.fx);if(d0)d0()}}
 setImgPattern(tag);$("game-tag").textContent=tag||"物語";igTag=tag||"";const __fh=(scs.find(function(x){return x&&x.hero})||{}).hero||null;igVideoFile=videoForNovel(igTag,__fh);const __gv=$("game-video");if(__gv)__gv.classList.toggle("hidden",!igVideoFile);const __gsp=$("game-speak");if(__gsp)__gsp.classList.remove("hidden");const __gsr=$("game-speak-rate");if(__gsr)__gsr.classList.remove("hidden");const __gkb=$("game-kb");if(__gkb)__gkb.classList.remove("hidden");setBGM(bgmForNovel(tag));renderNovelInGame();scheduleAutoVideo();
