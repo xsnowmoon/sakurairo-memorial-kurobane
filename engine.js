@@ -99,7 +99,7 @@ function addrStageOf(v){return v>=80?2:v>=40?1:0}
 function pCall(hid){if(!S)return "君";const st=addrStageOf(hid&&S.aff?(S.aff[hid]||0):0);if(st>=2)return S.nick||S.first;if(st>=1)return S.first+"くん";return S.last+"くん"}
 function checkAddrUnlocks(){if(!S||!S.aff)return;if(!S.addrStage)S.addrStage={};HEROINES.forEach(h=>{if(!S.met[h.id])return;const now=addrStageOf(S.aff[h.id]||0);const prev=S.addrStage[h.id];if(typeof prev!=="number"){S.addrStage[h.id]=now;return}if(now!==prev){S.addrStage[h.id]=now;if(now>prev)sysNotify(now>=2?("💕 "+h.name+"が、あだ名「"+(S.nick||S.first)+"」で呼んでくれるようになった！"):("💕 "+h.name+"が、名前「"+S.first+"くん」で呼んでくれるようになった！"),1)}})}
 function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)}
-function beep(f,d,type){if(!soundOn)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();if(bgmName&&!bgmTimer&&!bgmBlocked)bgmTimer=setTimeout(bgmTick,60);const o=actx.createOscillator(),g=actx.createGain();o.type=type||"sine";o.frequency.value=f||660;g.gain.setValueAtTime(.12*Math.min(2,bgmVolume/0.5),actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+(d||.12));o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+(d||.12))}catch(e){}}
+function beep(f,d,type){if(!soundOn)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();if(bgmName&&!bgmTimer&&!bgmBlocked&&!(typeof mp3FilePlaying!=="undefined"&&mp3FilePlaying)&&!(bgmAudio&&bgmAudio.dataset&&bgmAudio.dataset.track))bgmTimer=setTimeout(bgmTick,60);const o=actx.createOscillator(),g=actx.createGain();o.type=type||"sine";o.frequency.value=f||660;g.gain.setValueAtTime(.12*Math.min(2,bgmVolume/0.5),actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+(d||.12));o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+(d||.12))}catch(e){}}
 function chime(){beep(659,.15);setTimeout(()=>beep(784,.15),110);setTimeout(()=>beep(988,.28),220)}
 /* ================= BGM（WebAudio・場面ごとに別の作曲） ================= */
 /* 旋律はMIDI番号と長さ（拍数）のペアで記述。各曲は調性・旋律・リズム・伴奏パターンがすべて異なる。 */
@@ -312,7 +312,7 @@ let bgmBlocked=false;
 const BGM_OWNER_KEY="sakura-memorial-bgm-owner";
 const TAB_ID=Math.random().toString(36).slice(2)+Date.now().toString(36);
 function bgmHardPause(){if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null}if(typeof adminStopMp3==="function")adminStopMp3()}
-function bgmResume(){if(!soundOn||!bgmName||document.hidden)return;const cur=bgmName;bgmName=null;setBGM(cur)}
+function bgmResume(){if(!soundOn||!bgmName||document.hidden)return;if(typeof mp3FilePlaying!=="undefined"&&mp3FilePlaying)return;const cur=bgmName;bgmName=null;setBGM(cur)}
 function bgmOwnerRead(){try{return JSON.parse(localStorage.getItem(BGM_OWNER_KEY)||"null")}catch(e){return null}}
 function bgmOwnerTick(){
  const o=bgmOwnerRead(),now=Date.now(),mine=!!o&&o.id===TAB_ID,stale=!o||(now-(o.t||0)>2500);
@@ -333,6 +333,8 @@ function bgmNote(freq,when,dur,type,vol){
 }
 function bgmTick(){
  if(!soundOn||!bgmName||!actx)return;
+ if(typeof mp3FilePlaying!=="undefined"&&mp3FilePlaying)return; /* 場面固定MP3の再生中はシンセを鳴らさない（2.53 重なり対策） */
+ if(bgmAudio&&bgmAudio.dataset&&bgmAudio.dataset.track)return; /* MP3再生中はシンセを鳴らさない */
  if(typeof adminBgmUrl==="function"&&adminBgmUrl(bgmName))return;
  const tr=BGM_TRACKS[bgmName];if(!tr)return;
  const now=actx.currentTime+0.06, unit=tr.step/1000;
