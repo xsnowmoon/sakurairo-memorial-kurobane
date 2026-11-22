@@ -484,6 +484,7 @@ const ov=ADMIN.overrides[no];
 let scs=scenes;
 if(ov){scs=scenes.map((sc,i)=>{const c=Object.assign({},sc);if(ov.img)c.img=ov.img;if(ov.variant&&c.hero)c.variant=ov.variant;if(ov.texts&&ov.texts[i]!=null)c.text=ov.texts[i];return c})}
 scs=applyOpImg(scs,no);
+const __f0=scs[0];if(__f0&&!__f0.img&&!__f0.hero){$("novel-img").src=lastStageSrc||"assets/op01.webp";$("novel-img-chip").classList.add("hidden")}
 show("screen-novel");novelQueue=scs;novelIdx=0;novelDone=done||null;
 if(ov&&ov.fx){const d0=novelDone;novelDone=()=>{applyAdminFx(ov.fx);if(d0)d0()}}
 $("novel-tag").textContent=tag||"物語";setBGM(bgmForNovel(tag));renderNovel();
@@ -495,7 +496,7 @@ const sc=novelQueue[novelIdx];if(!sc){finishNovel();return}
 const h=sc.hero?hero(sc.hero):null;
 if(sc.img){$("novel-img").src=sc.img;lastStageSrc=sc.img;$("novel-img-chip").classList.add("hidden")}
 else if(h){applyStageImg($("novel-img"),$("novel-img-chip"),h.id,pickVariant(h.id,sc.variant))}
-else{$("novel-img").src="assets/sakura.webp";lastStageSrc="assets/sakura.webp";$("novel-img-chip").classList.add("hidden")}
+else if(!$("novel-img").src){$("novel-img").src="assets/op01.webp";lastStageSrc="assets/op01.webp";$("novel-img-chip").classList.add("hidden")} /* 地の文では絵を変えない（2.56: 会話相手と違うヒロインの絵が出る問題の修正） */
 const __ni=$("novel-img");__ni.classList.remove("motion-slide","motion-shake","motion-jump");if(sc.motion){void __ni.offsetWidth;__ni.classList.add("motion-"+sc.motion)}
 applyImgMotion(__ni);
 const whoTxt=sc.sys?"【システム】":sc.player?pName():(sc.who||(h?h.name:"　"));
@@ -2308,6 +2309,7 @@ const no=scenes.__no||__adminNextNo||deriveStoryNo(tag);__adminNextNo=null;__adm
 const ov=ADMIN.overrides[no];let scs=scenes;
 if(ov){scs=scenes.map((sc,i)=>{const c=Object.assign({},sc);if(ov.img)c.img=ov.img;if(ov.variant&&c.hero)c.variant=ov.variant;if(ov.texts&&ov.texts[i]!=null)c.text=ov.texts[i];return c})}
 scs=applyOpImg(scs,no);
+const __g0=scs[0];if(__g0&&!__g0.img&&!__g0.hero){$("game-img").src=lastStageSrc||"assets/op01.webp";$("game-img-chip").classList.add("hidden")}
 igQueue=scs;igIdx=0;igDone=done||null;igActive=true;const __sk=$("game-skip");if(__sk)__sk.classList.remove("hidden");
 if(ov&&ov.fx){const d0=igDone;igDone=()=>{applyAdminFx(ov.fx);if(d0)d0()}}
 setImgPattern(tag);$("game-tag").textContent=tag||"物語";igTag=tag||"";const __fh=(scs.find(function(x){return x&&x.hero})||{}).hero||null;igVideoFile=videoForNovel(igTag,__fh);const __gv=$("game-video");if(__gv)__gv.classList.toggle("hidden",!igVideoFile);const __gsp=$("game-speak");if(__gsp)__gsp.classList.remove("hidden");const __gsr=$("game-speak-rate");if(__gsr)__gsr.classList.remove("hidden");const __gkb=$("game-kb");if(__gkb)__gkb.classList.remove("hidden");setBGM(bgmForNovel(tag));renderNovelInGame();scheduleAutoVideo();
@@ -2319,7 +2321,7 @@ igPlaceQuery=(sc&&sc.img)?placeOf(sc.img):null;const __gm=$("game-map");if(__gm)
 const h=sc.hero?hero(sc.hero):null;
 if(sc.img){$("game-img").src=sc.img;lastStageSrc=sc.img;$("game-img-chip").classList.add("hidden")}
 else if(h){applyStageImg($("game-img"),$("game-img-chip"),h.id,pickVariant(h.id,sc.variant))}
-else{$("game-img").src="assets/sakura.webp";lastStageSrc="assets/sakura.webp";$("game-img-chip").classList.add("hidden")}
+else if(!$("game-img").src){$("game-img").src="assets/op01.webp";lastStageSrc="assets/op01.webp";$("game-img-chip").classList.add("hidden")} /* 地の文では絵を変えない（2.56） */
 const gi=$("game-img");gi.classList.remove("motion-slide","motion-shake","motion-jump");if(sc.motion){void gi.offsetWidth;gi.classList.add("motion-"+sc.motion)}
 applyImgMotion(gi);
 const whoTxt=sc.sys?"":sc.player?pName():(sc.who||(h?h.name:"　"));
