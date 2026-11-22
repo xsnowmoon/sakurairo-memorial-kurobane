@@ -4,6 +4,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <meta name="description" content="栃木県大田原市・黒羽を舞台にした、高校3年間・全144週の育成シミュレーション。ヒロイン4人、全32章の物語、芭蕉の句碑めぐりなど実在のスポットも登場。ブラウザで無料プレイ（Snow Moon Games）。">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "桜色メモリアル 〜ときめき学園物語〜",
+  "alternateName": "SAKURA MEMORIAL",
+  "url": "https://xsnowmoon.github.io/sakurairo-memorial-kurobane/",
+  "description": "栃木県大田原市・黒羽を舞台にした、高校3年間・全144週の育成シミュレーション。ヒロイン4人、全32章の物語、芭蕉の句碑めぐりなど実在のスポットも登場。ブラウザで無料プレイ。",
+  "genre": ["育成シミュレーション", "恋愛アドベンチャー"],
+  "gamePlatform": "Web browser",
+  "applicationCategory": "Game",
+  "operatingSystem": "Any",
+  "inLanguage": "ja",
+  "playMode": "SinglePlayer",
+  "datePublished": "2026-11-17",
+  "image": "https://xsnowmoon.github.io/sakurairo-memorial-kurobane/assets/op01.webp",
+  "author": { "@type": "Organization", "name": "Snow Moon Games" },
+  "publisher": { "@type": "Organization", "name": "Snow Moon Games" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+  "about": { "@type": "Place", "name": "栃木県大田原市黒羽" }
+}
+</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="桜色メモリアル 〜ときめき学園物語〜">
 <meta property="og:description" content="黒羽を舞台に、高校3年間・全144週を過ごす育成シミュレーション。芭蕉の句碑めぐりなど実在スポットも登場。ブラウザで無料プレイ。">
@@ -21,7 +43,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611220260">
+<link rel="stylesheet" href="style.css?b=202611230262">
 
 </head>
 <body>
@@ -42,7 +64,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 最新版に更新（キャッシュを消して読み直す）</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261122.2.60</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261123.2.62</p>
   </div>
 </main>
 
@@ -71,9 +93,9 @@
     </div>
     <div class="menu">
       <button class="btn primary" id="btn-new">🌸 はじめから</button>
+      <button class="btn hidden" id="btn-resume">⏩ さっきの画面にもどる</button>
       <button class="btn" id="btn-continue">💾 セーブデーターロード</button>
       <button class="btn" id="btn-pilgrim-title">⛩ 聖地巡礼（観光案内）</button>
-      <button class="btn hidden" id="btn-resume">⏩ さっきの画面にもどる</button>
       <button class="btn" id="btn-album-title">📖 回想アルバム</button>
       <button class="btn" id="btn-minigames">🎮 ミニゲーム</button>
       <button class="btn" id="btn-howto">❓ あそびかた</button>
@@ -89,11 +111,21 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="管理メニュー（メンテナンス用）">Snow Moon Games</span> Ver.20261122.2.60</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261123.2.62</div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
     <h2 class="section-title">❓ あそびかた</h2>
-    <ul class="howto-list"><li>1ターンは1週間。高校入学の4月から、3年後の卒業まで、全<span data-cnt="weeks">144</span>週間（3年間）を過ごします。</li><li>毎週コマンドを1つ選ぶと、パラメータが上がり、ヒロインと出会うことがあります。会話の選択肢で好感度が変わります。</li><li>年間行事が目白押し（全<span data-cnt="events">46</span>種）：夕日の下校、屋上の伝説、伝説の桜の下、体育祭、弁論大会、球技大会、梅雨の図書室、水泳大会、七夕、期末テスト（赤点だと補習！）、海、夏祭り、プラネタリウム、水族館の夜、看病、線香花火、文化祭準備、文化祭（後夜祭のフォークダンス付き）、ハロウィン、修学旅行、音楽室コンサート、紅葉の放課後、スキー、雪の日の図書室、マラソン大会、初詣、クリスマス、冬のイルミネーション、合格お守り、誕生日、チョコ作りの試食係、節分、バレンタイン、寄せ書き、ホワイトデー、卒業前日の屋上の誘い、二人三脚の練習、期末前の勉強会、夏休みの計画、夏休みの夜の電話、文化祭の買い出しと片付け、修学旅行の準備、そして卒業式。各行事は場面が細かくなり、翌週には「余韻」のひとこまも入るので、物語は少しずつ進みます。</li><li>各ヒロインには<span data-cnt="chaptersEach">8</span>章立ての「物語」があります。好感度が上がると、出会い→秘密や悩み→本音、と物語が進みます（右パネルの📖表示）。</li><li>ヒロインのプロフィール（誕生日・好きな物・喜ぶプレゼント等）は好感度パネルの「📋 プロフィール」から見られます。好物をプレゼントすると好感度が大きく上がります。</li><li>他の子と仲良くしたり放置すると「傷心度💔」が上がります。傷心度が高いと恋愛エンディングに届きません。会いに行ってケアしましょう。</li><li>絵はコマンドを押すたびに切り替わります。全員<span data-cnt="heroImgEach">15</span>枚ずつ・合計<span data-cnt="heroImgTotal">60</span>枚（通常・笑顔・照れ・私服・浴衣・行事・体操着・部活／夏服・冬服・スキー・看病・プラネタリウム・海辺の夏服・卒業式・桜の下）があり、場面に合った絵が出ます。水泳・海の場面は、水着の代わりに体操着・夏服・海辺の夏服で表現しています。画面右上の「📷」表示で今の絵が分かります。</li><li>パラメータは右側パネルに常時表示：基本10種（体力・学力・運動・魅力・気品・芸術・感受性・社交性・モラル・ストレス）＋系統別評価5種（学業／運動／文化／社交／生活、S〜Dランク付き）＋細かなスキル6種（礼儀作法・文学・音楽・料理・掃除洗濯・気だて）の全21項目。コマンド<span data-cnt="commands">14</span>種で細かく育ちます。</li><li>好感度が上がると「デートに誘う」が成功しやすくなります。相手の好きな場所を選ぶのがコツです。デート先は<span data-cnt="places">14</span>か所（プラネタリウム・水族館、海・プール・那珂川は夏のみ。好感度と親密度が上がるとお部屋デートも）。舞台は栃木県大田原市・黒羽の町。黒羽城址公園、黒羽図書館、黒羽芭蕉の館など、町の名所も登場します。8月には大イベント「芭蕉の里くろばね夏まつり・市民花火大会」も。何もない週でも、黒羽の町では小さな出来事が起こります。松尾芭蕉の句碑<span data-cnt="kuhi">10</span>か所を巡る「句碑めぐり」と、名所<span data-cnt="spots">21</span>か所の制覇を目指す「黒羽めぐり」実績もあります。</li><li>ストレスが100になると倒れて1週間休みます。休養も大事です。</li><li>長い間ほったらかしにしたヒロインは好感度が少しずつ下がります（💣注意）。</li><li>卒業式の最後は、校舎の屋上へ。「卒業式の日、屋上で告白すると恋が実る」という学園の神話――誰を待つかは、あなたの3年間しだいです。</li><li>BGMは場面ごとに切り替わります。プロローグ（校歌）・ライスシャワー・黒い白鳥など一部の場面では、設定なしでもSnow Moonの歌が流れます。タイトル画面の「🎵 推奨BGMに変更」ボタンを押すと、季節・行事・デートなど全場面に歌が割り当てられます（押さなければ通常シーンはビープ音のメロディです）。音量は本編画面の「🔊 音量」ボタンからバーで調整できます（無音〜最大）。最初のタップで鳴り始めます。</li><li>新ストーリー「黒羽に眠る風」：黒羽の競走馬観世音を訪ねる物語。伝説の名馬ライスシャワーの話を、ゆきが語ります（曲は「黒羽に眠る風（ライスシャワーの詩）」）。地域イベントとして、年に一度まで発生します。</li><li>回想アルバムの「🎵 BGMコレクション」では、Snow Moonの楽曲ライブラリ全41曲を最初から試聴できます（SNSで公開済みの曲です）。</li><li>文字の大きさは、本編画面下の「🔤 文字」ボタンからスライダーで調整できます（小さめ80%〜大きめ140%）。設定はこの端末に保存されます。</li><li>関係値は4つに分かれました：好感度（好き）・信頼度（本音を話せるか）・親密度（一緒に過ごした時間）・嫉妬度（他の子と仲良くすると上がる）。好感度が高くても信頼度が低いと、卒業の告白は実りません。</li><li>プロフィールは好感度で5段階に開放（Lv1 基本情報→Lv2 性格や好み・関係値→Lv3 メールアドレス→Lv4 電話番号→Lv5 秘密の一面）。開放された時はシステム通知が出ます。</li><li>ヒロインが主人公を呼ぶ呼び方は好感度で変わります。最初は「苗字くん」、好感度40以上で「名前くん」、80以上であだ名で呼んでくれるようになります（右パネルに今の呼び方を表示）。変わった時はシステム通知でもお知らせします。</li><li>連絡先が開いたら「電話・メール」コマンドで連絡できます。過去の出来事を彼女が覚えていて、会話に出てくることもあります。</li><li>好感度60・親密度35以上で、デート先に「お部屋デート」が追加されます（専用の部屋の絵あり）。家の中でのイベントです。</li><li>体力やストレスを放置すると病気で寝込みます。寝込んだら「休養する」で回復。好感度・信頼度の高いヒロインが見舞いに来てくれます（低ければ誰も来ません…）。</li><li>セリフ枠にはヒロインの言葉のほか、プレイヤーの言葉と【システム】メッセージも表示されます。画面にはシステム通知欄も追加されました（プロフィール開放・好感度の急上昇／低下・体力低下の警告など）。</li><li>デートの誘いやイベントの成否は、能力値＋好感度＋信頼度などから計算した成功率と乱数で決まります。数値を上げても必ず成功にはなりません。</li><li>新イベント追加：相合傘（好感度で4段階に分岐：断られる／普通／肩が触れて照れる／相手から手をつないでくる）、雨宿り、迷子の子供を助ける、勘違い・誤解、ケンカ・仲直り、秘密を知ってしまう、補習、ライバル（転校生）登場、進路・将来の夢、努力が認められる、やきもち、お金が足りずデートを断念、など。イベントは「月→好感度→能力値」の入れ子条件で発生します。</li><li>所持金の仕組みが入りました。デートにはお金がかかり、カフェのバイトで稼げます。</li><li>実績（全<span data-cnt="achieve">14</span>種）とコンプリート率は回想アルバムで確認できます。エンディングは恋愛成就のほか、ライバルエンド、親友エンド、人生型エンディング（仕事成功型・趣味没頭型・友人関係充実型・独身自由人型・何も成し遂げられなかった型）など多彩になりました。卒業すると周回特典がついて、次の3年間が少し有利になります。</li><li>セーブは3スロット＋ファイル書き出し。スロットはこの端末のブラウザに自動保存されるので、別の日でもそのまま続きから遊べます。別の端末へ移す時はファイル書き出しを使ってください。</li><li>起動の流れ：Now Loading（読み込み進捗％表示）→「🎬 オープニングを見る／トップページへ進む」。オープニングでは主題歌に合わせて黒羽の風景スライドショー（OP画像）が流れ、曲が終わると自動でトップページへ進みます。下のボタンからいつでもトップへ進めます。</li><li>回想アルバムに、今回<span data-cnt="newMem">79</span>件の思い出が追加されました（OPの風景・保健室の先生・句碑めぐり・地域イベント・バッドエンド・特典写真）。エンディングの写真は、未到達の間は強くぼかして隠してあります。特典写真は「？」の隠し枠で、全員の恋愛エンディング到達で解放されます。各思い出の詳細には解放条件も表示されます。</li><li>保健室の先生には秘密があるらしい…？運動で怪我をしたら保健室へ。「休養する」で保健室を訪ねることもできます。街で見かける金髪の女性にも注目です。</li><li>プログラムはファイル分割構成になりました（index.html／style.css／engine.js／story.js／data.js）。必ず一式そろえて、同じフォルダで使ってください。</li></ul>
+    <div class="hw-summary"><div class="hw-cap">3行でわかる遊び方</div><ol><li>高校入学から卒業までの3年間を、毎週コマンドを1つ選んで過ごします（全144週間）</li><li>気になる子と会話やデートを重ねて、距離を縮めます</li><li>卒業式の日、屋上で告白するのが目標です</li></ol></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>🌸 はじめに（ゲームの流れ）</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>1ターンは1週間。高校入学の4月から、3年後の卒業まで、全<span data-cnt="weeks">144</span>週間（3年間）を過ごします。</li><li>毎週コマンドを1つ選ぶと、パラメータが上がり、ヒロインと出会うことがあります。会話の選択肢で好感度が変わります。</li><li>絵はコマンドを押すたびに切り替わります。全員<span data-cnt="heroImgEach">15</span>枚ずつ・合計<span data-cnt="heroImgTotal">60</span>枚（通常・笑顔・照れ・私服・浴衣・行事・体操着・部活／夏服・冬服・スキー・看病・プラネタリウム・海辺の夏服・卒業式・桜の下）があり、場面に合った絵が出ます。水泳・海の場面は、水着の代わりに体操着・夏服・海辺の夏服で表現しています。画面右上の「📷」表示で今の絵が分かります。</li><li>卒業式の最後は、校舎の屋上へ。「卒業式の日、屋上で告白すると恋が実る」という学園の神話――誰を待つかは、あなたの3年間しだいです。</li><li>セリフ枠にはヒロインの言葉のほか、プレイヤーの言葉と【システム】メッセージも表示されます。画面にはシステム通知欄も追加されました（プロフィール開放・好感度の急上昇／低下・体力低下の警告など）。</li></ul></div></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>🎮 コマンドとパラメータ</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>パラメータは右側パネルに常時表示：基本10種（体力・学力・運動・魅力・気品・芸術・感受性・社交性・モラル・ストレス）＋系統別評価5種（学業／運動／文化／社交／生活、S〜Dランク付き）＋細かなスキル6種（礼儀作法・文学・音楽・料理・掃除洗濯・気だて）の全21項目。コマンド<span data-cnt="commands">14</span>種で細かく育ちます。</li><li>ストレスが100になると倒れて1週間休みます。休養も大事です。</li><li>体力やストレスを放置すると病気で寝込みます。寝込んだら「休養する」で回復。好感度・信頼度の高いヒロインが見舞いに来てくれます（低ければ誰も来ません…）。</li></ul></div></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>💕 ヒロイン・恋愛</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>各ヒロインには<span data-cnt="chaptersEach">8</span>章立ての「物語」があります。好感度が上がると、出会い→秘密や悩み→本音、と物語が進みます（右パネルの📖表示）。</li><li>ヒロインのプロフィール（誕生日・好きな物・喜ぶプレゼント等）は好感度パネルの「📋 プロフィール」から見られます。好物をプレゼントすると好感度が大きく上がります。</li><li>他の子と仲良くしたり放置すると「傷心度💔」が上がります。傷心度が高いと恋愛エンディングに届きません。会いに行ってケアしましょう。</li><li>長い間ほったらかしにしたヒロインは好感度が少しずつ下がります（💣注意）。</li><li>関係値は4つに分かれました：好感度（好き）・信頼度（本音を話せるか）・親密度（一緒に過ごした時間）・嫉妬度（他の子と仲良くすると上がる）。好感度が高くても信頼度が低いと、卒業の告白は実りません。</li><li>プロフィールは好感度で5段階に開放（Lv1 基本情報→Lv2 性格や好み・関係値→Lv3 メールアドレス→Lv4 電話番号→Lv5 秘密の一面）。開放された時はシステム通知が出ます。</li><li>ヒロインが主人公を呼ぶ呼び方は好感度で変わります。最初は「苗字くん」、好感度40以上で「名前くん」、80以上であだ名で呼んでくれるようになります（右パネルに今の呼び方を表示）。変わった時はシステム通知でもお知らせします。</li><li>保健室の先生には秘密があるらしい…？運動で怪我をしたら保健室へ。「休養する」で保健室を訪ねることもできます。街で見かける金髪の女性にも注目です。</li></ul></div></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>🎁 デート・プレゼント・連絡</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>好感度が上がると「デートに誘う」が成功しやすくなります。相手の好きな場所を選ぶのがコツです。デート先は<span data-cnt="places">14</span>か所（プラネタリウム・水族館、海・プール・那珂川は夏のみ。好感度と親密度が上がるとお部屋デートも）。舞台は栃木県大田原市・黒羽の町。黒羽城址公園、黒羽図書館、黒羽芭蕉の館など、町の名所も登場します。8月には大イベント「芭蕉の里くろばね夏まつり・市民花火大会」も。何もない週でも、黒羽の町では小さな出来事が起こります。松尾芭蕉の句碑<span data-cnt="kuhi">10</span>か所を巡る「句碑めぐり」と、名所<span data-cnt="spots">21</span>か所の制覇を目指す「黒羽めぐり」実績もあります。</li><li>連絡先が開いたら「電話・メール」コマンドで連絡できます。過去の出来事を彼女が覚えていて、会話に出てくることもあります。</li><li>好感度60・親密度35以上で、デート先に「お部屋デート」が追加されます（専用の部屋の絵あり）。家の中でのイベントです。</li><li>デートの誘いやイベントの成否は、能力値＋好感度＋信頼度などから計算した成功率と乱数で決まります。数値を上げても必ず成功にはなりません。</li><li>所持金の仕組みが入りました。デートにはお金がかかり、カフェのバイトで稼げます。</li></ul></div></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>🗺️ 黒羽の探索・イベント</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>年間行事が目白押し（全<span data-cnt="events">46</span>種）：夕日の下校、屋上の伝説、伝説の桜の下、体育祭、弁論大会、球技大会、梅雨の図書室、水泳大会、七夕、期末テスト（赤点だと補習！）、海、夏祭り、プラネタリウム、水族館の夜、看病、線香花火、文化祭準備、文化祭（後夜祭のフォークダンス付き）、ハロウィン、修学旅行、音楽室コンサート、紅葉の放課後、スキー、雪の日の図書室、マラソン大会、初詣、クリスマス、冬のイルミネーション、合格お守り、誕生日、チョコ作りの試食係、節分、バレンタイン、寄せ書き、ホワイトデー、卒業前日の屋上の誘い、二人三脚の練習、期末前の勉強会、夏休みの計画、夏休みの夜の電話、文化祭の買い出しと片付け、修学旅行の準備、そして卒業式。各行事は場面が細かくなり、翌週には「余韻」のひとこまも入るので、物語は少しずつ進みます。</li><li>新ストーリー「黒羽に眠る風」：黒羽の競走馬観世音を訪ねる物語。伝説の名馬ライスシャワーの話を、ゆきが語ります（曲は「黒羽に眠る風（ライスシャワーの詩）」）。地域イベントとして、年に一度まで発生します。</li><li>新イベント追加：相合傘（好感度で4段階に分岐：断られる／普通／肩が触れて照れる／相手から手をつないでくる）、雨宿り、迷子の子供を助ける、勘違い・誤解、ケンカ・仲直り、秘密を知ってしまう、補習、ライバル（転校生）登場、進路・将来の夢、努力が認められる、やきもち、お金が足りずデートを断念、など。イベントは「月→好感度→能力値」の入れ子条件で発生します。</li></ul></div></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>🎵 音・BGMと音量</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>BGMは場面ごとに切り替わります。プロローグ（校歌）・ライスシャワー・黒い白鳥など一部の場面では、設定なしでもSnow Moonの歌が流れます。標準では「🎵 推奨BGM（標準）」が有効で、季節・行事・デートなど全場面に歌が割り当てられます。通信が重い時は、タイトル画面の「🎹 シンセBGM（軽量）」ボタンでMP3を読み込まない軽量モードに切り替えられます（通常シーンはビープ音のメロディになります）。音量は本編画面の「🔊 音量」ボタンからバーで調整できます（無音〜最大）。最初のタップで鳴り始めます。</li><li>回想アルバムの「🎵 BGMコレクション」では、Snow Moonの楽曲ライブラリ全41曲を最初から試聴できます（SNSで公開済みの曲です）。</li><li>文字の大きさは、本編画面下の「🔤 文字」ボタンからスライダーで調整できます（小さめ80%〜大きめ140%）。設定はこの端末に保存されます。</li></ul></div></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>💾 ロード・セーブ</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>セーブは3スロット＋ファイル書き出し。スロットはこの端末のブラウザに自動保存されるので、別の日でもそのまま続きから遊べます。別の端末へ移す時はファイル書き出しを使ってください。</li><li>起動の流れ：Now Loading（読み込み進捗％表示）→「🎬 オープニングを見る／トップページへ進む」。オープニングでは主題歌に合わせて黒羽の風景スライドショー（OP画像）が流れ、曲が終わると自動でトップページへ進みます。下のボタンからいつでもトップへ進めます。</li><li>プログラムはファイル分割構成になりました（index.html／style.css／engine.js／story.js／data.js）。必ず一式そろえて、同じフォルダで使ってください。</li></ul></div></div>
+    <div class="hw-sec"><button type="button" class="hw-head"><span>🏆 実績・アルバム</span><span class="hw-arrow">▼ 開く</span></button><div class="hw-body hidden"><ul class="howto-list"><li>実績（全<span data-cnt="achieve">14</span>種）とコンプリート率は回想アルバムで確認できます。エンディングは恋愛成就のほか、ライバルエンド、親友エンド、人生型エンディング（仕事成功型・趣味没頭型・友人関係充実型・独身自由人型・何も成し遂げられなかった型）など多彩になりました。卒業すると周回特典がついて、次の3年間が少し有利になります。</li><li>回想アルバムに、今回<span data-cnt="newMem">79</span>件の思い出が追加されました（OPの風景・保健室の先生・句碑めぐり・地域イベント・バッドエンド・特典写真）。エンディングの写真は、未到達の間は強くぼかして隠してあります。特典写真は「？」の隠し枠で、全員の恋愛エンディング到達で解放されます。各思い出の詳細には解放条件も表示されます。</li></ul></div></div>
+    <button type="button" class="hw-admin" id="howto-admin"><span>🔧 管理者メニュー</span><span class="hw-arrow">開く →</span></button>
+    <p class="hw-note">管理者メニューは一番最後に置いてあります。見たい人だけどうぞ。</p>
   </div>
   <section class="card hidden" id="doc-intro"><div class="doc-intro">
   <div class="hero">
@@ -177,19 +209,6 @@
     </ol>
   </section>
 
-  <section class="card">
-    <h2 class="mincho">ℹ️ 作品情報</h2>
-    <table>
-      <tbody><tr><th>タイトル</th><td>桜色メモリアル 〜ときめき学園物語〜</td></tr>
-      <tr><th>ジャンル</th><td>1人用・育成シミュレーション／恋愛アドベンチャー</td></tr>
-      <tr><th>制作・著作</th><td>Snow Moon Games</td></tr>
-      <tr><th>イラスト</th><td>ヒロイン<span data-cnt="heroines">4</span>人×<span data-cnt="heroImgEach">15</span>枚＝<span data-cnt="heroImgTotal">60</span>枚＋新規<span data-cnt="newMem">79</span>枚（OP／保健室の先生／句碑／地域イベント／バッドエンド／特典。すべて assets フォルダのWebP画像）</td></tr>
-      <tr><th>BGM</th><td>Web Audioによる場面別<span data-cnt="bgm">40</span>曲の合成演奏（管理機能でMP3差し替え可）</td></tr>
-      <tr><th>セーブ</th><td>3スロット（ブラウザに自動保存）＋ファイル保存対応</td></tr>
-      <tr><th>動作環境</th><td>モダンブラウザ（PC／スマートフォン）。表示は明るいテーマ固定</td></tr>
-    </tbody></table>
-    <div class="cta"><button type="button" class="btn primary doc-close" data-doc="doc-intro">🌸 ゲームで遊ぶ</button></div>
-  </section>
 
   <footer>© Snow Moon Games — 『桜色メモリアル 〜ときめき学園物語〜』<br>
   <a href="https://xsnowmoon.github.io/sakurairo-memorial-kurobane/#" class="doc-close" data-doc="doc-intro">ゲーム本体</a> ／ <a href="https://xsnowmoon.github.io/sakurairo-memorial-kurobane/#" class="doc-jump" data-doc="doc-readme">説明・管理ページ</a></footer>
@@ -200,7 +219,7 @@
 
 <h2>作者</h2>
 <p><strong>制作・著作： Snow Moon Games</strong><br>
-本作の企画・プログラム・シナリオを手がけた作者名義です。ゲーム本体のタイトル画面下部にもクレジットされています（その作者名をクリックすると管理メニューが開きます）。本作は全年齢対象の公式版です。画像やセリフを差し替えた改造版は非公式であり、Snow Moon Gamesとは無関係です。</p>
+本作の企画・プログラム・シナリオを手がけた作者名義です。ゲーム本体のタイトル画面下部にもクレジットされています（その作者名をクリックすると作品情報が開き、その一番下から管理メニューへ進めます）。本作は全年齢対象の公式版です。画像やセリフを差し替えた改造版は非公式であり、Snow Moon Gamesとは無関係です。</p>
 
 <h2>プログラム紹介</h2>
 <p><strong>『桜色メモリアル 〜ときめき学園物語〜』</strong>は、私立桜丘黒羽学園を舞台にした1人用の育成＋恋愛シミュレーションゲームです。高校入学から卒業までの全<span data-cnt="weeks">144</span>週間（3年間）、毎週コマンドを選んでパラメータを育て、ヒロインたちとの物語を進めます。「卒業式の日、校舎の屋上で告白すると恋が実る」という学園の伝説に向かって、3年間を過ごす物語です。</p>
@@ -214,7 +233,7 @@
 </tbody></table>
 
 <h2>開き方</h2>
-<p>タイトル画面いちばん下のクレジットで、作者名 <strong>Snow Moon Games</strong> をクリックすると管理メニューが開きます（点線の下線が目印）。プレイヤー向けのボタン類とは別にしてあるので、通常プレイでは目立ちません。</p>
+<p>タイトル画面いちばん下のクレジットで、作者名 <strong>Snow Moon Games</strong> をクリックすると作品情報が開きます（点線の下線が目印）。管理メニューへは、作品情報の一番下（または「あそびかた」の最後）の「管理者メニュー」から、確認画面をはさんで進めます。プレイヤー向けのボタン類とは別にしてあるので、通常プレイでは目立ちません。</p>
 
 <h2>管理データのセーブ／読み込み</h2>
 <ul>
@@ -569,10 +588,48 @@
 <div id="story-no-badge" class="story-no hidden"></div>
 <div id="page-no-badge" class="page-no hidden"></div>
 
+<div class="modal-bg hidden" id="modal-about" style="z-index:65">
+  <div class="modal" role="dialog" aria-label="作品情報">
+    <h3 class="mincho" style="margin:0 0 8px">ℹ️ 作品情報</h3>
+    <table class="about-table">
+      <tbody><tr><th>タイトル</th><td>桜色メモリアル 〜ときめき学園物語〜</td></tr>
+      <tr><th>ジャンル</th><td>1人用・育成シミュレーション／恋愛アドベンチャー</td></tr>
+      <tr><th>制作・著作</th><td>Snow Moon Games</td></tr>
+      <tr><th>イラスト</th><td>ヒロイン<span data-cnt="heroines">4</span>人×<span data-cnt="heroImgEach">15</span>枚＝<span data-cnt="heroImgTotal">60</span>枚＋新規<span data-cnt="newMem">79</span>枚（OP／保健室の先生／句碑／地域イベント／バッドエンド／特典。すべて assets フォルダのWebP画像）</td></tr>
+      <tr><th>BGM</th><td>Web Audioによる場面別<span data-cnt="bgm">40</span>曲の合成演奏（管理機能でMP3差し替え可）</td></tr>
+      <tr><th>セーブ</th><td>3スロット（ブラウザに自動保存）＋ファイル保存対応</td></tr>
+      <tr><th>動作環境</th><td>モダンブラウザ（PC／スマートフォン）。表示は明るいテーマ固定</td></tr>
+    </tbody></table>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+      <button type="button" class="btn primary" id="about-close" style="flex:1;min-height:48px">閉じる</button>
+      <button type="button" class="btn" id="about-admin" style="flex:1;min-height:48px">🔧 管理者メニュー</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="modal-admin-gate" style="z-index:75">
+  <div class="modal" role="dialog" aria-label="管理者メニュー">
+    <div id="gate-step1">
+      <h3 class="mincho" style="margin:0 0 8px">⚠️ 管理者のみご利用願います</h3>
+      <p style="font-weight:700;color:var(--muted);font-size:13.5px;line-height:1.8;margin:0 0 14px">この先は管理用の機能です。デバッグ用では、まだ見ていない画像や場面も表示されます（ネタバレを含みます）。</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn" id="gate-cancel" style="flex:1;min-height:48px">やめる</button>
+        <button type="button" class="btn primary" id="gate-next" style="flex:1;min-height:48px">進みます</button>
+      </div>
+    </div>
+    <div id="gate-step2" class="hidden">
+      <h3 class="mincho" style="margin:0 0 8px">どちらを開きますか</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button type="button" class="btn" id="gate-maint" style="min-height:48px">🔧 メンテナンス（ゲーム内の管理メニュー）</button>
+        <button type="button" class="btn" id="gate-debug" style="min-height:48px">🐛 デバッグ（管理用ページを開く）</button>
+        <button type="button" class="btn" id="gate-back" style="min-height:48px">もどる</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal-bg hidden" id="modal-admin">
   <div class="modal" role="dialog" aria-label="管理メニュー">
     <h3 class="mincho" style="margin:0 0 6px;font-size:21px">🔧 管理メニュー（メンテナンス用）</h3>
-    <p class="adm-note">作者名クリックで開く管理画面です。制作・著作： Snow Moon Games（『桜色メモリアル 〜ときめき学園物語〜』／1人用・育成シミュレーション）。設定はこの端末のブラウザに自動保存されます。別の端末へ移す時は一番下の「管理データをファイルに保存」で書き出してください。詳しい使い方は <a href="https://xsnowmoon.github.io/sakurairo-memorial-kurobane/#" id="adm-readme-link">📖 説明ページ（このページ内）</a> を参照。</p>
+    <p class="adm-note">作品情報の一番下（または「あそびかた」の最後）から、確認画面をはさんで開く管理画面です。制作・著作： Snow Moon Games（『桜色メモリアル 〜ときめき学園物語〜』／1人用・育成シミュレーション）。設定はこの端末のブラウザに自動保存されます。別の端末へ移す時は一番下の「管理データをファイルに保存」で書き出してください。詳しい使い方は <a href="https://xsnowmoon.github.io/sakurairo-memorial-kurobane/#" id="adm-readme-link">📖 説明ページ（このページ内）</a> を参照。</p>
 
     <h4 class="adm-sec">🎵 BGM差し替え（MP3 URL）</h4>
     <p class="adm-note">曲ごとにMP3のURLを指定できます。初期状態は「推奨BGM（標準）」モードで、未設定の場面には推奨の歌が自動で流れます（欄を空欄にすると、その場面は合成BGMに戻ります）。タイトル画面の「シンセBGM（軽量）」を選ぶと、曲ファイルを一切読み込まず内蔵の合成BGMだけで再生します（低速回線向け）。「ほっこり／黒羽の出来事／句碑めぐり／個別ストーリー」の欄が空欄の時は、「イベント」の曲が流れます。</p>
@@ -636,9 +693,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611220260"></script>
-<script src="story.js?b=202611220260"></script>
-<script src="engine.js?b=202611220260"></script>
+<script src="data.js?b=202611230262"></script>
+<script src="story.js?b=202611230262"></script>
+<script src="engine.js?b=202611230262"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){

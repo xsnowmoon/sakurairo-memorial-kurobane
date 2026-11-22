@@ -543,7 +543,10 @@ unlockMem("mem_op01");
 $("screen-novel").classList.add("prologue-mode");
 playNovel(prologueScenes(),()=>{stopMp3File();$("screen-novel").classList.remove("prologue-mode");startGame("新学期が始まった！コマンドを選んで1週間を過ごそう。")},"🌸 プロローグ");playMp3File("bgm/song02.mp3","opening");
 };
-$("btn-howto").onclick=()=>{beep(660,.08);const c=$("howto-card");c.classList.toggle("hidden");if(!c.classList.contains("hidden"))setTimeout(()=>c.scrollIntoView({behavior:"smooth",block:"start"}),40)}; /* v2 fix: 開いたら「あそびかた」の先頭まで自動スクロール */
+$("btn-howto").onclick=()=>{beep(660,.08);const c=$("howto-card");c.classList.toggle("hidden");if(!c.classList.contains("hidden"))setTimeout(()=>c.scrollIntoView({behavior:"smooth",block:"start"}),40)};
+/* 2.61 あそびかたアコーディオン＋管理者メニュー入口 */
+document.querySelectorAll(".hw-head").forEach(b=>{b.onclick=()=>{beep(600,.05);const body=b.nextElementSibling;const open=body.classList.toggle("hidden")===false;b.querySelector(".hw-arrow").textContent=open?"▲ 閉じる":"▼ 開く"}});
+$("howto-admin").onclick=()=>{beep(660,.08);openAdminGate()}; /* v2 fix: 開いたら「あそびかた」の先頭まで自動スクロール */
 /* ==== 組み込みドキュメント（紹介・説明）の開閉 ==== */
 function showDoc(id){["doc-intro","doc-readme"].forEach(d=>{const el=$(d);if(el)el.classList.toggle("hidden",d!==id)});const t=$(id);if(t)setTimeout(()=>t.scrollIntoView({behavior:"smooth",block:"start"}),40)}
 function toggleDoc(id){const el=$(id);if(!el)return;if(el.classList.contains("hidden"))showDoc(id);else el.classList.add("hidden")}
@@ -1438,6 +1441,17 @@ function weeklyChecks(){
  }
  if(HEROINES.every(h=>S.met[h.id]))unlockAch("meet_all");
  if(HEROINES.some(h=>S.aff[h.id]>=100))unlockAch("aff100");
+ weeklyHints();
+}
+/* 2.62 お知らせのヒント（評価No.5対応：条件が近い時だけ、週に1つまで・控えめに） */
+function weeklyHints(){
+ if(!S)return;let key=null,msg=null;
+ let best=null;
+ HEROINES.forEach(h=>{if(!S.met[h.id])return;const ci=(S.story&&S.story[h.id])||0;const grade=gradeOf(S.turn);if(ci>=2&&grade<2)return;if(ci>=3&&grade<3)return;const ch=(typeof STORY!=="undefined"&&STORY[h.id]&&STORY[h.id][ci])||null;if(!ch||typeof ch.min!=="number")return;const gap=ch.min-(S.aff[h.id]||0);if(gap>0&&gap<=8&&(!best||gap<best.gap))best={h,gap}});
+ if(best){key="chap:"+best.h.id+":"+best.gap;msg="💡 ヒント："+best.h.name+"さんの次の物語まで、好感度あと"+best.gap+"です"}
+ else if(S.turn>=97){const top=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0];if(top&&S.aff[top.id]>=70&&relOf(top.id).trust<50){key="trust:"+top.id;msg="💡 ヒント：卒業の告白には、好感度だけでなく信頼度も必要です。"+top.name+"さんと本音で話す時間も大切に"}}
+ if(!msg){const hh=HEROINES.filter(h=>S.met[h.id]&&(S.hurt[h.id]||0)>=60).sort((a,b)=>(S.hurt[b.id]||0)-(S.hurt[a.id]||0))[0];if(hh){key="hurt:"+hh.id;msg="💡 ヒント："+hh.name+"さんの傷心度が高まっています…会いに行くと喜んでくれそうです"}}
+ if(msg&&S._hintKey!==key){S._hintKey=key;sysNotify(msg)}
 }
 /* ---------- 病気・見舞い ---------- */
 function sickRest(done){
@@ -2014,7 +2028,18 @@ $("adm-bgm-default").onclick=()=>{resetBgmToDefault();openAdmin()};
 $("adm-readme-link").onclick=e=>{e.preventDefault();$("modal-admin").classList.add("hidden");showDoc("doc-readme")};
 $("adm-close").onclick=()=>{adminCollectBgm();persistAdmin();$("modal-admin").classList.add("hidden");const cur=bgmName;if(cur){bgmName=null;setBGM(cur)}};
 $("modal-admin").addEventListener("click",e=>{if(e.target.id==="modal-admin")$("adm-close").onclick()});
-$("credit-admin").onclick=()=>openAdmin();
+$("credit-admin").onclick=()=>{beep(660,.08);$("modal-about").classList.remove("hidden")};
+/* 2.61 作品情報モーダルと管理者メニュー入口（⚠️→進みます→選択） */
+$("about-close").onclick=()=>$("modal-about").classList.add("hidden");
+$("modal-about").addEventListener("click",e=>{if(e.target.id==="modal-about")$("modal-about").classList.add("hidden")});
+function openAdminGate(){$("gate-step1").classList.remove("hidden");$("gate-step2").classList.add("hidden");$("modal-admin-gate").classList.remove("hidden")}
+$("about-admin").onclick=()=>{$("modal-about").classList.add("hidden");openAdminGate()};
+$("gate-cancel").onclick=()=>$("modal-admin-gate").classList.add("hidden");
+$("gate-next").onclick=()=>{beep(660,.06);$("gate-step1").classList.add("hidden");$("gate-step2").classList.remove("hidden")};
+$("gate-back").onclick=()=>{$("gate-step2").classList.add("hidden");$("gate-step1").classList.remove("hidden")};
+$("gate-maint").onclick=()=>{$("modal-admin-gate").classList.add("hidden");openAdmin()};
+$("gate-debug").onclick=()=>{$("modal-admin-gate").classList.add("hidden");window.open("sakumemo-pilgrim-check.html","_blank")};
+$("modal-admin-gate").addEventListener("click",e=>{if(e.target.id==="modal-admin-gate")$("modal-admin-gate").classList.add("hidden")});
 
 /* ---- debug（⑭） ---- */
 function ensureDebugState(){if(!S){S=defaultState("黒羽","白夜","グレイ","4月","love");HEROINES.forEach(h=>{S.met[h.id]=true})}if(S.ended)S.ended=false}
