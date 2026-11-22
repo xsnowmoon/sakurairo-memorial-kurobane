@@ -1659,7 +1659,7 @@ showEndingScreen(e);
 /* 2.48：エンディングロール（エンディング画面の後・スター・ウォーズ風クロール）
    文章は別ファイル endroll.txt から読み込む（手直しは txt を直すだけ・URLも書ける）。
    txt 内の {主人公} は主人公の名前に置き換わる。読み込めない時は内蔵文を使う。 */
-const ENDROLL_FALLBACK="桜色メモリアル\n〜ときめき学園物語〜\n\n\n― 出演 ―\n桜井 さくら\n星野 あかり\n月島 ゆき\n藤原 りん\n藤原 千鶴\n蒼井 翼\n\n主人公\n{主人公}\n\n\n― 舞台 ―\n栃木県 大田原市・黒羽\n黒羽城址公園／雲巌寺／芭蕉の館\n羽田沼／那珂川 ほか\n\n\n― 音楽 ―\n主題歌「さくらのむこうへ」\nエンディング「さくらのむこうへ 別バージョン」\n挿入歌「黒羽に眠る風（ライスシャワーの詩）」\nすべて Snow Moon\n\n\n企画・制作\nSnow Moon Games\n\n\nSpecial Thanks\n黒羽の町のみなさま\nそして、プレイしてくれた あなた\n\n\n\nおわり\n\n― また、黒羽で会いましょう ―";
+const ENDROLL_FALLBACK="桜色メモリアル\n〜ときめき学園物語〜\n\n\n\n― 出演 ―\n桜井 さくら\n星野 あかり\n月島 ゆき\n藤原 りん\n藤原 千鶴\n蒼井 翼\n\n主人公\n{主人公}\n\n\n\n― 舞台 ―\n栃木県 大田原市・黒羽\n黒羽城址公園\n雲巌寺\n芭蕉の館\n羽田沼\n那珂川 ほか\n\n\n\n― 音楽 ―\n主題歌「さくらのむこうへ」\n\nSnow Moon\n\n\n\n企画・制作\nSnow Moon Games\n\n\n\n― 公式ページ ―\nゲーム本編\nhttps://xsnowmoon.github.io/sakurairo-memorial-kurobane/\n主題歌（YouTube）\nhttps://youtu.be/_cBvtVPp7q0\nブログ「らぶあげ」\nhttps://xsnowmoon.blogspot.com/\n\n\n\nSpecial Thanks\n黒羽の町のみなさま\nそして、プレイしてくれた あなた\n\n\n\nおわり\n\n― また、黒羽で会いましょう ―";
 let rollTimer=null,rollPhase=0;
 function playEndRoll(){
  const m=$("modal-endroll"),t=$("endroll-text");if(!m||!t)return;
