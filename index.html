@@ -26,6 +26,26 @@
   "about": { "@type": "Place", "name": "栃木県大田原市黒羽" }
 }
 </script>
+<script>
+/* 2.63 自動バージョンチェック：開く時にサーバーの version.txt と比べ、新しければ ?r= で読み直す */
+(function(){var MY="202611230263";try{
+ if(location.protocol==="file:")return;
+ fetch("version.txt",{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
+  var sv=(t||"").trim();
+  if(!/^\d{12}$/.test(sv)||sv<=MY)return;
+  var m=/[?&]r=(\d+)/.exec(location.search);
+  if(m&&m[1]===sv)return;
+  function go(){
+   var d=document.createElement("div");
+   d.setAttribute("style","position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:999;background:#fff;border:2px solid #e75480;color:#333;border-radius:12px;padding:10px 16px;font-weight:900;box-shadow:0 6px 24px rgba(0,0,0,.25);font-size:15px");
+   d.textContent="🔄 新しいバージョンがあります。最新版に更新します…";
+   document.body.appendChild(d);
+   setTimeout(function(){location.replace(location.pathname+"?r="+sv)},1200);
+  }
+  if(document.body)go();else document.addEventListener("DOMContentLoaded",go);
+ }).catch(function(){});
+}catch(e){}})();
+</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="桜色メモリアル 〜ときめき学園物語〜">
 <meta property="og:description" content="黒羽を舞台に、高校3年間・全144週を過ごす育成シミュレーション。芭蕉の句碑めぐりなど実在スポットも登場。ブラウザで無料プレイ。">
@@ -43,7 +63,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611230262">
+<link rel="stylesheet" href="style.css?b=202611230263">
 
 </head>
 <body>
@@ -64,7 +84,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 最新版に更新（キャッシュを消して読み直す）</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261123.2.62</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261123.2.63</p>
   </div>
 </main>
 
@@ -103,7 +123,6 @@
       <button class="btn" id="btn-opening-title">🎬 オープニングを見る</button>
       <button class="btn gold" id="btn-bgm-recommend">🎵 推奨BGM（標準） ● 使用中</button>
       <button class="btn" id="btn-bgm-default">🎹 シンセBGM（軽量）</button>
-      <button class="btn" id="btn-refresh">🔄 最新版に更新（キャッシュを消して読み直す）</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin:12px auto 0;max-width:430px;padding:0 6px">
       <span style="white-space:nowrap;font-size:14px">🔊 BGM音量</span>
@@ -111,7 +130,7 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261123.2.62</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261123.2.63</div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
     <h2 class="section-title">❓ あそびかた</h2>
@@ -604,6 +623,8 @@
       <button type="button" class="btn primary" id="about-close" style="flex:1;min-height:48px">閉じる</button>
       <button type="button" class="btn" id="about-admin" style="flex:1;min-height:48px">🔧 管理者メニュー</button>
     </div>
+    <button type="button" class="btn" id="about-refresh" style="width:100%;min-height:48px;margin-top:8px">🔄 最新版に更新（キャッシュを消して読み直す）</button>
+    <p style="font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.6">通常は、開く時に自動で最新版かどうか確認しています。表示が古いと感じた時は、このボタンで確実に読み直せます。</p>
   </div>
 </div>
 <div class="modal-bg hidden" id="modal-admin-gate" style="z-index:75">
@@ -693,9 +714,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611230262"></script>
-<script src="story.js?b=202611230262"></script>
-<script src="engine.js?b=202611230262"></script>
+<script src="data.js?b=202611230263"></script>
+<script src="story.js?b=202611230263"></script>
+<script src="engine.js?b=202611230263"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){
