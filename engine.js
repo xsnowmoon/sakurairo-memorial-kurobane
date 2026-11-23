@@ -2031,6 +2031,10 @@ $("modal-admin").addEventListener("click",e=>{if(e.target.id==="modal-admin")$("
 $("credit-admin").onclick=()=>{beep(660,.08);$("modal-about").classList.remove("hidden")};
 /* 2.61 作品情報モーダルと管理者メニュー入口（⚠️→進みます→選択） */
 $("about-close").onclick=()=>$("modal-about").classList.add("hidden");
+$("btn-qr").onclick=()=>{beep(660,.08);$("modal-qr").classList.remove("hidden")};
+$("qr-close").onclick=()=>$("modal-qr").classList.add("hidden");
+$("modal-qr").addEventListener("click",e=>{if(e.target.id==="modal-qr")$("modal-qr").classList.add("hidden")});
+$("qr-img").addEventListener("error",()=>{$("qr-img").classList.add("hidden");$("qr-missing").classList.remove("hidden")});
 $("modal-about").addEventListener("click",e=>{if(e.target.id==="modal-about")$("modal-about").classList.add("hidden")});
 function openAdminGate(){$("gate-step1").classList.remove("hidden");$("gate-step2").classList.add("hidden");$("modal-admin-gate").classList.remove("hidden")}
 $("about-admin").onclick=()=>{$("modal-about").classList.add("hidden");openAdminGate()};

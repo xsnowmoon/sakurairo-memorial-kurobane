@@ -28,7 +28,7 @@
 </script>
 <script>
 /* 2.63 自動バージョンチェック：開く時にサーバーの version.txt と比べ、新しければ ?r= で読み直す */
-(function(){var MY="202611230266";try{
+(function(){var MY="202611230267";try{
  if(location.protocol==="file:")return;
  fetch("version.txt",{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
   var sv=(t||"").trim();
@@ -63,7 +63,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611230266">
+<link rel="stylesheet" href="style.css?b=202611230267">
 
 </head>
 <body>
@@ -84,7 +84,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 強制キャッシュクリア</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261123.2.66</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261123.2.67</p>
   </div>
 </main>
 
@@ -130,7 +130,8 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261123.2.66</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261123.2.67</div>
+    <div style="text-align:center;margin-top:8px"><button type="button" class="btn" id="btn-qr" style="min-height:44px">📱 お友達紹介QR</button></div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
     <h2 class="section-title">❓ あそびかた</h2>
@@ -607,6 +608,15 @@
 <div id="story-no-badge" class="story-no hidden"></div>
 <div id="page-no-badge" class="page-no hidden"></div>
 
+<div class="modal-bg hidden" id="modal-qr" style="z-index:65">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <h3 style="margin:0 0 6px">📱 お友達紹介QR</h3>
+    <p style="font-size:14px;margin:6px 0 12px;line-height:1.7">スマホで読み取ると、このゲームが開きます。<br>お友達に紹介してね♡</p>
+    <img id="qr-img" src="QR.png" alt="桜色メモリアル お友達紹介QRコード" style="width:min(72vw,260px);height:auto;background:#fff;padding:10px;border-radius:12px;box-sizing:border-box">
+    <p id="qr-missing" class="hidden" style="font-size:13px;color:var(--muted)">QRコードの画像（QR.png）が見つかりませんでした。</p>
+    <button type="button" class="btn primary" id="qr-close" style="width:100%;min-height:48px;margin-top:12px">閉じる</button>
+  </div>
+</div>
 <div class="modal-bg hidden" id="modal-about" style="z-index:65">
   <div class="modal" role="dialog" aria-label="作品情報">
     <h3 class="mincho" style="margin:0 0 8px">ℹ️ 作品情報</h3>
@@ -714,9 +724,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611230266"></script>
-<script src="story.js?b=202611230266"></script>
-<script src="engine.js?b=202611230266"></script>
+<script src="data.js?b=202611230267"></script>
+<script src="story.js?b=202611230267"></script>
+<script src="engine.js?b=202611230267"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){
