@@ -2616,7 +2616,7 @@ if($("btn-video-menu"))$("btn-video-menu").onclick=function(){closeSpecial();goT
 
 /* 2.68 おまけCM：SNS用ショート動画の専用枠（お宝動画コレクションとは独立。ファイルは videos/sns-*.mp4、増やす時はこのリストに1行足すだけ） */
 const CM_VIDEOS=[
- ["sns-golf.mp4","① グラウンドゴルフ","あかりが打って、3人が拍手"],
+ ["sns-groundgolf.mp4","① グラウンドゴルフ","あかりが打って、3人が拍手"],
  ["sns-tanzaku.mp4","② 短冊に俳句","芭蕉の句碑のそばで筆を動かしてる"],
  ["sns-newyear.mp4","③ お正月の挨拶","晴れ着で手を合わせてお辞儀"],
  ["sns-cycling.mp4","④ 那珂川サイクリング","先頭のあかりがチェレステのビアンキ、那珂川沿いを並走"]
