@@ -25,7 +25,7 @@ let bgmHeardSet=new Set();
 function persistBgmHeard(){lsSet(LS_KEYS.bgmHeard,Array.from(bgmHeardSet))}
 let videoSeenSet=new Set();
 function persistVideoSeen(){lsSet(LS_KEYS.videoSeen,Array.from(videoSeenSet))}
-function markVideoSeen(f){if(f&&!videoSeenSet.has(f)){videoSeenSet.add(f);persistVideoSeen();if($("album-video-list"))renderVideoList()}}
+function markVideoSeen(f){if(f&&f.indexOf("sns-")!==0&&!videoSeenSet.has(f)){videoSeenSet.add(f);persistVideoSeen();if($("album-video-list"))renderVideoList()}}
 function markBgmHeard(k){if(k&&BGM_TRACKS&&BGM_TRACKS[k]&&!bgmHeardSet.has(k)){bgmHeardSet.add(k);persistBgmHeard()}}
 function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
@@ -2613,6 +2613,28 @@ if($("btn-video-prev"))$("btn-video-prev").onclick=function(){playSpecialAt(spec
 if($("btn-video-next"))$("btn-video-next").onclick=function(){playSpecialAt(specialIdx+1)};
 if($("btn-video-bgm"))$("btn-video-bgm").onclick=function(){setVideoBgm(!videoBgmOn)};
 if($("btn-video-menu"))$("btn-video-menu").onclick=function(){closeSpecial();goTitle()};
+
+/* 2.68 おまけCM：SNS用ショート動画の専用枠（お宝動画コレクションとは独立。ファイルは videos/sns-*.mp4、増やす時はこのリストに1行足すだけ） */
+const CM_VIDEOS=[
+ ["sns-golf.mp4","① グラウンドゴルフ","あかりが打って、3人が拍手"],
+ ["sns-tanzaku.mp4","② 短冊に俳句","芭蕉の句碑のそばで筆を動かしてる"],
+ ["sns-newyear.mp4","③ お正月の挨拶","晴れ着で手を合わせてお辞儀"],
+ ["sns-cycling.mp4","④ 那珂川サイクリング","先頭のあかりがチェレステのビアンキ、那珂川沿いを並走"]
+];
+function openCm(){
+ const box=$("cm-list");if(!box)return;
+ box.innerHTML=CM_VIDEOS.map(function(v,i){return '<button type="button" class="btn" data-cm="'+i+'" style="display:block;width:100%;text-align:left;margin:6px 0;min-height:52px">'+v[1]+'<br><span style="font-size:12px;color:var(--muted)">'+v[2]+'</span></button>'}).join("");
+ box.querySelectorAll("[data-cm]").forEach(function(b){b.onclick=function(){playCmAt(parseInt(b.getAttribute("data-cm"),10))}});
+ $("modal-cm").classList.remove("hidden");
+}
+function playCmAt(i){
+ videoDisplay=CM_VIDEOS.map(function(v){return [v[0],"おまけCM　"+v[1]]});
+ $("modal-cm").classList.add("hidden");
+ playSpecialAt(i);
+}
+if($("btn-cm"))$("btn-cm").onclick=function(){beep(660,.08);openCm()};
+if($("cm-close"))$("cm-close").onclick=function(){$("modal-cm").classList.add("hidden")};
+if($("modal-cm"))$("modal-cm").addEventListener("click",function(e){if(e.target.id==="modal-cm")$("modal-cm").classList.add("hidden")});
 if($("special-video")){
  $("special-video").addEventListener("ended",closeSpecial);
  $("special-video").addEventListener("error",function(){$("video-msg").textContent="動画ファイルが見つかりませんでした。videos フォルダにファイルを入れてください。";toast("🎁 動画ファイルが見つかりません")});
