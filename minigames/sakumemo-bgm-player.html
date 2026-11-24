@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>桜色BGMプレイヤー Ver.20261124.1.41</title>
+<title>桜色BGMプレイヤー Ver.20261124.1.43</title>
 <style>
   * { box-sizing: border-box; }
   :root {
@@ -125,6 +125,7 @@
   .knob-lab span { color: var(--title); }
   .vol-hint { font-size: 11px; color: var(--faint); }
   .volrow + .volrow { margin-top: 8px; }
+  .subrow { display: flex; gap: 16px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
   .loud-btn {
     font-size: 12px; font-weight: bold; letter-spacing: .06em; padding: 10px 12px; border-radius: 10px; cursor: pointer;
     background: linear-gradient(180deg, #3a3a3a, #141414); color: #d8c58a; border: 2px solid #c9a227; min-height: 44px;
@@ -185,7 +186,7 @@
 <div id="wrap">
   <header class="top">
     <h1>🎵 桜色BGMプレイヤー</h1>
-    <span class="ver">Ver.20261124.1.41 / Snow Moon</span>
+    <span class="ver">Ver.20261124.1.43 / Snow Moon</span>
     <button id="btn-update" type="button">🔄 更新</button>
   </header>
 
@@ -197,6 +198,7 @@
       <div id="now-info">📄 ―</div>
     </div>
     <canvas id="vu" width="480" height="120"></canvas>
+    <canvas id="wave" width="480" height="40" style="width:100%;height:auto;display:block;margin-top:6px;border-radius:6px;"></canvas>
     <div class="seekrow">
       <span class="t" id="t-cur">0:00</span>
       <input type="range" id="seek" min="0" max="1000" value="0">
@@ -218,7 +220,9 @@
       <button id="btn-rev" type="button">⏮ 逆再生</button>
       <button id="mode-shuffle" type="button">🔀 ランダム</button>
       <button id="mode-repeat" type="button">🔂 1曲リピート</button>
-      <button id="btn-treset" type="button" title="音量以外のつまみ（SUB／BASS／MID／TREBLE／BALANCE）を初期値に戻します">🔄 RESET</button>
+      <button id="btn-ab" type="button">🔁 A-Bリピート</button>
+      <button id="btn-norm" type="button">🔉 音量をそろえる</button>
+      <button id="btn-xf" type="button">🌗 クロスフェード：オフ</button>
     </div>
     <div class="volrow">
       <div class="knob-unit">
@@ -263,9 +267,15 @@
         </div>
         <div class="knob-lab">VOLUME <span id="vol-val">80%</span></div>
       </div>
+    </div>
+    <div class="subrow">
       <div class="knob-unit">
         <button id="btn-loud" type="button" class="loud-btn" title="小さい音量でも低音・高音が痩せないように補正します">LOUDNESS</button>
         <div class="knob-lab">ラウドネス</div>
+      </div>
+      <div class="knob-unit">
+        <button id="btn-treset" type="button" class="loud-btn" title="音量以外のつまみ（SUB／BASS／MID／TREBLE／BALANCE）を初期値に戻します">RESET</button>
+        <div class="knob-lab">つまみリセット</div>
       </div>
     </div>
 
@@ -313,6 +323,12 @@
       <button type="button" data-preset="clear">高音きらきら</button>
       <button type="button" data-preset="mellow">まったり</button>
       <button type="button" data-preset="don">ドンシャリ</button>
+    </div>
+    <div class="srcrow">
+      <button id="btn-hp" type="button">🎧 ヘッドホン補正を読む</button>
+      <button id="btn-hp-clear" type="button">補正クリア</button>
+      <span class="st" id="hp-status">🎧 補正：なし（AutoEQのParametricEQ.txt形式）</span>
+      <input type="file" id="hpfile" accept=".txt" style="display:none;">
     </div>
   </div>
 
@@ -424,10 +440,23 @@ var shuffleBag = [], playHistory = [];
 
 var audio = new Audio();
 audio.preload = "metadata";
+var elA = audio;
+var elB = new Audio();
+elB.preload = "metadata";
+function otherElt(){ return audio === elA ? elB : elA; }
+function fadeOf(el){ return el === elA ? fadeA : fadeB; }
+/* 全部盛り（1.42〜）：正規化／クロスフェード／A-B／波形／ヘッドホン補正の状態 */
+var normOn = false, normTarget = -18, trackData = {}, trackBusy = {};
+var xfSec = 0, xfBusy = false, abA = null, abB = null, hpData = null;
+try { var td0 = localStorage.getItem("sakuraBgmTD"); if(td0) trackData = JSON.parse(td0) || {}; } catch(e){}
+try { var hd0 = localStorage.getItem("sakuraBgmHP"); if(hd0) hpData = JSON.parse(hd0); } catch(e){}
 /* サーバー音源の時だけCORSを付ける（ローカルファイルに付けると読めなくなるため） */
 function applyCors(){
-  if(!folderMap && baseMode === "server") audio.setAttribute("crossorigin", "anonymous");
-  else audio.removeAttribute("crossorigin");
+  var on = !folderMap && baseMode === "server";
+  [elA, elB].forEach(function(a){
+    if(on) a.setAttribute("crossorigin", "anonymous");
+    else a.removeAttribute("crossorigin");
+  });
 }
 
 function $(id){ return document.getElementById(id); }
@@ -585,6 +614,15 @@ function reloadCurrentSrc(){
 
 /* ===== WebAudio（VU・スペクトラム・EQ） ===== */
 var AC = null, anFFT = null, anL = null, anR = null, gainNode = null, eqFilters = [], srcNode = null, bypass = false;
+var srcB = null, fadeA = null, fadeB = null, normGain = null, hpFilters = [], hpPre = null;
+function routeSources(){
+  if(!AC || !fadeA) return;
+  try { fadeA.disconnect(); } catch(e){}
+  try { fadeB.disconnect(); } catch(e){}
+  if(bypass){ try { fadeOf(audio).connect(AC.destination); } catch(e){} return; }
+  var dest = (karaLevel > 0 && karaSplit) ? karaSplit : (graphIn || eqFilters[0]);
+  try { fadeA.connect(dest); fadeB.connect(dest); } catch(e){}
+}
 var bassFilter = null, trebleFilter = null, graphIn = null;
 var subFilter = null, midFilter = null, loudBassFilter = null, loudTrebleFilter = null, pannerNode = null;
 var karaSplit = null, karaMerge = null, karaG = null, curChStr = "";
@@ -611,8 +649,11 @@ function initAudioGraph(){
     var Ctor = window.AudioContext || window.webkitAudioContext;
     if(!Ctor) return false;
     AC = new Ctor();
-    var src = AC.createMediaElementSource(audio);
+    var src = AC.createMediaElementSource(elA);
     srcNode = src;
+    srcB = AC.createMediaElementSource(elB);
+    fadeA = AC.createGain(); fadeB = AC.createGain(); fadeB.gain.value = 0;
+    src.connect(fadeA); srcB.connect(fadeB);
     /* トーンコントロール＋ラウドネスをEQの前に（SUB→BASS→MID→TREBLE→LOUDNESS） */
     subFilter = AC.createBiquadFilter(); subFilter.type = "lowshelf"; subFilter.frequency.value = 60; subFilter.gain.value = subVal;
     bassFilter = AC.createBiquadFilter(); bassFilter.type = "lowshelf"; bassFilter.frequency.value = 200; bassFilter.gain.value = bassVal;
@@ -633,8 +674,8 @@ function initAudioGraph(){
     karaG.ll.connect(karaMerge, 0, 0); karaG.rl.connect(karaMerge, 0, 0);
     karaG.lr.connect(karaMerge, 0, 1); karaG.rr.connect(karaMerge, 0, 1);
     karaMerge.connect(subFilter);
-    if(karaLevel > 0){ var kk = [0, 0.55, 1][karaLevel]; karaG.rl.gain.value = -kk; karaG.lr.gain.value = -kk; src.connect(karaSplit); }
-    else src.connect(subFilter);
+    if(karaLevel > 0){ var kk = [0, 0.55, 1][karaLevel]; karaG.rl.gain.value = -kk; karaG.lr.gain.value = -kk; }
+    routeSources();
     var last = loudTrebleFilter;
     eqFilters = EQ_FREQS.map(function(f, i){
       var bi = AC.createBiquadFilter();
@@ -643,8 +684,18 @@ function initAudioGraph(){
       last.connect(bi); last = bi;
       return bi;
     });
+    /* ヘッドホン補正（AutoEQ形式・10バンド）をEQの後ろに */
+    hpPre = AC.createGain();
+    last.connect(hpPre);
+    var hlast = hpPre;
+    hpFilters = [];
+    for(var hi = 0; hi < 10; hi++){ var hf = AC.createBiquadFilter(); hf.type = "peaking"; hf.frequency.value = 1000; hf.Q.value = 1; hf.gain.value = 0; hlast.connect(hf); hlast = hf; hpFilters.push(hf); }
+    last = hlast;
+    if(hpData) applyHpCorrection(hpData);
     gainNode = AC.createGain();
     gainNode.gain.value = volVal / 100;
+    normGain = AC.createGain();
+    normGain.connect(gainNode);
     /* 高音補完エキサイター：高域だけ抜き出して歪ませ、倍音を作って混ぜる */
     excHP = AC.createBiquadFilter(); excHP.type = "highpass"; excHP.frequency.value = 4200;
     excShaper = AC.createWaveShaper();
@@ -653,12 +704,12 @@ function initAudioGraph(){
     excLP = AC.createBiquadFilter(); excLP.type = "lowpass"; excLP.frequency.value = 16000;
     excWet = AC.createGain(); excWet.gain.value = [0, 0.15, 0.35][excLevel];
     last.connect(excHP); excHP.connect(excShaper); excShaper.connect(excLP); excLP.connect(excWet);
-    excWet.connect(gainNode);
-    last.connect(gainNode);
+    excWet.connect(normGain);
+    last.connect(normGain);
     /* 空間（残響）：原音に並列でコンボルバーを混ぜる */
     convolverNode = AC.createConvolver();
     wetGainNode = AC.createGain(); wetGainNode.gain.value = 0;
-    last.connect(wetGainNode); wetGainNode.connect(convolverNode); convolverNode.connect(gainNode);
+    normGain.connect(wetGainNode); wetGainNode.connect(convolverNode); convolverNode.connect(gainNode);
     if(spaceType !== "off") applySpace();
     anFFT = AC.createAnalyser(); anFFT.fftSize = 256;
     pannerNode = AC.createStereoPanner(); pannerNode.pan.value = balVal;
@@ -682,6 +733,7 @@ function initAudioGraph(){
     $("fmtinfo").textContent = "OUTPUT: " + AC.sampleRate.toLocaleString() + "Hz / 32bit float / グライコ31バンド";
     updateLoudness();
     applySpace();
+    applyNorm();
     requestAnimationFrame(drawMeters);
     return true;
   } catch(e){ AC = null; return false; }
@@ -706,9 +758,18 @@ function refillBag(){
 function playCore(i){
   stopReverse();
   if(i < 0 || i >= TL().length) return;
+  var oe = otherElt();
+  try { oe.pause(); } catch(e){}
+  xfBusy = false;
+  abA = null; abB = null; renderAb();
   if(idx >= 0) playHistory.push(idx);
   idx = i;
   initAudioGraph();
+  if(AC && fadeA){
+    var t0 = AC.currentTime, fa = fadeOf(audio), fo = fadeOf(oe);
+    fa.gain.cancelScheduledValues(t0); fa.gain.setValueAtTime(1, t0);
+    fo.gain.cancelScheduledValues(t0); fo.gain.setValueAtTime(0, t0);
+  }
   if(AC && AC.state === "suspended") AC.resume();
   applyCors();
   audio.src = srcFor(i);
@@ -717,6 +778,8 @@ function playCore(i){
   if(p && p.catch) p.catch(function(){});
   playing = true;
   refreshNow();
+  ensureTrackData(srcFor(i));
+  applyNorm();
 }
 function play(i){ playQueue = null; queuePos = 0; playCore(i); }
 function queueAdvance(){
@@ -817,11 +880,16 @@ holdStep($("btn-ff"), 1);
 holdStep($("btn-rew"), -1);
 function pause(){
   if(reversing){ stopReverse(); playing = false; refreshNow(); return; }
-  audio.pause(); playing = false; refreshNow();
+  audio.pause();
+  try { otherElt().pause(); } catch(e){}
+  if(AC && fadeA){ var fo = fadeOf(otherElt()); fo.gain.cancelScheduledValues(AC.currentTime); fo.gain.setValueAtTime(0, AC.currentTime); }
+  xfBusy = false;
+  playing = false; refreshNow();
 }
 function stopAll(){
   stopReverse();
   audio.pause();
+  try { otherElt().pause(); } catch(e){}
   try { audio.currentTime = 0; } catch(e){}
   playing = false;
   playQueue = null; queuePos = 0;
@@ -856,34 +924,285 @@ function prev(){
   var pos = v.indexOf(idx);
   play(v[(pos - 1 + v.length) % v.length]);
 }
-audio.addEventListener("ended", function(){
-  playing = false;
-  if(repeat1){ play(idx); playHistory.pop(); }
-  else if(playQueue){ if(!queueAdvance()) refreshNow(); }
-  else if(continuous){ next(true); }
-  else refreshNow();
-});
-audio.addEventListener("error", function(){
-  if(idx < 0) return;
-  elNote.textContent = "⚠ この曲を読み込めませんでした（音源の場所を確認してください）";
-  if(continuous && playing) setTimeout(function(){ if(playing) next(true); }, 600);
-});
-audio.addEventListener("loadedmetadata", function(){ elDur.textContent = fmt(audio.duration); updateInfo(); });
-audio.addEventListener("timeupdate", function(){
-  elCur.textContent = fmt(audio.currentTime);
-  if(audio.duration > 0) elSeek.value = Math.round(audio.currentTime / audio.duration * 1000);
-  /* ヘッダ解析ができない形式は、再生中の左右信号からMono/Stereoを推定 */
-  if(AC && anL && anR && idx >= 0 && playing){
-    var u = srcFor(idx);
-    if((metaCache[u] === undefined || metaCache[u] === "x") && !provCh[u]){
-      if(analyserAlive(anR)){ provCh[u] = "Stereo"; updateInfo(); }
-      else if(audio.currentTime > 3){ provCh[u] = "Mono"; updateInfo(); }
+function wireAudio(a){
+  a.addEventListener("ended", function(){
+    if(a !== audio) return;
+    playing = false;
+    if(repeat1){ play(idx); playHistory.pop(); }
+    else if(playQueue){ if(!queueAdvance()) refreshNow(); }
+    else if(continuous){ next(true); }
+    else refreshNow();
+  });
+  a.addEventListener("error", function(){
+    if(a !== audio) return;
+    if(idx < 0) return;
+    elNote.textContent = "⚠ この曲を読み込めませんでした（音源の場所を確認してください）";
+    if(continuous && playing) setTimeout(function(){ if(playing) next(true); }, 600);
+  });
+  a.addEventListener("loadedmetadata", function(){
+    if(a !== audio) return;
+    elDur.textContent = fmt(audio.duration); updateInfo(); drawWave();
+  });
+  a.addEventListener("timeupdate", function(){
+    if(a !== audio) return;
+    elCur.textContent = fmt(audio.currentTime);
+    if(audio.duration > 0) elSeek.value = Math.round(audio.currentTime / audio.duration * 1000);
+    drawWave();
+    /* ヘッダ解析ができない形式は、再生中の左右信号からMono/Stereoを推定 */
+    if(AC && anL && anR && idx >= 0 && playing){
+      var u = srcFor(idx);
+      if((metaCache[u] === undefined || metaCache[u] === "x") && !provCh[u]){
+        if(analyserAlive(anR)){ provCh[u] = "Stereo"; updateInfo(); }
+        else if(audio.currentTime > 3){ provCh[u] = "Mono"; updateInfo(); }
+      }
     }
-  }
-});
+  });
+}
+wireAudio(elA);
+wireAudio(elB);
 elSeek.addEventListener("input", function(){
   if(audio.duration > 0) audio.currentTime = elSeek.value / 1000 * audio.duration;
 });
+/* ===== 全部盛り：正規化／波形／A-B／クロスフェード／ヘッドホン補正 ===== */
+function saveTrackData(){ try { localStorage.setItem("sakuraBgmTD", JSON.stringify(trackData)); } catch(e){} }
+function computePeaks(ab){
+  var N = 240, peaks = [], chs = [];
+  for(var c = 0; c < ab.numberOfChannels; c++) chs.push(ab.getChannelData(c));
+  var per = Math.max(1, Math.floor(ab.length / N));
+  for(var i = 0; i < N; i++){
+    var m = 0, st = i * per;
+    for(var j = 0; j < per; j += 16){
+      for(var c2 = 0; c2 < chs.length; c2++){ var v = Math.abs(chs[c2][st + j] || 0); if(v > m) m = v; }
+    }
+    peaks.push(Math.round(m * 1000) / 1000);
+  }
+  return peaks;
+}
+function computeLufs(ab){
+  return new Promise(function(res){
+    try {
+      if(typeof OfflineAudioContext !== "function"){ res(null); return; }
+      var oc = new OfflineAudioContext(ab.numberOfChannels, ab.length, ab.sampleRate);
+      var s = oc.createBufferSource(); s.buffer = ab;
+      var hp = oc.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 38.13547087602444; hp.Q.value = 0.5003270373238773;
+      var sh = oc.createBiquadFilter(); sh.type = "highshelf"; sh.frequency.value = 1681.974450955533; sh.Q.value = 0.7071752369554196; sh.gain.value = 4.0;
+      s.connect(hp); hp.connect(sh); sh.connect(oc.destination);
+      s.start(0);
+      oc.startRendering().then(function(rb){
+        var sum = 0;
+        for(var c = 0; c < rb.numberOfChannels; c++){
+          var d = rb.getChannelData(c);
+          for(var i = 0; i < d.length; i++) sum += d[i] * d[i];
+        }
+        var ms = sum / rb.length;
+        res(ms > 0 ? Math.round((-0.691 + 10 * Math.log10(ms)) * 100) / 100 : null);
+      }).catch(function(){ res(null); });
+    } catch(e){ res(null); }
+  });
+}
+function ensureTrackData(url){
+  if(!url || trackData[url] || trackBusy[url]) return;
+  if(typeof fetch !== "function") return;
+  trackBusy[url] = true;
+  fetch(url).then(function(r){ return r.arrayBuffer(); }).then(function(buf){
+    var Ctor = window.AudioContext || window.webkitAudioContext;
+    var ctx = AC || new Ctor();
+    return ctx.decodeAudioData(buf);
+  }).then(function(ab){
+    var peaks = computePeaks(ab);
+    return computeLufs(ab).then(function(lu){ return { p: peaks, l: lu }; });
+  }).then(function(d){
+    trackData[url] = d;
+    saveTrackData();
+    if(idx >= 0 && srcFor(idx) === url){ drawWave(); applyNorm(); }
+  }).catch(function(){}).then(function(){ trackBusy[url] = false; });
+}
+function applyNorm(){
+  if(!normGain || !AC) return;
+  var g = 1;
+  if(normOn && idx >= 0){
+    var d = trackData[srcFor(idx)];
+    if(d && d.l != null) g = Math.pow(10, (normTarget - d.l) / 20);
+  }
+  g = Math.max(0.2, Math.min(4, g));
+  normGain.gain.setTargetAtTime(g, AC.currentTime, 0.1);
+}
+function drawWave(){
+  var cv = $("wave");
+  if(!cv || !cv.getContext) return;
+  var ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.fillRect(0, 0, W, H);
+  var d = (idx >= 0 && TL()[idx]) ? trackData[srcFor(idx)] : null;
+  var prog = (audio && audio.duration > 0) ? audio.currentTime / audio.duration : 0;
+  if(!d || !d.p){
+    ctx.strokeStyle = "#6b5836"; ctx.beginPath(); ctx.moveTo(0, H / 2); ctx.lineTo(W, H / 2); ctx.stroke();
+    return;
+  }
+  var n = d.p.length;
+  for(var x = 0; x < W; x++){
+    var pk = d.p[Math.floor(x / W * n)] || 0;
+    var h = Math.max(1, pk * (H - 4));
+    ctx.fillStyle = (x / W <= prog) ? "#ffd98a" : "#8a6f3c";
+    ctx.fillRect(x, (H - h) / 2, 1, h);
+  }
+  if(audio && audio.duration > 0){
+    ctx.fillStyle = "#7fd4ff";
+    if(abA != null) ctx.fillRect(Math.floor(abA / audio.duration * W), 0, 2, H);
+    if(abB != null) ctx.fillRect(Math.floor(abB / audio.duration * W), 0, 2, H);
+  }
+}
+$("wave").addEventListener("click", function(ev){
+  if(audio.duration > 0){
+    var r = this.getBoundingClientRect();
+    audio.currentTime = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)) * audio.duration;
+  }
+});
+/* A-Bリピート */
+function renderAb(){
+  var b = $("btn-ab");
+  if(!b) return;
+  b.textContent = abA == null ? "🔁 A-Bリピート" : (abB == null ? "🔁 A-B：A設定（B待ち）" : "🔁 A-Bリピート中");
+  b.classList.toggle("on", abB != null);
+}
+$("btn-ab").addEventListener("click", function(){
+  if(idx < 0 || reversing) return;
+  if(abA == null){ abA = audio.currentTime; }
+  else if(abB == null){ if(audio.currentTime > abA + 0.5) abB = audio.currentTime; else abA = audio.currentTime; }
+  else { abA = null; abB = null; }
+  renderAb(); drawWave();
+});
+/* 音量の正規化 */
+$("btn-norm").addEventListener("click", function(){
+  normOn = !normOn;
+  this.classList.toggle("on", normOn);
+  if(idx >= 0) ensureTrackData(srcFor(idx));
+  applyNorm();
+});
+/* クロスフェード（FADER相当） */
+var XF_STEPS = [0, 2, 4, 6, 8, 12];
+function renderXf(){
+  var b = $("btn-xf");
+  b.textContent = "🌗 クロスフェード：" + (xfSec === 0 ? "オフ" : xfSec + "秒");
+  b.classList.toggle("on", xfSec > 0);
+}
+$("btn-xf").addEventListener("click", function(){
+  var i = XF_STEPS.indexOf(xfSec);
+  xfSec = XF_STEPS[(i + 1) % XF_STEPS.length];
+  renderXf();
+});
+function computeNext(){
+  if(playQueue){
+    if(queuePos + 1 < playQueue.length) return { q: true, i: playQueue[queuePos + 1] };
+    return null;
+  }
+  if(shuffle){
+    if(!shuffleBag.length) refillBag();
+    var n = shuffleBag[0];
+    if(n === idx && shuffleBag.length > 1) n = shuffleBag[1];
+    if(typeof n !== "number") return null;
+    return { q: false, shuf: true, i: n };
+  }
+  var v = visibleIndexes();
+  if(!v.length) return null;
+  var pos = v.indexOf(idx);
+  return { q: false, i: v[(pos + 1) % v.length] };
+}
+function startCrossfade(){
+  if(!AC || !fadeA || bypass || xfBusy) return;
+  var nx = computeNext();
+  if(!nx) return;
+  if(!playQueue && nx.i === idx) return;
+  xfBusy = true;
+  var oldEl = audio;
+  if(nx.q) queuePos++;
+  else if(nx.shuf){ var s1 = shuffleBag.shift(); if(s1 !== nx.i) shuffleBag.shift(); }
+  if(idx >= 0) playHistory.push(idx);
+  idx = nx.i;
+  abA = null; abB = null; renderAb();
+  audio = otherElt();
+  applyCors();
+  audio.src = srcFor(idx);
+  applySpeed();
+  setVolume(volVal);
+  var t0 = AC.currentTime;
+  var fgN = fadeOf(audio), fgO = fadeOf(oldEl);
+  fgN.gain.cancelScheduledValues(t0); fgN.gain.setValueAtTime(0, t0);
+  fgN.gain.linearRampToValueAtTime(1, t0 + xfSec);
+  fgO.gain.cancelScheduledValues(t0); fgO.gain.setValueAtTime(fgO.gain.value, t0);
+  fgO.gain.linearRampToValueAtTime(0, t0 + xfSec);
+  var p = audio.play();
+  if(p && p.catch) p.catch(function(){});
+  playing = true;
+  refreshNow();
+  ensureTrackData(srcFor(idx));
+  applyNorm();
+  setTimeout(function(){ try { oldEl.pause(); } catch(e){} xfBusy = false; }, xfSec * 1000 + 400);
+}
+function watchTick(){
+  if(abB != null && !reversing && audio.duration > 0 && audio.currentTime >= abB){
+    try { audio.currentTime = abA; } catch(e){}
+  }
+  if(xfSec > 0 && !xfBusy && !reversing && playing && !repeat1 && (continuous || playQueue) && idx >= 0 && AC && fadeA && !bypass){
+    var dur = audio.duration;
+    if(dur > 0 && isFinite(dur)){
+      var rem = dur - audio.currentTime;
+      if(rem <= xfSec && rem > 0.25) startCrossfade();
+    }
+  }
+}
+setInterval(watchTick, 200);
+/* ヘッドホン補正（AutoEQ ParametricEQ.txt形式） */
+function parseAutoEQ(text){
+  var bands = [], pre = 0;
+  String(text).split(/\r?\n/).forEach(function(line){
+    var pm = line.match(/Preamp:\s*(-?[\d.]+)\s*dB/i);
+    if(pm) pre = parseFloat(pm[1]);
+    var fm = line.match(/Filter\s+\d+:\s+ON\s+(\w+)\s+Fc\s+([\d.]+)\s*Hz\s+Gain\s+(-?[\d.]+)\s*dB(?:\s+Q\s+([\d.]+))?/i);
+    if(fm) bands.push({ t: fm[1].toUpperCase(), fc: parseFloat(fm[2]), g: parseFloat(fm[3]), q: fm[4] ? parseFloat(fm[4]) : 1 });
+  });
+  return { preamp: pre, bands: bands };
+}
+function applyHpCorrection(data){
+  var st = $("hp-status");
+  if(st) st.textContent = (data && data.bands && data.bands.length) ? "🎧 補正ON：" + data.bands.length + "バンド（プリアンプ " + data.preamp + "dB）" : "🎧 補正：なし（AutoEQのParametricEQ.txt形式）";
+  if(hpPre && data) hpPre.gain.value = Math.pow(10, (data.preamp || 0) / 20);
+  if(hpPre && !data) hpPre.gain.value = 1;
+  for(var i = 0; i < hpFilters.length; i++){
+    var f = hpFilters[i], b = data && data.bands ? data.bands[i] : null;
+    if(b){
+      f.type = b.t === "LSC" ? "lowshelf" : (b.t === "HSC" ? "highshelf" : "peaking");
+      f.frequency.value = b.fc; f.gain.value = b.g; f.Q.value = b.q || 1;
+    } else f.gain.value = 0;
+  }
+}
+$("btn-hp").addEventListener("click", function(){ $("hpfile").click(); });
+$("hpfile").addEventListener("change", function(){
+  var file = this.files && this.files[0];
+  if(!file) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    var d = parseAutoEQ(rd.result);
+    if(d.bands.length){
+      hpData = d;
+      try { localStorage.setItem("sakuraBgmHP", JSON.stringify(d)); } catch(e){}
+      applyHpCorrection(d);
+      elNote.textContent = "🎧 ヘッドホン補正を読み込みました（" + d.bands.length + "バンド）";
+    } else {
+      elNote.textContent = "⚠ 補正ファイルの形式が読めませんでした（AutoEQのParametricEQ.txt形式）";
+    }
+  };
+  rd.readAsText(file);
+  this.value = "";
+});
+$("btn-hp-clear").addEventListener("click", function(){
+  hpData = null;
+  try { localStorage.removeItem("sakuraBgmHP"); } catch(e){}
+  applyHpCorrection(null);
+});
+if(hpData) applyHpCorrection(hpData);
+
 /* ===== アンプ風ノブ（VOLUME／BASS／TREBLE） ===== */
 var volVal = 80, bassVal = 0, trebleVal = 0, subVal = 0, midVal = 0, balVal = 0, loudOn = false, karaLevel = 0;
 function renderKnob(){
@@ -892,8 +1211,8 @@ function renderKnob(){
 }
 function setVolume(v){
   volVal = Math.max(0, Math.min(100, Math.round(v)));
-  if(gainNode && !bypass){ gainNode.gain.value = volVal / 100; audio.volume = 1; }
-  else audio.volume = volVal / 100;
+  if(gainNode && !bypass){ gainNode.gain.value = volVal / 100; elA.volume = 1; elB.volume = 1; }
+  else { elA.volume = volVal / 100; elB.volume = volVal / 100; }
   renderKnob();
   updateLoudness();
 }
@@ -954,15 +1273,10 @@ function setKaraoke(level){
   var names = ["オフ", "弱", "強"];
   $("btn-kara").textContent = "🎤 カラオケ：" + names[level];
   $("btn-kara").classList.toggle("on", level > 0);
-  if(!AC || !srcNode || !karaSplit) return;
+  if(!AC || !karaSplit) return;
   var k = [0, 0.55, 1][level];
   karaG.rl.gain.value = -k; karaG.lr.gain.value = -k;
-  try {
-    srcNode.disconnect();
-    if(bypass) srcNode.connect(AC.destination);
-    else if(level > 0) srcNode.connect(karaSplit);
-    else srcNode.connect(graphIn || eqFilters[0]);
-  } catch(e){}
+  routeSources();
 }
 $("btn-kara").addEventListener("click", function(){ setKaraoke((karaLevel + 1) % 3); });
 /* ===== 空間（残響プリセット：インパルス応答をその場で合成） ===== */
@@ -1094,13 +1408,7 @@ $("mode-repeat").addEventListener("click", function(){ repeat1 = !repeat1; this.
 $("mode-bypass").addEventListener("click", function(){
   bypass = !bypass;
   this.classList.toggle("on", bypass);
-  if(AC && srcNode){
-    try {
-      srcNode.disconnect();
-      if(bypass){ srcNode.connect(AC.destination); }
-      else if(eqFilters.length){ srcNode.connect(karaLevel > 0 && karaSplit ? karaSplit : (graphIn || eqFilters[0])); }
-    } catch(e){}
-  }
+  routeSources();
   setVolume(volVal);
 });
 
@@ -1584,6 +1892,12 @@ window.__player = {
   setSub: setSub, setMid: setMid, setBalance: setBalance, setKaraoke: setKaraoke,
   get space(){ return spaceType; },
   setSpace: setSpace,
+  get xf(){ return xfSec; },
+  get norm(){ return normOn; },
+  get abA(){ return abA; },
+  get abB(){ return abB; },
+  get hpBands(){ return hpData ? hpData.bands.length : 0; },
+  parseAutoEQ: parseAutoEQ,
   get petalCount(){ return petals.length; },
   get petalCtxOk(){ return !!petalCtx; },
   get theme(){ return document.body.getAttribute("data-theme"); },
