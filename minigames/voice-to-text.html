@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="data:," />
-    <title>音声入力・読み上げページ</title>
+    <title>音声入力・翻訳・読み上げページ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -271,8 +271,12 @@
   </head>
   <body>
     <main>
-      <h1>音声入力・読み上げ</h1>
-      <p class="lead">話すと文字になり、文字を声で読み上げます。ブラウザ標準の Web Speech API を使うので、アプリのインストールもサーバーも不要です。</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:14px;color:var(--ink-soft);">Snow Moon　Ver.20261125.1.0</span>
+        <button class="btn small" id="refreshBtn" type="button" style="flex:0 1 auto;">🔄 更新（キャッシュを消して読み直す）</button>
+      </div>
+      <h1>音声入力・翻訳・読み上げ</h1>
+      <p class="lead">話すと文字になり、翻訳して、声で読み上げます。ブラウザ標準の Web Speech API を使うので、アプリのインストールもサーバーも不要です。</p>
 
       <div class="notice" id="unsupportedNotice" role="alert"></div>
 
@@ -331,9 +335,66 @@
         </div>
       </section>
 
-      <!-- 3. 読み上げ設定 -->
+      <!-- 3. 翻訳 -->
+      <section class="card" aria-labelledby="h-trans">
+        <h2 id="h-trans"><span class="num">3</span>翻訳</h2>
+        <p class="sub">上のテキストを、選んだ言語に翻訳します（無料の翻訳APIを使用・ネット接続が必要。まずGoogle翻訳、ダメならMyMemoryに自動で切り替えます）。翻訳文の読み上げボタンはここ専用です。原文の読み上げは上の「2. テキスト」のボタンのままです。</p>
+
+        <label class="field-label" for="transFromSelect">翻訳元の言語</label>
+        <select id="transFromSelect">
+          <option value="auto" selected>自動判定（文字の種類で見分ける）</option>
+          <option value="ja">日本語</option>
+          <option value="en">英語</option>
+          <option value="zh-CN">中国語（簡体字）</option>
+          <option value="ko">韓国語</option>
+        </select>
+
+        <label class="field-label" for="transToSelect">翻訳先の言語</label>
+        <select id="transToSelect">
+          <option value="en" selected>英語</option>
+          <option value="ja">日本語</option>
+          <option value="zh-CN">中国語（簡体字）</option>
+          <option value="zh-TW">中国語（繁体字）</option>
+          <option value="ko">韓国語</option>
+          <option value="es">スペイン語</option>
+          <option value="fr">フランス語</option>
+          <option value="de">ドイツ語</option>
+          <option value="it">イタリア語</option>
+          <option value="pt">ポルトガル語</option>
+          <option value="ru">ロシア語</option>
+          <option value="ar">アラビア語</option>
+          <option value="hi">ヒンディー語</option>
+          <option value="th">タイ語</option>
+          <option value="vi">ベトナム語</option>
+          <option value="id">インドネシア語</option>
+        </select>
+
+        <div class="btn-row">
+          <button class="btn primary" id="translateBtn" type="button">🌐 翻訳する</button>
+          <button class="btn" id="swapBtn" type="button">⇅ 原文と入れ替え</button>
+        </div>
+        <div id="transState" style="margin-top:8px;font-size:14px;color:var(--ink-soft);" role="status"></div>
+
+        <label class="field-label" for="transArea">翻訳文</label>
+        <textarea id="transArea" placeholder="翻訳結果がここに出ます。手で直すこともできます。" aria-label="翻訳文"></textarea>
+        <div class="meta-row">
+          <span id="transCount">0 文字</span>
+          <span id="transSpeakState"></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="speakTransBtn" type="button">▶ 翻訳文を読み上げる</button>
+          <button class="btn" id="pauseTransBtn" type="button" disabled>一時停止</button>
+          <button class="btn danger" id="stopTransBtn" type="button" disabled>停止</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn small" id="copyTransBtn" type="button">翻訳文をコピー</button>
+          <button class="btn small" id="clearTransBtn" type="button">翻訳文を消す</button>
+        </div>
+      </section>
+
+      <!-- 4. 読み上げ設定 -->
       <section class="card" aria-labelledby="h-tts">
-        <h2 id="h-tts"><span class="num">3</span>読み上げの設定（文字 → 声）</h2>
+        <h2 id="h-tts"><span class="num">4</span>読み上げの設定（文字 → 声）</h2>
         <p class="sub">声の種類と速さ、高さを変えられます。声の一覧は端末やブラウザに入っているものが表示されます。</p>
 
         <label class="field-label" for="voiceSelect">声の種類</label>
@@ -353,12 +414,15 @@
           <span class="node">マイク</span><span class="arrow">→</span>
           <span class="node">音声認識</span><span class="arrow">→</span>
           <span class="node">文字</span><span class="arrow">→</span>
+          <span class="node">翻訳</span><span class="arrow">→</span>
           <span class="node">読み上げ</span><span class="arrow">→</span>
           <span class="node">スピーカー</span>
         </div>
         <ul class="tips">
           <li>音声認識は <strong>Chrome / Edge</strong> で使えます（Android の Chrome も可）。初回はマイクの許可が必要です。</li>
           <li>認識は Google のサーバー経由で行われるため、ネット接続が必要です。読み上げは端末内の声を使う場合がほとんどです。</li>
+          <li>翻訳は無料の翻訳API（Google翻訳、予備でMyMemory）を使います。ネット接続が必要です。長い文は少しずつ分けて送っています。無料の仕組みなので、混んでいる時は失敗することがあります。機械翻訳なので、固有名詞や言い回しは意訳・誤訳になることがあります。</li>
+          <li>翻訳文の読み上げは、翻訳先の言語の声を自動で選びます。端末にその言語の声が入っていない場合は、声が合わないことがあります。</li>
           <li>「PythonAnywhere」が「I saw it in a dream」に化けるような聞き間違いは、固有名詞・専門用語で起きやすいものです。ゆっくり、はっきり話すと精度が上がります。</li>
           <li>運転中は画面を見たり操作したりせず、停車してから使ってください。</li>
           <li>このページは文字を保存しません。閉じれば消えます。残したい分は「テキスト保存」やコピーで持ち出してください。</li>
@@ -419,17 +483,29 @@
           window.speechSynthesis.onvoiceschanged = loadVoices;
         }
 
-        function pickVoice() {
-          var name = voiceSelect.value;
-          if (name) {
-            for (var i = 0; i < voices.length; i++) {
-              if (voices[i].name === name) return voices[i];
+        function pickVoiceFor(langWanted, useManual) {
+          if (useManual) {
+            var name = voiceSelect.value;
+            if (name) {
+              for (var i = 0; i < voices.length; i++) {
+                if (voices[i].name === name) return voices[i];
+              }
             }
           }
+          var want = (langWanted || "ja").toLowerCase().replace("_", "-");
+          var base = want.split("-")[0];
           for (var j = 0; j < voices.length; j++) {
-            if (voices[j].lang && voices[j].lang.indexOf("ja") === 0) return voices[j];
+            var vl = (voices[j].lang || "").toLowerCase().replace("_", "-");
+            if (vl === want || vl.split("-")[0] === base) return voices[j];
+          }
+          for (var k = 0; k < voices.length; k++) {
+            if (voices[k].lang && voices[k].lang.indexOf("ja") === 0) return voices[k];
           }
           return null;
+        }
+
+        function pickVoice() {
+          return pickVoiceFor("ja", true);
         }
 
         var speakBtn = $("speakBtn"), pauseBtn = $("pauseBtn"), stopBtn = $("stopSpeakBtn");
@@ -449,6 +525,7 @@
           var t = (text || "").trim();
           if (!t) { showToast("読み上げる文字がありません"); return; }
           window.speechSynthesis.cancel();
+          setTransSpeakUI(false);
           var utt = new SpeechSynthesisUtterance(t);
           var v = pickVoice();
           if (v) { utt.voice = v; utt.lang = v.lang; } else { utt.lang = "ja-JP"; }
@@ -481,6 +558,210 @@
         });
         pitchRange.addEventListener("input", function () {
           $("pitchVal").textContent = parseFloat(pitchRange.value).toFixed(1);
+        });
+
+        /* ============ 翻訳 (Google翻訳 → MyMemory の二段構え) ============ */
+        var transFromSelect = $("transFromSelect"), transToSelect = $("transToSelect"),
+            transArea = $("transArea"), transState = $("transState"), transCount = $("transCount");
+
+        function updateTransCount() {
+          transCount.textContent = transArea.value.length + " 文字";
+        }
+        transArea.addEventListener("input", updateTransCount);
+        updateTransCount();
+
+        function detectLang(t) {
+          if (/[぀-ヿ]/.test(t)) return "ja";
+          if (/[가-힣]/.test(t)) return "ko";
+          if (/[Ѐ-ӿ]/.test(t)) return "ru";
+          if (/[؀-ۿ]/.test(t)) return "ar";
+          if (/[฀-๿]/.test(t)) return "th";
+          if (/[ऀ-ॿ]/.test(t)) return "hi";
+          if (/[一-鿿]/.test(t)) return "zh-CN";
+          return "en";
+        }
+
+        function chunkText(t, max) {
+          var chunks = [], rest = t;
+          var marks = ["。", "．", ".", "！", "!", "？", "?", "\n", "、", ",", " "];
+          while (rest.length > max) {
+            var cut = -1;
+            for (var m = 0; m < marks.length; m++) {
+              var idx = rest.lastIndexOf(marks[m], max);
+              if (idx > max * 0.4) { cut = idx + 1; break; }
+            }
+            if (cut < 0) cut = max;
+            chunks.push(rest.slice(0, cut));
+            rest = rest.slice(cut);
+          }
+          if (rest) chunks.push(rest);
+          return chunks;
+        }
+
+        function translateChunkGoogle(q, src, tgt) {
+          var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" +
+                    encodeURIComponent(src) + "&tl=" + encodeURIComponent(tgt) + "&dt=t&q=" + encodeURIComponent(q);
+          return fetch(url).then(function (r) {
+            if (!r.ok) throw new Error("応答なし (" + r.status + ")");
+            return r.json();
+          }).then(function (j) {
+            if (j && j[0]) {
+              return j[0].map(function (seg) { return seg[0] || ""; }).join("");
+            }
+            throw new Error("結果が空でした");
+          });
+        }
+
+        function translateChunkMyMemory(q, src, tgt) {
+          var url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(q) +
+                    "&langpair=" + encodeURIComponent(src + "|" + tgt);
+          return fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+            var tt = j && j.responseData && j.responseData.translatedText;
+            if (tt && tt.indexOf("MYMEMORY WARNING") === 0) {
+              throw new Error("翻訳APIの無料枠を使い切りました（1日で回復します）");
+            }
+            if (j && tt && String(j.responseStatus) === "200") return tt;
+            throw new Error(tt || "翻訳できませんでした");
+          });
+        }
+
+        // まず Google翻訳、ダメなら MyMemory に切り替える
+        function translateChunk(q, src, tgt) {
+          return translateChunkGoogle(q, src, tgt).catch(function () {
+            return translateChunkMyMemory(q, src, tgt);
+          });
+        }
+
+        $("translateBtn").addEventListener("click", function () {
+          var srcText = textArea.value.trim();
+          if (!srcText) { showToast("翻訳するテキストがありません"); return; }
+          var tgt = transToSelect.value;
+          var src = transFromSelect.value === "auto" ? detectLang(srcText) : transFromSelect.value;
+          if (src === tgt) { showToast("翻訳元と翻訳先が同じ言語です"); return; }
+          var btn = $("translateBtn");
+          btn.disabled = true;
+          transState.textContent = "翻訳中…（" + src + " → " + tgt + "）";
+          var chunks = chunkText(srcText, 400);
+          var out = [];
+          var chain = Promise.resolve();
+          chunks.forEach(function (c) {
+            chain = chain.then(function () {
+              return translateChunk(c, src, tgt).then(function (r) { out.push(r); });
+            });
+          });
+          chain.then(function () {
+            transArea.value = out.join("");
+            updateTransCount();
+            transState.textContent = "翻訳しました（" + src + " → " + tgt + "）";
+            showToast("翻訳しました");
+          }).catch(function (err) {
+            transState.textContent = "翻訳に失敗しました：" + err.message;
+            showToast("翻訳に失敗しました");
+          }).then(function () { btn.disabled = false; });
+        });
+
+        $("swapBtn").addEventListener("click", function () {
+          var a = textArea.value, b = transArea.value;
+          if (!b) { showToast("入れ替える翻訳文がありません"); return; }
+          var fromBefore = transFromSelect.value === "auto" ? detectLang(a) : transFromSelect.value;
+          var toBefore = transToSelect.value;
+          textArea.value = b;
+          transArea.value = a;
+          updateCount();
+          updateTransCount();
+          var hasFrom = false;
+          for (var i = 0; i < transFromSelect.options.length; i++) {
+            if (transFromSelect.options[i].value === toBefore) hasFrom = true;
+          }
+          transFromSelect.value = hasFrom ? toBefore : "auto";
+          transToSelect.value = fromBefore;
+          transState.textContent = "原文と翻訳文を入れ替えました（逆翻訳の確認などに）";
+          showToast("入れ替えました");
+        });
+
+        $("copyTransBtn").addEventListener("click", function () {
+          var t = transArea.value;
+          if (!t) { showToast("コピーする翻訳文がありません"); return; }
+          function done() { showToast("翻訳文をコピーしました"); }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(t).then(done, function () {
+              transArea.select();
+              document.execCommand("copy");
+              done();
+            });
+          } else {
+            transArea.select();
+            document.execCommand("copy");
+            done();
+          }
+        });
+
+        $("clearTransBtn").addEventListener("click", function () {
+          transArea.value = "";
+          updateTransCount();
+          transState.textContent = "";
+          showToast("翻訳文を消しました");
+        });
+
+        /* ============ 翻訳文の読み上げ（原文用とは別のボタン） ============ */
+        var speakTransBtn = $("speakTransBtn"), pauseTransBtn = $("pauseTransBtn"),
+            stopTransBtn = $("stopTransBtn"), transSpeakState = $("transSpeakState");
+        var transPaused = false;
+
+        function setTransSpeakUI(speaking) {
+          pauseTransBtn.disabled = !speaking;
+          stopTransBtn.disabled = !speaking;
+          if (!speaking) { transPaused = false; pauseTransBtn.textContent = "一時停止"; transSpeakState.textContent = ""; }
+        }
+
+        function speakTrans() {
+          if (!("speechSynthesis" in window)) {
+            showToast("このブラウザは読み上げに対応していません");
+            return;
+          }
+          var t = transArea.value.trim();
+          if (!t) { showToast("読み上げる翻訳文がありません"); return; }
+          window.speechSynthesis.cancel();
+          setSpeakUI(false);
+          var lang = transToSelect.value;
+          var utt = new SpeechSynthesisUtterance(t);
+          var v = pickVoiceFor(lang, false);
+          if (v) { utt.voice = v; utt.lang = v.lang; } else { utt.lang = lang; }
+          utt.rate = parseFloat(rateRange.value);
+          utt.pitch = parseFloat(pitchRange.value);
+          utt.onstart = function () { setTransSpeakUI(true); transSpeakState.textContent = "翻訳文を読み上げ中…"; };
+          utt.onend = function () { setTransSpeakUI(false); };
+          utt.onerror = function () { setTransSpeakUI(false); };
+          window.speechSynthesis.speak(utt);
+        }
+
+        speakTransBtn.addEventListener("click", speakTrans);
+        pauseTransBtn.addEventListener("click", function () {
+          if (!("speechSynthesis" in window)) return;
+          if (transPaused) {
+            window.speechSynthesis.resume();
+            transPaused = false; pauseTransBtn.textContent = "一時停止"; transSpeakState.textContent = "翻訳文を読み上げ中…";
+          } else {
+            window.speechSynthesis.pause();
+            transPaused = true; pauseTransBtn.textContent = "再開する"; transSpeakState.textContent = "一時停止中";
+          }
+        });
+        stopTransBtn.addEventListener("click", function () {
+          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+          setTransSpeakUI(false);
+          setSpeakUI(false);
+        });
+
+        /* ============ 更新ボタン（キャッシュを消して読み直す） ============ */
+        $("refreshBtn").addEventListener("click", function () {
+          function jump() { location.replace(location.pathname + "?r=" + Date.now()); }
+          if (window.caches && caches.keys) {
+            caches.keys().then(function (keys) {
+              return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+            }).then(jump, jump);
+          } else {
+            jump();
+          }
         });
 
         /* ============ 音声認識 (STT) ============ */
@@ -588,7 +869,7 @@
             setStatus("止めました", false);
           } else {
             // 読み上げ中なら止めてから聞く（自分の声を拾わないため）
-            if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setSpeakUI(false); }
+            if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setSpeakUI(false); setTransSpeakUI(false); }
             wantListening = true;
             micBtn.classList.add("listening");
             micBtn.setAttribute("aria-pressed", "true");
