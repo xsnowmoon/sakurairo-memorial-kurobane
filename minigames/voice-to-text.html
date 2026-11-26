@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="data:," />
-    <title>音声入力・翻訳・読み上げページ</title>
+    <title>言霊職人｜音声入力・翻訳・読み上げ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -135,7 +135,7 @@
         min-height: 1.6em;
       }
       #status.on { color: var(--rec); }
-      #liveBox {
+      #liveBox, #minLive {
         margin-top: 10px;
         background: var(--surface-2);
         border-radius: 10px;
@@ -145,7 +145,10 @@
         text-align: left;
         word-break: break-word;
       }
-      #liveBox .placeholder { color: var(--ink-soft); font-size: 16px; }
+      #liveBox .placeholder, #minLive .placeholder { color: var(--ink-soft); font-size: 16px; }
+      #minTitle { width: 100%; min-height: 48px; font-family: inherit; font-size: 16px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); }
+      #minText { min-height: 220px; }
+      #minFileIn, #textFileIn { width: 100%; color: var(--ink); font-size: 15px; }
       #interim { color: var(--ink-soft); }
 
       /* ---- トグル・設定 ---- */
@@ -262,6 +265,63 @@
         z-index: 10;
       }
       #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+      /* ---- タブとシート（スマホ幅でタブ切替） ---- */
+      #tabBar { display: none; }
+      .sheet { display: contents; }
+      @media (max-width: 640px) {
+        #tabBar {
+          display: flex; position: sticky; top: 0; z-index: 30;
+          background: var(--surface); border: 1px solid var(--line);
+          border-radius: 12px; box-shadow: var(--shadow);
+          margin-bottom: 14px; overflow: hidden;
+        }
+        #tabBar .tab {
+          flex: 1; text-align: center; padding: 8px 1px 7px;
+          font-size: 12px; color: var(--ink-soft); border: 0; background: none;
+          border-bottom: 3px solid transparent; cursor: pointer; font-family: inherit;
+          touch-action: manipulation;
+        }
+        #tabBar .tab .ic { display: block; font-size: 19px; margin-bottom: 1px; }
+        #tabBar .tab.on { color: var(--accent); font-weight: 700; border-bottom-color: var(--accent); background: var(--accent-soft); }
+        .sheet { display: none; }
+        .sheet.on { display: block; }
+      }
+      /* ---- レベルメーター ---- */
+      .lrm { background: #14181a; border-radius: 10px; padding: 10px 12px 6px; margin-top: 8px; }
+      .lrm .r { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+      .lrm .ch { font-size: 11px; color: #d8d8d8; width: 12px; flex: none; }
+      .lrm .segs { flex: 1; display: flex; gap: 2px; }
+      .lrm .segs i { flex: 1; height: 14px; border-radius: 2px; background: #2a3138; }
+      .lrm .segs i.on.g { background: #35d465; }
+      .lrm .segs i.on.y { background: #ffd23e; }
+      .lrm .segs i.on.o { background: #ff8a3c; }
+      .lrm .segs i.on.rd { background: #f43a2a; }
+      .lrm .scale { display: flex; justify-content: space-between; font-size: 9px; color: #8a8a8a; margin: 1px 0 3px 19px; }
+      /* ---- チップ ---- */
+      .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+      .chip {
+        font-size: 14px; background: var(--surface); border: 1px solid var(--line);
+        border-radius: 999px; padding: 8px 14px; cursor: pointer; font-family: inherit;
+        color: var(--ink); min-height: 40px; touch-action: manipulation;
+      }
+      .chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+      /* ---- 会話モード ---- */
+      .cycle { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; margin-top: 12px; }
+      .cycle .step { background: var(--surface-2); color: var(--ink-soft); border-radius: 999px; padding: 5px 11px; }
+      .cycle .step.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+      .turn-label { font-size: 12px; color: var(--ink-soft); margin: 10px 2px 3px; }
+      .turn-label.me { text-align: right; }
+      .bub { max-width: 88%; border-radius: 16px; padding: 10px 12px; font-size: 16px; line-height: 1.6; margin-bottom: 6px; box-shadow: var(--shadow); word-break: break-word; }
+      .bub.me { background: var(--accent-soft); margin-left: auto; }
+      .bub.you { background: var(--surface); border: 1px solid var(--line); }
+      .bub .tr { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); font-size: 14px; color: var(--ink-soft); }
+      /* ---- ピン・録音リスト ---- */
+      .pinrow { display: flex; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--surface-2); flex-wrap: wrap; }
+      .pinrow .tm { background: var(--warn-bg); border: 1px solid var(--line); color: var(--warn-ink); border-radius: 8px; font-weight: 700; padding: 8px 10px; cursor: pointer; font-family: inherit; font-size: 14px; }
+      .pinrow input { flex: 1 1 140px; min-height: 40px; font-family: inherit; font-size: 15px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
+      .pinrow .del { background: none; border: 1px solid var(--line); border-radius: 8px; color: var(--rec); cursor: pointer; font-family: inherit; min-height: 40px; padding: 6px 10px; }
+      .recrow { padding: 6px 0; border-bottom: 1px solid var(--surface-2); }
+      audio.wide { width: 100%; margin-top: 6px; }
       @media (max-width: 480px) {
         h1 { font-size: 26px; }
         section.card { padding: 16px; }
@@ -272,14 +332,24 @@
   <body>
     <main>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-        <span style="font-size:14px;color:var(--ink-soft);">Snow Moon　Ver.20261125.1.0</span>
+        <span style="font-size:14px;color:var(--ink-soft);">Snow Moon　Ver.20261126.1.9</span>
+        <button class="btn small" id="langBtn" type="button" style="flex:0 1 auto;">🌐 English</button>
         <button class="btn small" id="refreshBtn" type="button" style="flex:0 1 auto;">🔄 更新（キャッシュを消して読み直す）</button>
       </div>
-      <h1>音声入力・翻訳・読み上げ</h1>
-      <p class="lead">話すと文字になり、翻訳して、声で読み上げます。ブラウザ標準の Web Speech API を使うので、アプリのインストールもサーバーも不要です。</p>
+      <h1>言霊職人</h1>
+      <p class="lead">音声入力・翻訳・読み上げの道具。話すと文字になり、翻訳して、声で読み上げます。ブラウザ標準の Web Speech API を使うので、アプリのインストールもサーバーも不要です。</p>
 
       <div class="notice" id="unsupportedNotice" role="alert"></div>
 
+      <nav id="tabBar" aria-label="機能タブ">
+        <button class="tab on" type="button" data-tab="rec"><span class="ic">🎙</span>録音</button>
+        <button class="tab" type="button" data-tab="trans"><span class="ic">🌐</span>翻訳</button>
+        <button class="tab" type="button" data-tab="conv"><span class="ic">💬</span>同時翻訳</button>
+        <button class="tab" type="button" data-tab="stt"><span class="ic">✍️</span>文字起こし</button>
+        <button class="tab" type="button" data-tab="min"><span class="ic">🗒</span>議事録</button>
+      </nav>
+
+      <div class="sheet" data-sheet="stt" id="sheet-stt">
       <!-- 1. 音声入力 -->
       <section class="card" aria-labelledby="h-input">
         <h2 id="h-input"><span class="num">1</span>音声入力（声 → 文字）</h2>
@@ -305,13 +375,13 @@
         <p class="sub" style="margin-top:10px;">連続入力：止めるまで聞き続けます。オウム返し：聞き取った文をそのまま声で読み上げます（マイク→認識→読み上げ→スピーカーの輪の実験用）。</p>
 
         <label class="field-label" for="langSelect">認識する言語</label>
-        <select id="langSelect">
-          <option value="ja-JP" selected>日本語</option>
-          <option value="en-US">英語（アメリカ）</option>
-          <option value="en-GB">英語（イギリス）</option>
-          <option value="zh-CN">中国語（簡体字）</option>
-          <option value="ko-KR">韓国語</option>
-        </select>
+        <select id="langSelect"></select>
+
+        <span class="field-label">🎚 入力レベル（録音タブと共通設定）</span>
+        <div class="lrm" id="meterStt"></div>
+        <label class="field-label" for="sensRangeStt">🎙 マイク感度：<span class="slider-val" id="sensValStt">100%</span></label>
+        <input type="range" id="sensRangeStt" min="0" max="300" step="5" value="100">
+        <p class="sub">感度とメーターは録音タブと共通です。音声認識そのものはブラウザの仕組みで聞き取るため、感度は録音（議事録・ボイスレコーダー）とメーター表示に効きます。</p>
       </section>
 
       <!-- 2. テキスト -->
@@ -332,21 +402,275 @@
           <button class="btn small" id="copyBtn" type="button">コピーする</button>
           <button class="btn small" id="downloadBtn" type="button">テキスト保存</button>
           <button class="btn small" id="clearBtn" type="button">全部消す</button>
+          <button class="btn small" id="toTransBtn" type="button">🌐 翻訳タブへ</button>
         </div>
       </section>
 
+      <section class="card" aria-labelledby="h-sttfile">
+        <h2 id="h-sttfile">🎧 録音ファイルから文字起こし</h2>
+        <p class="sub">音声ファイルを再生しながら、マイクで聞き取って「2. テキスト」に文字起こしします。静かな場所で、音量を大きめにしてください（スピーカーの音をマイクが拾います）。</p>
+        <input type="file" id="sttFileIn" accept="audio/*">
+        <audio id="sttFileAudio" class="wide" controls></audio>
+        <div class="btn-row">
+          <button class="btn primary" id="sttFileBtn" type="button" disabled>▶ 再生して文字起こし</button>
+        </div>
+      </section>
+      </div><!-- /sheet-stt -->
+
       <!-- 3. 翻訳 -->
+      <div class="sheet" data-sheet="trans" id="sheet-trans">
       <section class="card" aria-labelledby="h-trans">
         <h2 id="h-trans"><span class="num">3</span>翻訳</h2>
         <p class="sub">上のテキストを、選んだ言語に翻訳します（無料の翻訳APIを使用・ネット接続が必要。まずGoogle翻訳、ダメならMyMemoryに自動で切り替えます）。翻訳文の読み上げボタンはここ専用です。原文の読み上げは上の「2. テキスト」のボタンのままです。</p>
 
+        <span class="field-label">テキストファイルを読み込む</span>
+        <input type="file" id="textFileIn" accept=".txt,.md,.csv,.log,text/plain">
+        <p class="sub">読み込むと「2. テキスト」に入って、そのまま翻訳が始まります。文字コードはUTF-8とShift_JISに対応。長いファイルは先頭から30,000文字まで読み込みます。</p>
+
         <label class="field-label" for="transFromSelect">翻訳元の言語</label>
         <select id="transFromSelect">
           <option value="auto" selected>自動判定（文字の種類で見分ける）</option>
-          <option value="ja">日本語</option>
           <option value="en">英語</option>
-          <option value="zh-CN">中国語（簡体字）</option>
+          <option value="ja">日本語</option>
+          <option value="aa">アファル語</option>
+          <option value="ab">アブハズ語</option>
+          <option value="ace">アチェ語</option>
+          <option value="ach">アチョリ語</option>
+          <option value="af">アフリカーンス語</option>
+          <option value="ak">トウィ語</option>
+          <option value="alz">アルル語</option>
+          <option value="am">アムハラ語</option>
+          <option value="ar">アラビア語</option>
+          <option value="as">アッサム語</option>
+          <option value="ava">Avar語</option>
+          <option value="awa">アワディー語</option>
+          <option value="ay">アイマラ語</option>
+          <option value="az">アゼルバイジャン語</option>
+          <option value="bak">Bashkir語</option>
+          <option value="bal">バローチ語</option>
+          <option value="ban">バリ語</option>
+          <option value="bbc">バタク・トバ語</option>
+          <option value="bci">バウレ語</option>
+          <option value="be">ベラルーシ語</option>
+          <option value="bem">ベンバ語</option>
+          <option value="ber">ベルベル語</option>
+          <option value="ber-latn">Tamazight語</option>
+          <option value="bew">ベタウィ語</option>
+          <option value="bg">ブルガリア語</option>
+          <option value="bho">ボージュプリー語</option>
+          <option value="bik">ビコル語</option>
+          <option value="bm">バンバラ語</option>
+          <option value="bn">ベンガル語</option>
+          <option value="bod">Tibetan語</option>
+          <option value="bre">Breton語</option>
+          <option value="bs">ボスニア語</option>
+          <option value="bts">Batak Simalungun語</option>
+          <option value="btx">Batak Karo語</option>
+          <option value="bua">ブリヤート語</option>
+          <option value="ca">カタルーニャ語</option>
+          <option value="ceb">セブアノ語</option>
+          <option value="cgg">キガ語</option>
+          <option value="cha">Chamorro語</option>
+          <option value="che">Chechen語</option>
+          <option value="chk">チューク語</option>
+          <option value="chv">チュヴァシ語</option>
+          <option value="ckb">クルド語（ソラニ）</option>
+          <option value="cnh">Hakha Chin語</option>
+          <option value="co">コルシカ語</option>
+          <option value="crh">クリミア・タタール語</option>
+          <option value="crs">Seychellois Creole語</option>
+          <option value="cs">チェコ語</option>
+          <option value="cy">ウェールズ語</option>
+          <option value="da">デンマーク語</option>
+          <option value="de">ドイツ語</option>
+          <option value="din">ディンカ語</option>
+          <option value="doi">ドグリ語</option>
+          <option value="dom">Dombe語</option>
+          <option value="dv">ディベヒ語</option>
+          <option value="dyu">Dyula語</option>
+          <option value="dzo">Dzongkha語</option>
+          <option value="el">ギリシャ語</option>
+          <option value="eo">エスペラント語</option>
+          <option value="es">スペイン語</option>
+          <option value="et">エストニア語</option>
+          <option value="eu">バスク語</option>
+          <option value="fa">ペルシャ語</option>
+          <option value="fa-af">Dari語</option>
+          <option value="fao">Faroese語</option>
+          <option value="fi">フィンランド語</option>
+          <option value="fij">Fijian語</option>
+          <option value="fon">フォン語</option>
+          <option value="fr">フランス語</option>
+          <option value="ful">Fulani語</option>
+          <option value="fur">Friulian語</option>
+          <option value="fy">フリジア語</option>
+          <option value="ga">アイルランド語</option>
+          <option value="gaa">Ga語</option>
+          <option value="gd">スコットランド・ゲール語</option>
+          <option value="gl">ガリシア語</option>
+          <option value="glv">Manx語</option>
+          <option value="gn">グアラニー語</option>
+          <option value="gom">コンカニ語</option>
+          <option value="gu">グジャラート語</option>
+          <option value="ha">ハウサ語</option>
+          <option value="haw">ハワイ語</option>
+          <option value="hi">ヒンディー語</option>
+          <option value="hil">Hiligaynon語</option>
+          <option value="hmn">モン語</option>
+          <option value="hr">クロアチア語</option>
+          <option value="hrx">Hunsrik語</option>
+          <option value="ht">ハイチ・クレオール語</option>
+          <option value="hu">ハンガリー語</option>
+          <option value="hy">アルメニア語</option>
+          <option value="iba">イバン語</option>
+          <option value="id">インドネシア語</option>
+          <option value="ig">イボ語</option>
+          <option value="ilo">イロカノ語</option>
+          <option value="is">アイスランド語</option>
+          <option value="it">イタリア語</option>
+          <option value="iw">ヘブライ語</option>
+          <option value="jam">ジャマイカ・パトア語</option>
+          <option value="jw">ジャワ語</option>
+          <option value="ka">ジョージア語</option>
+          <option value="kac">カチン語</option>
+          <option value="kal">Kalaallisut語</option>
+          <option value="kau">Kanuri語</option>
+          <option value="kek">Q'Eqchi'語</option>
+          <option value="kha">カシ語</option>
+          <option value="kik">Kikongo語</option>
+          <option value="kk">カザフ語</option>
+          <option value="km">クメール語</option>
+          <option value="kn">カンナダ語</option>
           <option value="ko">韓国語</option>
+          <option value="kom">Komi語</option>
+          <option value="kri">クリオ語</option>
+          <option value="ktu">キトゥバ語</option>
+          <option value="ku">クルド語</option>
+          <option value="ky">キルギス語</option>
+          <option value="la">ラテン語</option>
+          <option value="lb">ルクセンブルク語</option>
+          <option value="lg">ルガンダ語</option>
+          <option value="lij">リグリア語</option>
+          <option value="lim">Limburgish語</option>
+          <option value="lmo">ロンバルド語</option>
+          <option value="ln">リンガラ語</option>
+          <option value="lo">ラオス語</option>
+          <option value="lt">リトアニア語</option>
+          <option value="ltg">ラトガレ語</option>
+          <option value="luo">ルオ語</option>
+          <option value="lus">ミゾ語</option>
+          <option value="lv">ラトビア語</option>
+          <option value="mad">マドゥラ語</option>
+          <option value="mah">Marshallese語</option>
+          <option value="mai">マイティリー語</option>
+          <option value="mak">マカッサル語</option>
+          <option value="mam">マム語</option>
+          <option value="mfe">Mauritian Creole語</option>
+          <option value="mg">マダガスカル語</option>
+          <option value="mhr">Meadow Mari語</option>
+          <option value="mi">マオリ語</option>
+          <option value="min">ミナンカバウ語</option>
+          <option value="mk">マケドニア語</option>
+          <option value="ml">マラヤーラム語</option>
+          <option value="mn">モンゴル語</option>
+          <option value="mni-Mtei">マニプリ語</option>
+          <option value="mr">マラーティー語</option>
+          <option value="ms">マレー語</option>
+          <option value="ms-arab">Malay (Jawi)語</option>
+          <option value="mt">マルタ語</option>
+          <option value="mwr">マルワーリー語</option>
+          <option value="my">ビルマ語</option>
+          <option value="ndc-zw">Ndau語</option>
+          <option value="nde">Ndebele (South)語</option>
+          <option value="ne">ネパール語</option>
+          <option value="new">ネワール語</option>
+          <option value="nhe">Nahuatl (Eastern Huasteca)語</option>
+          <option value="nl">オランダ語</option>
+          <option value="no">ノルウェー語</option>
+          <option value="nso">セペディ語</option>
+          <option value="nus">ヌエル語</option>
+          <option value="ny">チェワ語</option>
+          <option value="oci">Occitan語</option>
+          <option value="om">オロモ語</option>
+          <option value="or">オディア語</option>
+          <option value="oss">Ossetian語</option>
+          <option value="pa">パンジャーブ語</option>
+          <option value="pa-arab">Punjabi (Shahmukhi)語</option>
+          <option value="pag">パンガシナン語</option>
+          <option value="pam">カパンパンガン語</option>
+          <option value="pap">パピアメント語</option>
+          <option value="pl">ポーランド語</option>
+          <option value="por">Portuguese (Portugal)語</option>
+          <option value="ps">パシュトー語</option>
+          <option value="pt">ポルトガル語</option>
+          <option value="qu">ケチュア語</option>
+          <option value="ro">ルーマニア語</option>
+          <option value="rom">ロマ語</option>
+          <option value="ru">ロシア語</option>
+          <option value="run">Rundi語</option>
+          <option value="rw">キニヤルワンダ語</option>
+          <option value="sa">サンスクリット語</option>
+          <option value="sag">Sango語</option>
+          <option value="sah">サハ語</option>
+          <option value="sat">サンタル語</option>
+          <option value="scn">シチリア語</option>
+          <option value="sd">シンド語</option>
+          <option value="shn">シャン語</option>
+          <option value="si">シンハラ語</option>
+          <option value="sk">スロバキア語</option>
+          <option value="sl">スロベニア語</option>
+          <option value="sm">サモア語</option>
+          <option value="sme">Sami (North)語</option>
+          <option value="sn">ショナ語</option>
+          <option value="so">ソマリ語</option>
+          <option value="sq">アルバニア語</option>
+          <option value="sr">セルビア語</option>
+          <option value="ssw">Swati語</option>
+          <option value="st">セソト語</option>
+          <option value="su">スンダ語</option>
+          <option value="sus">スス語</option>
+          <option value="sv">スウェーデン語</option>
+          <option value="sw">スワヒリ語</option>
+          <option value="szl">シレジア語</option>
+          <option value="ta">タミル語</option>
+          <option value="tah">Tahitian語</option>
+          <option value="tcy">Tulu語</option>
+          <option value="te">テルグ語</option>
+          <option value="tet">テトゥン語</option>
+          <option value="tg">タジク語</option>
+          <option value="th">タイ語</option>
+          <option value="ti">ティグリニア語</option>
+          <option value="tiv">ティヴ語</option>
+          <option value="tk">トルクメン語</option>
+          <option value="tl">タガログ語（フィリピン語）</option>
+          <option value="ton">Tongan語</option>
+          <option value="tpi">トク・ピシン語</option>
+          <option value="tr">トルコ語</option>
+          <option value="trp">Kokborok語</option>
+          <option value="ts">ツォンガ語</option>
+          <option value="tsn">Tswana語</option>
+          <option value="tt">タタール語</option>
+          <option value="tuk">Tuvan語</option>
+          <option value="tum">トゥンブカ語</option>
+          <option value="udm">ウドムルト語</option>
+          <option value="ug">ウイグル語</option>
+          <option value="uk">ウクライナ語</option>
+          <option value="ur">ウルドゥー語</option>
+          <option value="uz">ウズベク語</option>
+          <option value="vec">ヴェネト語</option>
+          <option value="ven">Venda語</option>
+          <option value="vi">ベトナム語</option>
+          <option value="war">ワライ語</option>
+          <option value="wol">Wolof語</option>
+          <option value="xh">コーサ語</option>
+          <option value="yi">イディッシュ語</option>
+          <option value="yo">ヨルバ語</option>
+          <option value="yua">ユカテコ語</option>
+          <option value="yue">広東語</option>
+          <option value="zap">Zapotec語</option>
+          <option value="zh-CN">中国語（簡体字）</option>
+          <option value="zh-TW">中国語（繁体字）</option>
+          <option value="zu">ズールー語</option>
         </select>
 
         <label class="field-label" for="transToSelect">翻訳先の言語</label>
@@ -356,17 +680,242 @@
           <option value="zh-CN">中国語（簡体字）</option>
           <option value="zh-TW">中国語（繁体字）</option>
           <option value="ko">韓国語</option>
-          <option value="es">スペイン語</option>
-          <option value="fr">フランス語</option>
-          <option value="de">ドイツ語</option>
-          <option value="it">イタリア語</option>
-          <option value="pt">ポルトガル語</option>
-          <option value="ru">ロシア語</option>
+          <option value="tl">タガログ語（フィリピン語）</option>
+          <option value="aa">アファル語</option>
+          <option value="ab">アブハズ語</option>
+          <option value="ace">アチェ語</option>
+          <option value="ach">アチョリ語</option>
+          <option value="af">アフリカーンス語</option>
+          <option value="ak">トウィ語</option>
+          <option value="alz">アルル語</option>
+          <option value="am">アムハラ語</option>
           <option value="ar">アラビア語</option>
+          <option value="as">アッサム語</option>
+          <option value="ava">Avar語</option>
+          <option value="awa">アワディー語</option>
+          <option value="ay">アイマラ語</option>
+          <option value="az">アゼルバイジャン語</option>
+          <option value="bak">Bashkir語</option>
+          <option value="bal">バローチ語</option>
+          <option value="ban">バリ語</option>
+          <option value="bbc">バタク・トバ語</option>
+          <option value="bci">バウレ語</option>
+          <option value="be">ベラルーシ語</option>
+          <option value="bem">ベンバ語</option>
+          <option value="ber">ベルベル語</option>
+          <option value="ber-latn">Tamazight語</option>
+          <option value="bew">ベタウィ語</option>
+          <option value="bg">ブルガリア語</option>
+          <option value="bho">ボージュプリー語</option>
+          <option value="bik">ビコル語</option>
+          <option value="bm">バンバラ語</option>
+          <option value="bn">ベンガル語</option>
+          <option value="bod">Tibetan語</option>
+          <option value="bre">Breton語</option>
+          <option value="bs">ボスニア語</option>
+          <option value="bts">Batak Simalungun語</option>
+          <option value="btx">Batak Karo語</option>
+          <option value="bua">ブリヤート語</option>
+          <option value="ca">カタルーニャ語</option>
+          <option value="ceb">セブアノ語</option>
+          <option value="cgg">キガ語</option>
+          <option value="cha">Chamorro語</option>
+          <option value="che">Chechen語</option>
+          <option value="chk">チューク語</option>
+          <option value="chv">チュヴァシ語</option>
+          <option value="ckb">クルド語（ソラニ）</option>
+          <option value="cnh">Hakha Chin語</option>
+          <option value="co">コルシカ語</option>
+          <option value="crh">クリミア・タタール語</option>
+          <option value="crs">Seychellois Creole語</option>
+          <option value="cs">チェコ語</option>
+          <option value="cy">ウェールズ語</option>
+          <option value="da">デンマーク語</option>
+          <option value="de">ドイツ語</option>
+          <option value="din">ディンカ語</option>
+          <option value="doi">ドグリ語</option>
+          <option value="dom">Dombe語</option>
+          <option value="dv">ディベヒ語</option>
+          <option value="dyu">Dyula語</option>
+          <option value="dzo">Dzongkha語</option>
+          <option value="el">ギリシャ語</option>
+          <option value="eo">エスペラント語</option>
+          <option value="es">スペイン語</option>
+          <option value="et">エストニア語</option>
+          <option value="eu">バスク語</option>
+          <option value="fa">ペルシャ語</option>
+          <option value="fa-af">Dari語</option>
+          <option value="fao">Faroese語</option>
+          <option value="fi">フィンランド語</option>
+          <option value="fij">Fijian語</option>
+          <option value="fon">フォン語</option>
+          <option value="fr">フランス語</option>
+          <option value="ful">Fulani語</option>
+          <option value="fur">Friulian語</option>
+          <option value="fy">フリジア語</option>
+          <option value="ga">アイルランド語</option>
+          <option value="gaa">Ga語</option>
+          <option value="gd">スコットランド・ゲール語</option>
+          <option value="gl">ガリシア語</option>
+          <option value="glv">Manx語</option>
+          <option value="gn">グアラニー語</option>
+          <option value="gom">コンカニ語</option>
+          <option value="gu">グジャラート語</option>
+          <option value="ha">ハウサ語</option>
+          <option value="haw">ハワイ語</option>
           <option value="hi">ヒンディー語</option>
-          <option value="th">タイ語</option>
-          <option value="vi">ベトナム語</option>
+          <option value="hil">Hiligaynon語</option>
+          <option value="hmn">モン語</option>
+          <option value="hr">クロアチア語</option>
+          <option value="hrx">Hunsrik語</option>
+          <option value="ht">ハイチ・クレオール語</option>
+          <option value="hu">ハンガリー語</option>
+          <option value="hy">アルメニア語</option>
+          <option value="iba">イバン語</option>
           <option value="id">インドネシア語</option>
+          <option value="ig">イボ語</option>
+          <option value="ilo">イロカノ語</option>
+          <option value="is">アイスランド語</option>
+          <option value="it">イタリア語</option>
+          <option value="iw">ヘブライ語</option>
+          <option value="jam">ジャマイカ・パトア語</option>
+          <option value="jw">ジャワ語</option>
+          <option value="ka">ジョージア語</option>
+          <option value="kac">カチン語</option>
+          <option value="kal">Kalaallisut語</option>
+          <option value="kau">Kanuri語</option>
+          <option value="kek">Q'Eqchi'語</option>
+          <option value="kha">カシ語</option>
+          <option value="kik">Kikongo語</option>
+          <option value="kk">カザフ語</option>
+          <option value="km">クメール語</option>
+          <option value="kn">カンナダ語</option>
+          <option value="kom">Komi語</option>
+          <option value="kri">クリオ語</option>
+          <option value="ktu">キトゥバ語</option>
+          <option value="ku">クルド語</option>
+          <option value="ky">キルギス語</option>
+          <option value="la">ラテン語</option>
+          <option value="lb">ルクセンブルク語</option>
+          <option value="lg">ルガンダ語</option>
+          <option value="lij">リグリア語</option>
+          <option value="lim">Limburgish語</option>
+          <option value="lmo">ロンバルド語</option>
+          <option value="ln">リンガラ語</option>
+          <option value="lo">ラオス語</option>
+          <option value="lt">リトアニア語</option>
+          <option value="ltg">ラトガレ語</option>
+          <option value="luo">ルオ語</option>
+          <option value="lus">ミゾ語</option>
+          <option value="lv">ラトビア語</option>
+          <option value="mad">マドゥラ語</option>
+          <option value="mah">Marshallese語</option>
+          <option value="mai">マイティリー語</option>
+          <option value="mak">マカッサル語</option>
+          <option value="mam">マム語</option>
+          <option value="mfe">Mauritian Creole語</option>
+          <option value="mg">マダガスカル語</option>
+          <option value="mhr">Meadow Mari語</option>
+          <option value="mi">マオリ語</option>
+          <option value="min">ミナンカバウ語</option>
+          <option value="mk">マケドニア語</option>
+          <option value="ml">マラヤーラム語</option>
+          <option value="mn">モンゴル語</option>
+          <option value="mni-Mtei">マニプリ語</option>
+          <option value="mr">マラーティー語</option>
+          <option value="ms">マレー語</option>
+          <option value="ms-arab">Malay (Jawi)語</option>
+          <option value="mt">マルタ語</option>
+          <option value="mwr">マルワーリー語</option>
+          <option value="my">ビルマ語</option>
+          <option value="ndc-zw">Ndau語</option>
+          <option value="nde">Ndebele (South)語</option>
+          <option value="ne">ネパール語</option>
+          <option value="new">ネワール語</option>
+          <option value="nhe">Nahuatl (Eastern Huasteca)語</option>
+          <option value="nl">オランダ語</option>
+          <option value="no">ノルウェー語</option>
+          <option value="nso">セペディ語</option>
+          <option value="nus">ヌエル語</option>
+          <option value="ny">チェワ語</option>
+          <option value="oci">Occitan語</option>
+          <option value="om">オロモ語</option>
+          <option value="or">オディア語</option>
+          <option value="oss">Ossetian語</option>
+          <option value="pa">パンジャーブ語</option>
+          <option value="pa-arab">Punjabi (Shahmukhi)語</option>
+          <option value="pag">パンガシナン語</option>
+          <option value="pam">カパンパンガン語</option>
+          <option value="pap">パピアメント語</option>
+          <option value="pl">ポーランド語</option>
+          <option value="por">Portuguese (Portugal)語</option>
+          <option value="ps">パシュトー語</option>
+          <option value="pt">ポルトガル語</option>
+          <option value="qu">ケチュア語</option>
+          <option value="ro">ルーマニア語</option>
+          <option value="rom">ロマ語</option>
+          <option value="ru">ロシア語</option>
+          <option value="run">Rundi語</option>
+          <option value="rw">キニヤルワンダ語</option>
+          <option value="sa">サンスクリット語</option>
+          <option value="sag">Sango語</option>
+          <option value="sah">サハ語</option>
+          <option value="sat">サンタル語</option>
+          <option value="scn">シチリア語</option>
+          <option value="sd">シンド語</option>
+          <option value="shn">シャン語</option>
+          <option value="si">シンハラ語</option>
+          <option value="sk">スロバキア語</option>
+          <option value="sl">スロベニア語</option>
+          <option value="sm">サモア語</option>
+          <option value="sme">Sami (North)語</option>
+          <option value="sn">ショナ語</option>
+          <option value="so">ソマリ語</option>
+          <option value="sq">アルバニア語</option>
+          <option value="sr">セルビア語</option>
+          <option value="ssw">Swati語</option>
+          <option value="st">セソト語</option>
+          <option value="su">スンダ語</option>
+          <option value="sus">スス語</option>
+          <option value="sv">スウェーデン語</option>
+          <option value="sw">スワヒリ語</option>
+          <option value="szl">シレジア語</option>
+          <option value="ta">タミル語</option>
+          <option value="tah">Tahitian語</option>
+          <option value="tcy">Tulu語</option>
+          <option value="te">テルグ語</option>
+          <option value="tet">テトゥン語</option>
+          <option value="tg">タジク語</option>
+          <option value="th">タイ語</option>
+          <option value="ti">ティグリニア語</option>
+          <option value="tiv">ティヴ語</option>
+          <option value="tk">トルクメン語</option>
+          <option value="ton">Tongan語</option>
+          <option value="tpi">トク・ピシン語</option>
+          <option value="tr">トルコ語</option>
+          <option value="trp">Kokborok語</option>
+          <option value="ts">ツォンガ語</option>
+          <option value="tsn">Tswana語</option>
+          <option value="tt">タタール語</option>
+          <option value="tuk">Tuvan語</option>
+          <option value="tum">トゥンブカ語</option>
+          <option value="udm">ウドムルト語</option>
+          <option value="ug">ウイグル語</option>
+          <option value="uk">ウクライナ語</option>
+          <option value="ur">ウルドゥー語</option>
+          <option value="uz">ウズベク語</option>
+          <option value="vec">ヴェネト語</option>
+          <option value="ven">Venda語</option>
+          <option value="vi">ベトナム語</option>
+          <option value="war">ワライ語</option>
+          <option value="wol">Wolof語</option>
+          <option value="xh">コーサ語</option>
+          <option value="yi">イディッシュ語</option>
+          <option value="yo">ヨルバ語</option>
+          <option value="yua">ユカテコ語</option>
+          <option value="yue">広東語</option>
+          <option value="zap">Zapotec語</option>
+          <option value="zu">ズールー語</option>
         </select>
 
         <div class="btn-row">
@@ -406,6 +955,219 @@
         <label class="field-label" for="pitchRange">声の高さ：<span class="slider-val" id="pitchVal">1.0</span></label>
         <input type="range" id="pitchRange" min="0" max="2" step="0.1" value="1" />
       </section>
+      </div><!-- /sheet-trans -->
+
+      <!-- 同時翻訳（会話モード） -->
+      <div class="sheet" data-sheet="conv" id="sheet-conv">
+      <section class="card" aria-labelledby="h-conv">
+        <h2 id="h-conv">💬 同時翻訳（会話モード）</h2>
+        <p class="sub">言語ペアを決めてスタートを押すと、あとは自動で「聞き取り→翻訳→読み上げ」を繰り返します。聞き取る言語は、あなたの番と相手の番で交互に切り替わります。読み上げ中はマイクを止めるので、自分の声を拾い直しません。</p>
+
+        <label class="field-label" for="convMyLang">あなたの言語</label>
+        <select id="convMyLang"></select>
+        <label class="field-label" for="convYourLang">相手の言語</label>
+        <select id="convYourLang"></select>
+
+        <div class="cycle" aria-hidden="true">
+          <span class="step" id="convStepListen">🎤 聞き取り</span><span>→</span>
+          <span class="step" id="convStepTrans">🌐 翻訳</span><span>→</span>
+          <span class="step" id="convStepSpeak">🔊 読み上げ</span><span>→ 繰り返し</span>
+        </div>
+        <p class="sub" id="convStatus" style="margin-top:10px;font-weight:700;">待機中です</p>
+        <div id="convChat"></div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="convStartBtn" type="button">▶ 会話スタート</button>
+          <button class="btn danger" id="convStopBtn" type="button" disabled>⏹ 会話を止める</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn small" id="convSwapBtn" type="button" disabled>🔀 聞く言語を手動で切替</button>
+          <button class="toggle" id="convAutoToggle" type="button" aria-pressed="true" style="flex:1 1 140px;">自動読み上げ<span class="state">ON</span></button>
+        </div>
+        <p class="sub">うまく交互にならない時は「聞く言語を手動で切替」で立て直せます。会話モード中は、他のマイク機能（音声入力・録音・議事録）は止まります。</p>
+      </section>
+      </div><!-- /sheet-conv -->
+
+      <!-- 録音（ボイスレコーダー） -->
+      <div class="sheet" data-sheet="rec" id="sheet-rec">
+      <section class="card" aria-labelledby="h-rec">
+        <h2 id="h-rec">🎙 録音（ボイスレコーダー）</h2>
+        <p class="sub">文字起こしなしの、ただの録音です。声メモや会議の録り溜めに。マイクや感度の設定は、文字起こし・議事録の録音とも共通です。</p>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn primary" id="recBtn" type="button">● 録音開始</button>
+          <button class="btn danger" id="recStopBtn" type="button" disabled>■ 停止</button>
+        </div>
+        <p class="sub" id="recStatus" style="margin-top:10px;">待機中です</p>
+
+        <span class="field-label">🎚 入力レベル</span>
+        <div class="lrm" id="meterRec"></div>
+        <p class="sub">メーターが赤まで届かない程度が目安です。録音中（または音声入力中）に動きます。</p>
+
+        <label class="field-label" for="sensRange">🎙 マイク感度：<span class="slider-val" id="sensVal">100%</span></label>
+        <input type="range" id="sensRange" min="0" max="300" step="5" value="100">
+        <div class="chips">
+          <button class="chip on" id="sensAutoBtn" type="button">自動調整</button>
+        </div>
+        <p class="sub">感度を上げると小さな声も拾いますが、雑音も増えます。自動調整をONにすると、声の大きさに合わせて感度が動きます（スライダーを動かすと手動になります）。</p>
+
+        <label class="field-label" for="micSel">🎙 使うマイク</label>
+        <select id="micSel"><option value="">自動（内蔵マイクなど）</option></select>
+        <p class="sub">外付けマイク（USB・Bluetooth）を挿すと、ここに出てきます。名前が出ない時は、一度録音を許可すると表示されます。</p>
+
+        <div class="toggle-row">
+          <button class="toggle" id="procToggle" type="button" aria-pressed="true">音声処理（エコー除去・ノイズ抑制・自動ゲイン）<span class="state">ON</span></button>
+        </div>
+        <p class="sub">OFFにすると原音のまま録れます（高音質で録りたい時・外付けマイク使用時向け）。</p>
+
+        <label class="field-label" for="recFmtSel">録音の形式</label>
+        <select id="recFmtSel">
+          <option value="auto" selected>自動（おすすめ）</option>
+          <option value="audio/webm;codecs=opus">WebM（Opus）</option>
+          <option value="audio/webm">WebM</option>
+          <option value="audio/mp4">MP4（AAC）</option>
+          <option value="audio/mp4;codecs=mp4a.40.2">MP4（AAC-LC）</option>
+          <option value="audio/ogg;codecs=opus">OGG（Opus）</option>
+          <option value="audio/ogg;codecs=vorbis">OGG（Vorbis）</option>
+          <option value="audio/ogg">OGG</option>
+          <option value="audio/wav">WAV</option>
+          <option value="audio/mpeg">MP3</option>
+        </select>
+
+        <label class="field-label" for="kbpsSel">ビットレート（録音とMP3変換）</label>
+        <select id="kbpsSel">
+          <option value="32">32 kbps</option>
+          <option value="48">48 kbps</option>
+          <option value="64" selected>64 kbps（標準）</option>
+          <option value="96">96 kbps</option>
+          <option value="128">128 kbps</option>
+        </select>
+
+        <span class="field-label">録音の再生と保存</span>
+        <audio id="recAudio" class="wide" controls></audio>
+        <label class="field-label" for="expChSel">書き出しのチャンネル</label>
+        <select id="expChSel">
+          <option value="mono" selected>モノラル</option>
+          <option value="stereo">ステレオ</option>
+        </select>
+        <label class="field-label" for="wavRateSel">WAVのサンプリングレート</label>
+        <select id="wavRateSel">
+          <option value="44100">44.1 kHz</option>
+          <option value="48000" selected>48 kHz</option>
+        </select>
+        <div class="btn-row">
+          <button class="btn" id="recSaveBtn" type="button" disabled>そのまま保存</button>
+          <button class="btn" id="recMp3Btn" type="button" disabled>MP3で保存</button>
+          <button class="btn" id="recWavBtn" type="button" disabled>WAVで保存</button>
+        </div>
+        <p class="sub">ステレオ書き出しは、ステレオ録音（外付けステレオマイクなど）の時だけ意味があります。内蔵マイクは基本モノラルです。WAVは無圧縮なので大きくなります。</p>
+
+        <span class="field-label">録音リスト（この画面を開いている間だけ）</span>
+        <div id="recList"><p class="sub">まだ録音がありません。</p></div>
+
+        <span class="field-label">📞 通話録音について</span>
+        <p class="sub">通話の音声はAndroidの仕様でWebページからは直接録れません。スマホ本体の通話録音で録ったファイルは、議事録タブの「録音ファイルを読み込む」から読み込めます。</p>
+      </section>
+      </div><!-- /sheet-rec -->
+
+      <!-- 議事録 -->
+      <div class="sheet" data-sheet="min" id="sheet-min">
+      <section class="card" aria-labelledby="h-minutes">
+        <h2 id="h-minutes"><span class="num">5</span>議事録（録音と自動文字起こし）</h2>
+        <p class="sub">会議や話し合いを録音しながら、自動で文字起こしします。止めると、文字起こしが日時入りのファイル名で自動保存されます。録音した声はその場で再生でき、再生の速さも変えられます。</p>
+
+        <label class="field-label" for="minTitle">件名（任意）</label>
+        <input type="text" id="minTitle" placeholder="例：定例会議">
+
+        <label class="field-label" for="minFmtSel">録音の形式</label>
+        <select id="minFmtSel">
+          <option value="auto" selected>自動（おすすめ）</option>
+          <option value="audio/webm;codecs=opus">WebM（Opus）</option>
+          <option value="audio/webm">WebM</option>
+          <option value="audio/mp4">MP4（AAC）</option>
+          <option value="audio/mp4;codecs=mp4a.40.2">MP4（AAC-LC）</option>
+          <option value="audio/ogg;codecs=opus">OGG（Opus）</option>
+          <option value="audio/ogg;codecs=vorbis">OGG（Vorbis）</option>
+          <option value="audio/ogg">OGG</option>
+          <option value="audio/wav">WAV</option>
+          <option value="audio/mpeg">MP3</option>
+        </select>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+          <button class="btn primary" id="minRecBtn" type="button">● 録音開始</button>
+          <button class="btn danger" id="minStopBtn" type="button" disabled>■ 停止して保存</button>
+        </div>
+        <p class="sub" id="minStatus">待機中です</p>
+        <div id="minLive" aria-live="polite"><span class="placeholder">聞き取り中の言葉がここに出ます</span></div>
+
+        <label class="field-label" for="minText">文字起こし</label>
+        <textarea id="minText" placeholder="録音すると、ここに文字起こしがたまります。手で直すこともできます。"></textarea>
+
+        <span class="field-label">録音の再生</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button class="btn" id="minPlayBtn" type="button" disabled>▶ 再生</button>
+          <button class="btn" id="minPauseBtn" type="button" disabled>一時停止</button>
+          <button class="btn" id="minBackBtn" type="button">⏪ 10秒</button>
+          <button class="btn" id="minFwdBtn" type="button">10秒 ⏩</button>
+          <span class="slider-val" id="minTime">0:00 / 0:00</span>
+        </div>
+        <label class="field-label" for="minRateSel">再生の速さ</label>
+        <select id="minRateSel">
+          <option value="0.5">0.5 倍</option>
+          <option value="0.75">0.75 倍</option>
+          <option value="1" selected>1.0 倍</option>
+          <option value="1.25">1.25 倍</option>
+          <option value="1.5">1.5 倍</option>
+          <option value="2">2.0 倍</option>
+        </select>
+        <div style="margin-top:12px;">
+          <button class="btn" id="minPinBtn" type="button" style="background:var(--warn-bg);color:var(--warn-ink);width:100%;">📌 ここにピンを打つ</button>
+        </div>
+        <div id="minPinList"></div>
+        <p class="sub">ピンは録音中・再生中のどちらでも打てます。一覧の時刻を押すと、その場所から再生します。</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <button class="btn" id="minSaveTextBtn" type="button">議事録を保存</button>
+          <button class="btn" id="minSaveAudioBtn" type="button" disabled>音声ファイルを保存</button>
+          <button class="btn" id="minMp3Btn" type="button" disabled>MP3で保存</button>
+        </div>
+        <span class="field-label">録音ファイルを読み込む</span>
+        <input type="file" id="minFileIn" accept="audio/*">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <button class="btn" id="minListenBtn" type="button" disabled>▶ 再生して文字起こし</button>
+          <button class="btn" id="minToTransBtn" type="button">翻訳する（3へ送る）</button>
+        </div>
+        <p class="sub">読み込んだファイルは上の再生ボタンでも聞けます。「再生して文字起こし」は、再生しながらマイクで聞き取る方式です。静かな場所で、音量を大きめにしてください（スピーカーの音をマイクが拾います）。文字起こしできたら「翻訳する（3へ送る）」で翻訳欄に送れます。</p>
+        <p class="sub">録音は端末の中で行われ、音声ファイルは自分で保存するまで残りません。文字起こしの精度は音声認識（1の機能）と同じです。長い会議では、ブラウザの音声認識が区切りごとに再開しながら続けるので、そのまま話し続けて大丈夫です。</p>
+      </section>
+
+      <section class="card" aria-labelledby="h-minfx">
+        <h2 id="h-minfx">🔊 聞きやすくする・ABリピート</h2>
+        <p class="sub">議事録の再生に効く調整です（フィルター式）。声の帯域を強調したり、低音のゴーという音や雑音を抑えたりします。</p>
+        <span class="field-label">人の声を聞きやすく</span>
+        <div class="chips" id="fxClarityChips">
+          <button class="chip on" type="button" data-v="0">OFF</button>
+          <button class="chip" type="button" data-v="1">弱</button>
+          <button class="chip" type="button" data-v="2">中</button>
+          <button class="chip" type="button" data-v="3">強</button>
+        </div>
+        <span class="field-label">ノイズ・雑音除去</span>
+        <div class="chips" id="fxNoiseChips">
+          <button class="chip on" type="button" data-v="0">OFF</button>
+          <button class="chip" type="button" data-v="1">弱</button>
+          <button class="chip" type="button" data-v="2">中</button>
+          <button class="chip" type="button" data-v="3">強</button>
+        </div>
+        <span class="field-label">🔁 ABリピート</span>
+        <p class="sub">A地点：<span class="slider-val" id="minAbAVal">未設定</span>／B地点：<span class="slider-val" id="minAbBVal">未設定</span></p>
+        <div class="btn-row">
+          <button class="btn small" id="minAbABtn" type="button">Aを設定</button>
+          <button class="btn small" id="minAbBBtn" type="button">Bを設定</button>
+          <button class="btn small" id="minAbToggleBtn" type="button">ABリピート OFF</button>
+          <button class="btn small" id="minAbClearBtn" type="button">解除</button>
+        </div>
+        <p class="sub">大事な発言の区間だけを繰り返し聞けます。AとBを設定してからONにしてください。</p>
+      </section>
+      </div><!-- /sheet-min -->
 
       <!-- 仕組みと注意 -->
       <section class="card" aria-labelledby="h-tips">
@@ -423,7 +1185,7 @@
           <li>認識は Google のサーバー経由で行われるため、ネット接続が必要です。読み上げは端末内の声を使う場合がほとんどです。</li>
           <li>翻訳は無料の翻訳API（Google翻訳、予備でMyMemory）を使います。ネット接続が必要です。長い文は少しずつ分けて送っています。無料の仕組みなので、混んでいる時は失敗することがあります。機械翻訳なので、固有名詞や言い回しは意訳・誤訳になることがあります。</li>
           <li>翻訳文の読み上げは、翻訳先の言語の声を自動で選びます。端末にその言語の声が入っていない場合は、声が合わないことがあります。</li>
-          <li>「PythonAnywhere」が「I saw it in a dream」に化けるような聞き間違いは、固有名詞・専門用語で起きやすいものです。ゆっくり、はっきり話すと精度が上がります。</li>
+          <li>「PythonAnywhere」と話したつもりが、音声認識に「I saw it in a dream」と変換されてしまった、というような聞き間違いは、固有名詞・専門用語で起きやすいものです。ゆっくり、はっきり話すと精度が上がります。</li>
           <li>運転中は画面を見たり操作したりせず、停車してから使ってください。</li>
           <li>このページは文字を保存しません。閉じれば消えます。残したい分は「テキスト保存」やコピーで持ち出してください。</li>
         </ul>
@@ -440,6 +1202,235 @@
         var micBtn = $("micBtn"), micLabel = $("micLabel"), statusEl = $("status"),
             liveBox = $("liveBox"), textArea = $("textArea"), charCount = $("charCount"),
             speakState = $("speakState"), toast = $("toast");
+        /* ===== 言語切替（EN/JP） 初回は日本語、選択は記憶 ===== */
+        var LANG = "ja";
+        try { var _vl = localStorage.getItem("kotodama-lang"); if (_vl === "en" || _vl === "ja") LANG = _vl; } catch (e) {}
+        function T(ja, en) { return LANG === "en" ? en : ja; }
+        var I18N = {
+"🔄 更新（キャッシュを消して読み直す）":"🔄 Reload (clear cache)",
+"言霊職人":"Kotodama Shokunin",
+"音声入力・翻訳・読み上げの道具。話すと文字になり、翻訳して、声で読み上げます。ブラウザ標準の Web Speech API を使うので、アプリのインストールもサーバーも不要です。":"A voice input, translation and read-aloud tool. Speak and it becomes text, translates it, and reads it aloud. It uses the browser's built-in Web Speech API — no app install, no server.",
+"音声入力（声 → 文字）":"Voice Input (speech → text)",
+"大きなボタンを押して話すだけ。聞き取り中の言葉はその場で表示され、確定した分が下のテキスト欄にたまっていきます。":"Just press the big button and speak. Words appear live as they are heard, and finalized text collects in the box below.",
+"押して話す":"Tap to speak",
+"待機中です":"Ready",
+"聞き取り中の言葉がここに出ます":"Words being heard appear here",
+"連続入力":"Continuous",
+"オウム返し":"Echo Back",
+"連続入力：止めるまで聞き続けます。オウム返し：聞き取った文をそのまま声で読み上げます（マイク→認識→読み上げ→スピーカーの輪の実験用）。":"Continuous: keeps listening until you stop it. Echo Back: reads each recognized sentence aloud as-is (an experiment in the mic → recognition → speech → speaker loop).",
+"認識する言語":"Recognition language",
+"テキスト":"Text Area",
+"音声入力の結果がここに入ります。手で打ったり、直したりもできます。":"Recognition results land here. You can also type and edit by hand.",
+"0 文字":"0 characters",
+"▶ 読み上げる":"▶ Read Aloud",
+"一時停止":"Pause",
+"停止":"Stop",
+"コピーする":"Copy",
+"テキスト保存":"Save Text",
+"全部消す":"Clear All",
+"翻訳":"Translation",
+"上のテキストを、選んだ言語に翻訳します（無料の翻訳APIを使用・ネット接続が必要。まずGoogle翻訳、ダメならMyMemoryに自動で切り替えます）。翻訳文の読み上げボタンはここ専用です。原文の読み上げは上の「2. テキスト」のボタンのままです。":"Translates the text above into the chosen language (free translation APIs — internet required. Google Translate first, MyMemory as automatic fallback). The read-aloud button here is only for the translation; the original text keeps its own button in “2. Text” above.",
+"翻訳元の言語":"Translate from",
+"翻訳先の言語":"Translate to",
+"🌐 翻訳する":"🌐 Translate",
+"⇅ 原文と入れ替え":"⇅ Swap with Original",
+"翻訳文":"Translated Text",
+"▶ 翻訳文を読み上げる":"▶ Read Translation Aloud",
+"翻訳文をコピー":"Copy Translation",
+"翻訳文を消す":"Clear Translation",
+"読み上げの設定（文字 → 声）":"Read-Aloud Settings (text → speech)",
+"声の種類と速さ、高さを変えられます。声の一覧は端末やブラウザに入っているものが表示されます。":"Change the voice, speed and pitch. The voice list shows what is installed on your device / browser.",
+"声の種類":"Voice",
+"速さ：":"Speed:",
+"1.0 倍":"1.0x",
+"声の高さ：":"Pitch:",
+"仕組みと注意":"How It Works & Notes",
+"マイク":"Microphone",
+"音声認識":"Speech Recognition",
+"文字":"Text",
+"読み上げ":"Read Aloud",
+"スピーカー":"Speaker",
+"音声認識は":"Speech recognition works in",
+"で使えます（Android の Chrome も可）。初回はマイクの許可が必要です。":" (Android Chrome included). Microphone permission is required the first time.",
+"認識は Google のサーバー経由で行われるため、ネット接続が必要です。読み上げは端末内の声を使う場合がほとんどです。":"Recognition runs through Google's servers, so an internet connection is required. Read-aloud usually uses voices on the device.",
+"翻訳は無料の翻訳API（Google翻訳、予備でMyMemory）を使います。ネット接続が必要です。長い文は少しずつ分けて送っています。無料の仕組みなので、混んでいる時は失敗することがあります。機械翻訳なので、固有名詞や言い回しは意訳・誤訳になることがあります。":"Translation uses free APIs (Google Translate, with MyMemory as backup) and needs the internet. Long texts are sent in small chunks. Being free, it can fail when busy. Machine translation may render names and idioms loosely or incorrectly.",
+"翻訳文の読み上げは、翻訳先の言語の声を自動で選びます。端末にその言語の声が入っていない場合は、声が合わないことがあります。":"The translation is read aloud with a voice for the target language, chosen automatically. If your device has no voice for that language, the voice may not match.",
+"「PythonAnywhere」と話したつもりが、音声認識に「I saw it in a dream」と変換されてしまった、というような聞き間違いは、固有名詞・専門用語で起きやすいものです。ゆっくり、はっきり話すと精度が上がります。":"Mishearings like saying “PythonAnywhere” and having speech recognition turn it into “I saw it in a dream” happen most with names and technical terms. Speak slowly and clearly for better accuracy.",
+"運転中は画面を見たり操作したりせず、停車してから使ってください。":"Do not look at or operate the screen while driving — park first.",
+"このページは文字を保存しません。閉じれば消えます。残したい分は「テキスト保存」やコピーで持ち出してください。":"This page does not save your text — close it and it is gone. Use “Save Text” or copy to keep what you need.",
+"ここに文字が入ります。自分で打ってもOKです。":"Text appears here. You can type here too.",
+"翻訳結果がここに出ます。手で直すこともできます。":"The translation appears here. You can edit it by hand.",
+"議事録（録音と自動文字起こし）":"Minutes (Recording & Auto-Transcription)",
+"会議や話し合いを録音しながら、自動で文字起こしします。止めると、文字起こしが日時入りのファイル名で自動保存されます。録音した声はその場で再生でき、再生の速さも変えられます。":"Record a meeting or conversation while it is transcribed automatically. When you stop, the transcript is auto-saved with a date-and-time filename. You can play the recording back on the spot and change the playback speed.",
+"件名（任意）":"Title (optional)",
+"● 録音開始":"● Start Recording",
+"■ 停止して保存":"■ Stop & Save",
+"文字起こし":"Transcript",
+"録音の再生":"Playback",
+"▶ 再生":"▶ Play",
+"再生の速さ":"Playback speed",
+"議事録を保存":"Save Minutes",
+"音声ファイルを保存":"Save Audio File",
+"録音は端末の中で行われ、音声ファイルは自分で保存するまで残りません。文字起こしの精度は音声認識（1の機能）と同じです。長い会議では、ブラウザの音声認識が区切りごとに再開しながら続けるので、そのまま話し続けて大丈夫です。":"Recording happens on this device, and the audio is kept only until you save it yourself. Transcription accuracy is the same as the voice input in section 1. In long meetings the browser's recognition restarts at pauses and keeps going, so just keep talking.",
+"例：定例会議":"e.g. Weekly meeting",
+"録音すると、ここに文字起こしがたまります。手で直すこともできます。":"The transcript builds up here as you record. You can edit it by hand.",
+"録音の形式":"Recording format",
+"録音ファイルを読み込む":"Load a Recording File",
+"▶ 再生して文字起こし":"▶ Play & Transcribe",
+"翻訳する（3へ送る）":"Translate (send to section 3)",
+"読み込んだファイルは上の再生ボタンでも聞けます。「再生して文字起こし」は、再生しながらマイクで聞き取る方式です。静かな場所で、音量を大きめにしてください（スピーカーの音をマイクが拾います）。文字起こしできたら「翻訳する（3へ送る）」で翻訳欄に送れます。":"A loaded file can also be played with the playback buttons above. “Play & Transcribe” listens with the microphone while the file plays — use a quiet place and turn the volume up (the mic picks up the speaker). When the transcript is ready, use “Translate (send to section 3)” to send it to the translation section.",
+"テキストファイルを読み込む":"Load a Text File",
+"読み込むと「2. テキスト」に入って、そのまま翻訳が始まります。文字コードはUTF-8とShift_JISに対応。長いファイルは先頭から30,000文字まで読み込みます。":"The file is loaded into section 2 and translation starts right away. UTF-8 and Shift_JIS encodings are supported. Long files are loaded up to the first 30,000 characters.",
+"MP3で保存":"Save as MP3",
+"録音":"Record",
+"同時翻訳":"Simultaneous",
+"議事録":"Minutes",
+"🌐 翻訳タブへ":"🌐 Go to Translation",
+"🎚 入力レベル（録音タブと共通設定）":"🎚 Input Level (shared with the Recording tab)",
+"感度とメーターは録音タブと共通です。音声認識そのものはブラウザの仕組みで聞き取るため、感度は録音（議事録・ボイスレコーダー）とメーター表示に効きます。":"Sensitivity and the meter are shared with the Recording tab. Recognition itself is done by the browser, so sensitivity affects recording (minutes / voice recorder) and the meter display.",
+"🎧 録音ファイルから文字起こし":"🎧 Transcribe from an Audio File",
+"音声ファイルを再生しながら、マイクで聞き取って「2. テキスト」に文字起こしします。静かな場所で、音量を大きめにしてください（スピーカーの音をマイクが拾います）。":"Plays an audio file and transcribes it into “2. Text” by listening with the microphone. Use a quiet place and turn the volume up (the mic picks up the speaker).",
+"■ 止める":"■ Stop",
+"同時翻訳（会話モード）":"Simultaneous Translation (Conversation Mode)",
+"言語ペアを決めてスタートを押すと、あとは自動で「聞き取り→翻訳→読み上げ」を繰り返します。聞き取る言語は、あなたの番と相手の番で交互に切り替わります。読み上げ中はマイクを止めるので、自分の声を拾い直しません。":"Pick a language pair and press Start — it then repeats listen, translate and read-aloud automatically. The listening language alternates between your turn and your partner turn. The mic is paused during read-aloud so it does not pick up its own voice.",
+"あなたの言語":"Your Language",
+"相手の言語":"Partner Language",
+"🎤 聞き取り":"🎤 Listen",
+"🌐 翻訳":"🌐 Translate",
+"🔊 読み上げ":"🔊 Speak",
+"→ 繰り返し":"→ repeat",
+"▶ 会話スタート":"▶ Start Conversation",
+"⏹ 会話を止める":"⏹ Stop Conversation",
+"🔀 聞く言語を手動で切替":"🔀 Switch Listening Language Manually",
+"自動読み上げ":"Auto Read-Aloud",
+"うまく交互にならない時は「聞く言語を手動で切替」で立て直せます。会話モード中は、他のマイク機能（音声入力・録音・議事録）は止まります。":"If the turns get out of sync, use Switch Listening Language Manually to recover. While conversation mode runs, the other mic features (voice input, recording, minutes) are stopped.",
+"録音（ボイスレコーダー）":"Recording (Voice Recorder)",
+"文字起こしなしの、ただの録音です。声メモや会議の録り溜めに。マイクや感度の設定は、文字起こし・議事録の録音とも共通です。":"Plain recording with no transcription — for voice memos and keeping meeting audio. The mic and sensitivity settings are shared with transcription and minutes recording.",
+"■ 停止":"■ Stop",
+"🎚 入力レベル":"🎚 Input Level",
+"メーターが赤まで届かない程度が目安です。録音中（または音声入力中）に動きます。":"Aim to keep the meter out of the red. It moves while recording (or during voice input).",
+"🎙 マイク感度：":"🎙 Mic Sensitivity:",
+"自動調整":"Auto",
+"感度を上げると小さな声も拾いますが、雑音も増えます。自動調整をONにすると、声の大きさに合わせて感度が動きます（スライダーを動かすと手動になります）。":"Higher sensitivity picks up quiet voices but also more noise. With Auto on, the sensitivity follows your voice level (moving the slider switches to manual).",
+"🎙 使うマイク":"🎙 Microphone to Use",
+"外付けマイク（USB・Bluetooth）を挿すと、ここに出てきます。名前が出ない時は、一度録音を許可すると表示されます。":"Plug in an external mic (USB / Bluetooth) and it appears here. If no name shows, allow recording once and the names will appear.",
+"音声処理（エコー除去・ノイズ抑制・自動ゲイン）":"Audio Processing (echo cancel / noise suppression / auto gain)",
+"OFFにすると原音のまま録れます（高音質で録りたい時・外付けマイク使用時向け）。":"Turn it OFF to record the raw sound (for high-quality recording and external mics).",
+"ビットレート（録音とMP3変換）":"Bitrate (recording & MP3 conversion)",
+"録音の再生と保存":"Playback & Saving",
+"書き出しのチャンネル":"Export Channels",
+"WAVのサンプリングレート":"WAV Sample Rate",
+"そのまま保存":"Save As-Is",
+"WAVで保存":"Save as WAV",
+"ステレオ書き出しは、ステレオ録音（外付けステレオマイクなど）の時だけ意味があります。内蔵マイクは基本モノラルです。WAVは無圧縮なので大きくなります。":"Stereo export only matters for stereo recordings (e.g. an external stereo mic). The built-in mic is basically mono. WAV is uncompressed, so files get large.",
+"録音リスト（この画面を開いている間だけ）":"Recording List (this session only)",
+"まだ録音がありません。":"No recordings yet.",
+"📞 通話録音について":"📞 About Call Recording",
+"通話の音声はAndroidの仕様でWebページからは直接録れません。スマホ本体の通話録音で録ったファイルは、議事録タブの「録音ファイルを読み込む」から読み込めます。":"Call audio cannot be recorded directly from a web page (an Android limitation). A file recorded with the phone call recording can be loaded from Load a Recording File in the Minutes tab.",
+"⏪ 10秒":"⏪ 10s",
+"10秒 ⏩":"10s ⏩",
+"📌 ここにピンを打つ":"📌 Drop a Pin Here",
+"ピンは録音中・再生中のどちらでも打てます。一覧の時刻を押すと、その場所から再生します。":"You can drop pins while recording or playing. Tap a time in the list to play from there.",
+"聞きやすくする・ABリピート":"Clarity & AB Repeat",
+"議事録の再生に効く調整です（フィルター式）。声の帯域を強調したり、低音のゴーという音や雑音を抑えたりします。":"Playback adjustments for the minutes (filter-based). Emphasizes the voice band and reduces low rumble and noise.",
+"人の声を聞きやすく":"Make Voices Clearer",
+"ノイズ・雑音除去":"Noise Reduction",
+"弱":"Weak",
+"中":"Medium",
+"強":"Strong",
+"🔁 ABリピート":"🔁 AB Repeat",
+"A地点：":"Point A: ",
+"／B地点：":"/ Point B: ",
+"未設定":"Not set",
+"Aを設定":"Set A",
+"Bを設定":"Set B",
+"解除":"Clear",
+"大事な発言の区間だけを繰り返し聞けます。AとBを設定してからONにしてください。":"Repeat just the important part. Set A and B, then turn it ON."
+        };
+        var REV_I18N = {};
+        Object.keys(I18N).forEach(function (k) { REV_I18N[I18N[k]] = k; });
+        function intlLangName(code, fallback) {
+          try { var n = new Intl.DisplayNames(["en"], { type: "language" }).of(code); if (n) return n; } catch (e) {}
+          return fallback;
+        }
+        function applyI18n() {
+          document.title = T("言霊職人｜音声入力・翻訳・読み上げ", "Kotodama Shokunin | Voice Input, Translation & Read-Aloud");
+          document.documentElement.lang = LANG === "en" ? "en" : "ja";
+          var map = LANG === "en" ? I18N : REV_I18N;
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+            acceptNode: function (n) {
+              var el = n.parentElement;
+              if (!el || el.closest("script,style,select")) return NodeFilter.FILTER_REJECT;
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          });
+          var nodes = [];
+          while (walker.nextNode()) nodes.push(walker.currentNode);
+          nodes.forEach(function (n) {
+            var key = n.nodeValue.trim();
+            if (key && map[key]) n.nodeValue = n.nodeValue.replace(key, map[key]);
+          });
+          ["textArea", "transArea", "minText", "minTitle"].forEach(function (id) {
+            var ta = $(id);
+            if (ta) { var pp = ta.getAttribute("placeholder"); if (pp && map[pp]) ta.setAttribute("placeholder", map[pp]); }
+          });
+          var lb = $("langBtn");
+          if (lb) lb.textContent = LANG === "en" ? "🌐 日本語" : "🌐 English";
+        }
+        function relabelTransSelects() {
+          [$("transFromSelect"), $("transToSelect")].forEach(function (sel) {
+            if (!sel) return;
+            for (var i = 0; i < sel.options.length; i++) {
+              var o = sel.options[i];
+              if (o.value === "auto") { o.textContent = T("自動判定（文字の種類で見分ける）", "Auto-detect (by script)"); }
+              else if (LANG === "en") { if (!o.getAttribute("data-ja")) o.setAttribute("data-ja", o.textContent); o.textContent = intlLangName(o.value, o.textContent); }
+              else { var ja = o.getAttribute("data-ja"); if (ja) o.textContent = ja; }
+            }
+          });
+        }
+        /* ===== 音声認識の言語（Google音声認識の対応ロケール全件） ===== */
+        var REC_LANGS = [["af-ZA","アフリカーンス語"],["sq-AL","アルバニア語"],["am-ET","アムハラ語"],["ar-AE","アラビア語（UAE）"],["ar-BH","アラビア語（バーレーン）"],["ar-DZ","アラビア語（アルジェリア）"],["ar-EG","アラビア語（エジプト）"],["ar-IL","アラビア語（イスラエル）"],["ar-IQ","アラビア語（イラク）"],["ar-JO","アラビア語（ヨルダン）"],["ar-KW","アラビア語（クウェート）"],["ar-LB","アラビア語（レバノン）"],["ar-MA","アラビア語（モロッコ）"],["ar-MR","アラビア語（モーリタニア）"],["ar-OM","アラビア語（オマーン）"],["ar-PS","アラビア語（パレスチナ）"],["ar-QA","アラビア語（カタール）"],["ar-SA","アラビア語（サウジアラビア）"],["ar-SY","アラビア語（シリア）"],["ar-TN","アラビア語（チュニジア）"],["ar-YE","アラビア語（イエメン）"],["rup-BG","アロマニア語"],["as-IN","アッサム語"],["ast-ES","アストゥリアス語"],["az-AZ","アゼルバイジャン語"],["eu-ES","バスク語"],["be-BY","ベラルーシ語"],["bn-BD","ベンガル語（バングラデシュ）"],["bn-IN","ベンガル語（インド）"],["bs-BA","ボスニア語"],["bg-BG","ブルガリア語"],["my-MM","ビルマ語"],["ca-ES","カタルーニャ語"],["ceb-PH","セブアノ語"],["ckb-IQ","中央クルド語"],["cmn-Hans-CN","中国語（普通話・簡体字）"],["cmn-Hant-TW","中国語（普通話・繁体字）"],["yue-Hant-HK","広東語（香港）"],["zh-CN","中国語（簡体字）"],["zh-TW","中国語（繁体字）"],["zh-HK","中国語（香港）"],["hr-HR","クロアチア語"],["cs-CZ","チェコ語"],["da-DK","デンマーク語"],["nl-BE","オランダ語（ベルギー）"],["nl-NL","オランダ語"],["en-AU","英語（オーストラリア）"],["en-CA","英語（カナダ）"],["en-GB","英語（イギリス）"],["en-HK","英語（香港）"],["en-IE","英語（アイルランド）"],["en-IN","英語（インド）"],["en-NZ","英語（ニュージーランド）"],["en-PH","英語（フィリピン）"],["en-US","英語（アメリカ）"],["en-ZA","英語（南アフリカ）"],["et-EE","エストニア語"],["fil-PH","フィリピン語（タガログ語）"],["fi-FI","フィンランド語"],["fr-CA","フランス語（カナダ）"],["fr-FR","フランス語"],["ff-SN","フラ語"],["gl-ES","ガリシア語"],["lg-UG","ガンダ語"],["ka-GE","ジョージア語"],["de-DE","ドイツ語"],["el-GR","ギリシャ語"],["gu-IN","グジャラート語"],["ha-NG","ハウサ語"],["iw-IL","ヘブライ語"],["hi-IN","ヒンディー語"],["hu-HU","ハンガリー語"],["is-IS","アイスランド語"],["ig-NG","イボ語"],["id-ID","インドネシア語"],["ga-IE","アイルランド語"],["it-IT","イタリア語"],["it-CH","イタリア語（スイス）"],["ja-JP","日本語"],["jv-ID","ジャワ語"],["kea-CV","カーボベルデ・クレオール語"],["kam-KE","カンバ語"],["kn-IN","カンナダ語"],["kk-KZ","カザフ語"],["km-KH","クメール語"],["ko-KR","韓国語"],["ky-KG","キルギス語"],["lo-LA","ラオス語"],["la","ラテン語"],["lv-LV","ラトビア語"],["ln-CD","リンガラ語"],["lt-LT","リトアニア語"],["luo-KE","ルオ語"],["lb-LU","ルクセンブルク語"],["mk-MK","マケドニア語"],["ms-MY","マレー語"],["ml-IN","マラヤーラム語"],["mt-MT","マルタ語"],["mi-NZ","マオリ語"],["mr-IN","マラーティー語"],["mn-MN","モンゴル語"],["ne-NP","ネパール語"],["nb-NO","ノルウェー語（ブークモール）"],["no-NO","ノルウェー語"],["ny-MW","ニャンジャ語"],["oc-FR","オック語"],["or-IN","オリヤー語"],["om-ET","オモ語"],["ps-AF","パシュトー語"],["fa-IR","ペルシャ語"],["pl-PL","ポーランド語"],["pt-BR","ポルトガル語（ブラジル）"],["pt-PT","ポルトガル語"],["pa-Guru-IN","パンジャーブ語"],["ro-RO","ルーマニア語"],["ru-RU","ロシア語"],["nso-ZA","北ソト語"],["sr-RS","セルビア語"],["sn-ZW","ショナ語"],["sd-IN","シンド語"],["si-LK","シンハラ語"],["sk-SK","スロバキア語"],["sl-SI","スロベニア語"],["so-SO","ソマリ語"],["es-419","スペイン語（中南米）"],["es-AR","スペイン語（アルゼンチン）"],["es-BO","スペイン語（ボリビア）"],["es-CL","スペイン語（チリ）"],["es-CO","スペイン語（コロンビア）"],["es-CR","スペイン語（コスタリカ）"],["es-DO","スペイン語（ドミニカ）"],["es-EC","スペイン語（エクアドル）"],["es-ES","スペイン語"],["es-GT","スペイン語（グアテマラ）"],["es-HN","スペイン語（ホンジュラス）"],["es-MX","スペイン語（メキシコ）"],["es-NI","スペイン語（ニカラグア）"],["es-PA","スペイン語（パナマ）"],["es-PE","スペイン語（ペルー）"],["es-PR","スペイン語（プエルトリコ）"],["es-PY","スペイン語（パラグアイ）"],["es-SV","スペイン語（エルサルバドル）"],["es-US","スペイン語（アメリカ）"],["es-UY","スペイン語（ウルグアイ）"],["es-VE","スペイン語（ベネズエラ）"],["su-ID","スンダ語"],["sw","スワヒリ語"],["sw-KE","スワヒリ語（ケニア）"],["sw-TZ","スワヒリ語（タンザニア）"],["sv-SE","スウェーデン語"],["tg-TJ","タジク語"],["ta-IN","タミル語（インド）"],["ta-LK","タミル語（スリランカ）"],["ta-MY","タミル語（マレーシア）"],["ta-SG","タミル語（シンガポール）"],["te-IN","テルグ語"],["th-TH","タイ語"],["tr-TR","トルコ語"],["uk-UA","ウクライナ語"],["umb-AO","ウンブンドゥ語"],["ur-IN","ウルドゥー語（インド）"],["ur-PK","ウルドゥー語"],["uz-UZ","ウズベク語"],["vi-VN","ベトナム語"],["cy-GB","ウェールズ語"],["wo-SN","ウォロフ語"],["xh-ZA","コサ語"],["yo-NG","ヨルバ語"],["zu-ZA","ズールー語"]];
+        function buildRecLangs() {
+          var sel = $("langSelect");
+          if (!sel) return;
+          var cur = sel.value || "ja-JP";
+          var rank = function (c) { return c === "ja-JP" ? 0 : (c === "en-US" ? 1 : 2); };
+          var ordered = REC_LANGS.slice().sort(function (a, b) { return a[0] < b[0] ? -1 : 1; });
+          ordered.sort(function (a, b) { return rank(a[0]) - rank(b[0]); });
+          sel.innerHTML = "";
+          ordered.forEach(function (pair) {
+            var o = document.createElement("option");
+            o.value = pair[0];
+            o.textContent = LANG === "en" ? intlLangName(pair[0], pair[1]) : pair[1];
+            sel.appendChild(o);
+          });
+          sel.value = cur;
+          if (sel.selectedIndex < 0) sel.value = "ja-JP";
+        }
+        function refreshLangTexts() {
+          relabelTransSelects();
+          buildRecLangs();
+          if (typeof refreshMicList === "function") refreshMicList();
+          if (typeof buildConvLangs === "function") buildConvLangs();
+          if (typeof syncSensUI === "function") syncSensUI();
+          if (typeof syncAbUI === "function") syncAbUI();
+          var vs = $("voiceSelect");
+          if (vs) for (var i = 0; i < vs.options.length; i++) if (vs.options[i].value === "") vs.options[i].textContent = T("（自動：日本語の声）", "(Auto: Japanese voice)");
+          var pb = $("pauseBtn"); if (pb) pb.textContent = paused ? T("再開する", "Resume") : T("一時停止", "Pause");
+          var ptb = $("pauseTransBtn"); if (ptb) ptb.textContent = transPaused ? T("再開する", "Resume") : T("一時停止", "Pause");
+          charCount.textContent = textArea.value.length + T(" 文字", " characters");
+          if (typeof transArea !== "undefined" && transArea) transCount.textContent = transArea.value.length + T(" 文字", " characters");
+          $("rateVal").textContent = parseFloat(rateRange.value).toFixed(1) + T(" 倍", "x");
+        }
+        function setLang(l) {
+          LANG = l;
+          try { localStorage.setItem("kotodama-lang", l); } catch (e) {}
+          applyI18n();
+          refreshLangTexts();
+        }
+        $("langBtn").addEventListener("click", function () { setLang(LANG === "en" ? "ja" : "en"); });
+        buildRecLangs();
+
 
         var toastTimer = null;
         function showToast(msg) {
@@ -450,7 +1441,7 @@
         }
 
         function updateCount() {
-          charCount.textContent = textArea.value.length + " 文字";
+          charCount.textContent = textArea.value.length + T(" 文字", " characters");
         }
         textArea.addEventListener("input", updateCount);
         updateCount();
@@ -463,7 +1454,7 @@
           if (!("speechSynthesis" in window)) return;
           voices = window.speechSynthesis.getVoices();
           var current = voiceSelect.value;
-          voiceSelect.innerHTML = '<option value="">（自動：日本語の声）</option>';
+          voiceSelect.innerHTML = '<option value="">' + T("（自動：日本語の声）", "(Auto: Japanese voice)") + '</option>';
           var sorted = voices.slice().sort(function (a, b) {
             var aj = a.lang && a.lang.indexOf("ja") === 0 ? 0 : 1;
             var bj = b.lang && b.lang.indexOf("ja") === 0 ? 0 : 1;
@@ -494,9 +1485,15 @@
           }
           var want = (langWanted || "ja").toLowerCase().replace("_", "-");
           var base = want.split("-")[0];
+          // タガログ語は tl と fil の2表記があるので同一視する
+          var sameLang = function (a, b) {
+            if (a === b) return true;
+            var pair = [a, b].sort().join("/");
+            return pair === "fil/tl";
+          };
           for (var j = 0; j < voices.length; j++) {
             var vl = (voices[j].lang || "").toLowerCase().replace("_", "-");
-            if (vl === want || vl.split("-")[0] === base) return voices[j];
+            if (vl === want || sameLang(vl.split("-")[0], base)) return voices[j];
           }
           for (var k = 0; k < voices.length; k++) {
             if (voices[k].lang && voices[k].lang.indexOf("ja") === 0) return voices[k];
@@ -514,16 +1511,16 @@
         function setSpeakUI(speaking) {
           pauseBtn.disabled = !speaking;
           stopBtn.disabled = !speaking;
-          if (!speaking) { paused = false; pauseBtn.textContent = "一時停止"; speakState.textContent = ""; }
+          if (!speaking) { paused = false; pauseBtn.textContent = T("一時停止", "Pause"); speakState.textContent = ""; }
         }
 
         function speak(text) {
           if (!("speechSynthesis" in window)) {
-            showToast("このブラウザは読み上げに対応していません");
+            showToast(T("このブラウザは読み上げに対応していません", "This browser does not support read-aloud"));
             return;
           }
           var t = (text || "").trim();
-          if (!t) { showToast("読み上げる文字がありません"); return; }
+          if (!t) { showToast(T("読み上げる文字がありません", "There is no text to read")); return; }
           window.speechSynthesis.cancel();
           setTransSpeakUI(false);
           var utt = new SpeechSynthesisUtterance(t);
@@ -531,7 +1528,7 @@
           if (v) { utt.voice = v; utt.lang = v.lang; } else { utt.lang = "ja-JP"; }
           utt.rate = parseFloat(rateRange.value);
           utt.pitch = parseFloat(pitchRange.value);
-          utt.onstart = function () { setSpeakUI(true); speakState.textContent = "読み上げ中…"; };
+          utt.onstart = function () { setSpeakUI(true); speakState.textContent = T("読み上げ中…", "Reading aloud…"); };
           utt.onend = function () { setSpeakUI(false); };
           utt.onerror = function () { setSpeakUI(false); };
           window.speechSynthesis.speak(utt);
@@ -542,10 +1539,10 @@
           if (!("speechSynthesis" in window)) return;
           if (paused) {
             window.speechSynthesis.resume();
-            paused = false; pauseBtn.textContent = "一時停止"; speakState.textContent = "読み上げ中…";
+            paused = false; pauseBtn.textContent = T("一時停止", "Pause"); speakState.textContent = T("読み上げ中…", "Reading aloud…");
           } else {
             window.speechSynthesis.pause();
-            paused = true; pauseBtn.textContent = "再開する"; speakState.textContent = "一時停止中";
+            paused = true; pauseBtn.textContent = T("再開する", "Resume"); speakState.textContent = T("一時停止中", "Paused");
           }
         });
         stopBtn.addEventListener("click", function () {
@@ -554,7 +1551,7 @@
         });
 
         rateRange.addEventListener("input", function () {
-          $("rateVal").textContent = parseFloat(rateRange.value).toFixed(1) + " 倍";
+          $("rateVal").textContent = parseFloat(rateRange.value).toFixed(1) + T(" 倍", "x");
         });
         pitchRange.addEventListener("input", function () {
           $("pitchVal").textContent = parseFloat(pitchRange.value).toFixed(1);
@@ -565,7 +1562,7 @@
             transArea = $("transArea"), transState = $("transState"), transCount = $("transCount");
 
         function updateTransCount() {
-          transCount.textContent = transArea.value.length + " 文字";
+          transCount.textContent = transArea.value.length + T(" 文字", " characters");
         }
         transArea.addEventListener("input", updateTransCount);
         updateTransCount();
@@ -602,13 +1599,13 @@
           var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" +
                     encodeURIComponent(src) + "&tl=" + encodeURIComponent(tgt) + "&dt=t&q=" + encodeURIComponent(q);
           return fetch(url).then(function (r) {
-            if (!r.ok) throw new Error("応答なし (" + r.status + ")");
+            if (!r.ok) throw new Error(T("応答なし (", "No response (") + r.status + ")");
             return r.json();
           }).then(function (j) {
             if (j && j[0]) {
               return j[0].map(function (seg) { return seg[0] || ""; }).join("");
             }
-            throw new Error("結果が空でした");
+            throw new Error(T("結果が空でした", "The result was empty"));
           });
         }
 
@@ -618,10 +1615,10 @@
           return fetch(url).then(function (r) { return r.json(); }).then(function (j) {
             var tt = j && j.responseData && j.responseData.translatedText;
             if (tt && tt.indexOf("MYMEMORY WARNING") === 0) {
-              throw new Error("翻訳APIの無料枠を使い切りました（1日で回復します）");
+              throw new Error(T("翻訳APIの無料枠を使い切りました（1日で回復します）", "The free translation quota is used up (it resets daily)"));
             }
             if (j && tt && String(j.responseStatus) === "200") return tt;
-            throw new Error(tt || "翻訳できませんでした");
+            throw new Error(tt || T("翻訳できませんでした", "Translation failed"));
           });
         }
 
@@ -634,13 +1631,13 @@
 
         $("translateBtn").addEventListener("click", function () {
           var srcText = textArea.value.trim();
-          if (!srcText) { showToast("翻訳するテキストがありません"); return; }
+          if (!srcText) { showToast(T("翻訳するテキストがありません", "There is no text to translate")); return; }
           var tgt = transToSelect.value;
           var src = transFromSelect.value === "auto" ? detectLang(srcText) : transFromSelect.value;
-          if (src === tgt) { showToast("翻訳元と翻訳先が同じ言語です"); return; }
+          if (src === tgt) { showToast(T("翻訳元と翻訳先が同じ言語です", "Source and target languages are the same")); return; }
           var btn = $("translateBtn");
           btn.disabled = true;
-          transState.textContent = "翻訳中…（" + src + " → " + tgt + "）";
+          transState.textContent = T("翻訳中…（", "Translating… (") + src + " → " + tgt + T("）", ")");
           var chunks = chunkText(srcText, 400);
           var out = [];
           var chain = Promise.resolve();
@@ -652,17 +1649,17 @@
           chain.then(function () {
             transArea.value = out.join("");
             updateTransCount();
-            transState.textContent = "翻訳しました（" + src + " → " + tgt + "）";
-            showToast("翻訳しました");
+            transState.textContent = T("翻訳しました（", "Translated (") + src + " → " + tgt + T("）", ")");
+            showToast(T("翻訳しました", "Translated"));
           }).catch(function (err) {
-            transState.textContent = "翻訳に失敗しました：" + err.message;
-            showToast("翻訳に失敗しました");
+            transState.textContent = T("翻訳に失敗しました：", "Translation failed: ") + err.message;
+            showToast(T("翻訳に失敗しました", "Translation failed"));
           }).then(function () { btn.disabled = false; });
         });
 
         $("swapBtn").addEventListener("click", function () {
           var a = textArea.value, b = transArea.value;
-          if (!b) { showToast("入れ替える翻訳文がありません"); return; }
+          if (!b) { showToast(T("入れ替える翻訳文がありません", "There is no translation to swap in")); return; }
           var fromBefore = transFromSelect.value === "auto" ? detectLang(a) : transFromSelect.value;
           var toBefore = transToSelect.value;
           textArea.value = b;
@@ -675,14 +1672,14 @@
           }
           transFromSelect.value = hasFrom ? toBefore : "auto";
           transToSelect.value = fromBefore;
-          transState.textContent = "原文と翻訳文を入れ替えました（逆翻訳の確認などに）";
-          showToast("入れ替えました");
+          transState.textContent = T("原文と翻訳文を入れ替えました（逆翻訳の確認などに）", "Swapped the original and the translation (handy for back-translation checks)");
+          showToast(T("入れ替えました", "Swapped"));
         });
 
         $("copyTransBtn").addEventListener("click", function () {
           var t = transArea.value;
-          if (!t) { showToast("コピーする翻訳文がありません"); return; }
-          function done() { showToast("翻訳文をコピーしました"); }
+          if (!t) { showToast(T("コピーする翻訳文がありません", "There is no translation to copy")); return; }
+          function done() { showToast(T("翻訳文をコピーしました", "Translation copied")); }
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(t).then(done, function () {
               transArea.select();
@@ -700,7 +1697,7 @@
           transArea.value = "";
           updateTransCount();
           transState.textContent = "";
-          showToast("翻訳文を消しました");
+          showToast(T("翻訳文を消しました", "Translation cleared"));
         });
 
         /* ============ 翻訳文の読み上げ（原文用とは別のボタン） ============ */
@@ -711,16 +1708,16 @@
         function setTransSpeakUI(speaking) {
           pauseTransBtn.disabled = !speaking;
           stopTransBtn.disabled = !speaking;
-          if (!speaking) { transPaused = false; pauseTransBtn.textContent = "一時停止"; transSpeakState.textContent = ""; }
+          if (!speaking) { transPaused = false; pauseTransBtn.textContent = T("一時停止", "Pause"); transSpeakState.textContent = ""; }
         }
 
         function speakTrans() {
           if (!("speechSynthesis" in window)) {
-            showToast("このブラウザは読み上げに対応していません");
+            showToast(T("このブラウザは読み上げに対応していません", "This browser does not support read-aloud"));
             return;
           }
           var t = transArea.value.trim();
-          if (!t) { showToast("読み上げる翻訳文がありません"); return; }
+          if (!t) { showToast(T("読み上げる翻訳文がありません", "There is no translation to read")); return; }
           window.speechSynthesis.cancel();
           setSpeakUI(false);
           var lang = transToSelect.value;
@@ -729,7 +1726,7 @@
           if (v) { utt.voice = v; utt.lang = v.lang; } else { utt.lang = lang; }
           utt.rate = parseFloat(rateRange.value);
           utt.pitch = parseFloat(pitchRange.value);
-          utt.onstart = function () { setTransSpeakUI(true); transSpeakState.textContent = "翻訳文を読み上げ中…"; };
+          utt.onstart = function () { setTransSpeakUI(true); transSpeakState.textContent = T("翻訳文を読み上げ中…", "Reading the translation aloud…"); };
           utt.onend = function () { setTransSpeakUI(false); };
           utt.onerror = function () { setTransSpeakUI(false); };
           window.speechSynthesis.speak(utt);
@@ -740,10 +1737,10 @@
           if (!("speechSynthesis" in window)) return;
           if (transPaused) {
             window.speechSynthesis.resume();
-            transPaused = false; pauseTransBtn.textContent = "一時停止"; transSpeakState.textContent = "翻訳文を読み上げ中…";
+            transPaused = false; pauseTransBtn.textContent = T("一時停止", "Pause"); transSpeakState.textContent = T("翻訳文を読み上げ中…", "Reading the translation aloud…");
           } else {
             window.speechSynthesis.pause();
-            transPaused = true; pauseTransBtn.textContent = "再開する"; transSpeakState.textContent = "一時停止中";
+            transPaused = true; pauseTransBtn.textContent = T("再開する", "Resume"); transSpeakState.textContent = T("一時停止中", "Paused");
           }
         });
         stopTransBtn.addEventListener("click", function () {
@@ -764,6 +1761,34 @@
           }
         });
 
+        /* ============ タブ切替（スマホ幅だけシート方式・PCは全表示） ============ */
+        function switchTab(name) {
+          var tabs = document.querySelectorAll("#tabBar .tab");
+          var found = false;
+          tabs.forEach(function (t) { if (t.getAttribute("data-tab") === name) found = true; });
+          if (!found) name = "rec";
+          tabs.forEach(function (t) { t.classList.toggle("on", t.getAttribute("data-tab") === name); });
+          document.querySelectorAll(".sheet").forEach(function (s) {
+            s.classList.toggle("on", s.getAttribute("data-sheet") === name);
+          });
+          try { localStorage.setItem("kotodama-tab", name); } catch (e) {}
+          try { window.scrollTo(0, 0); } catch (e) {}
+        }
+        (function initTabs() {
+          var saved = "rec";
+          try { saved = localStorage.getItem("kotodama-tab") || "rec"; } catch (e) {}
+          document.querySelectorAll("#tabBar .tab").forEach(function (t) {
+            t.addEventListener("click", function () { switchTab(t.getAttribute("data-tab")); });
+          });
+          switchTab(saved);
+          var ttb = $("toTransBtn");
+          if (ttb) ttb.addEventListener("click", function () {
+            switchTab("trans");
+            var th = $("h-trans");
+            if (th) setTimeout(function () { th.scrollIntoView({ behavior: "smooth", block: "start" }); }, 60);
+          });
+        })();
+
         /* ============ 音声認識 (STT) ============ */
         var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         var recognition = null;
@@ -773,15 +1798,15 @@
 
         var notice = $("unsupportedNotice");
         if (!SR) {
-          notice.innerHTML = "<strong>音声入力はこのブラウザでは使えません。</strong>音声認識には Chrome か Edge が必要です。読み上げ機能はこのまま使えます。";
+          notice.innerHTML = T("<strong>音声入力はこのブラウザでは使えません。</strong>音声認識には Chrome か Edge が必要です。読み上げ機能はこのまま使えます。", "<strong>Voice input is not available in this browser.</strong> Speech recognition needs Chrome or Edge. Read-aloud still works.");
           notice.classList.add("show");
           micBtn.disabled = true;
           micBtn.style.opacity = ".45";
-          micLabel.textContent = "未対応";
-          statusEl.textContent = "音声入力は未対応のブラウザです";
+          micLabel.textContent = T("未対応", "Unsupported");
+          statusEl.textContent = T("音声入力は未対応のブラウザです", "This browser does not support voice input");
         }
         if (!("speechSynthesis" in window)) {
-          notice.innerHTML += (notice.textContent ? "<br>" : "") + "<strong>読み上げもこのブラウザでは使えません。</strong>";
+          notice.innerHTML += (notice.textContent ? "<br>" : "") + T("<strong>読み上げもこのブラウザでは使えません。</strong>", "<strong>Read-aloud is also unavailable in this browser.</strong>");
           notice.classList.add("show");
           speakBtn.disabled = true;
         }
@@ -837,8 +1862,9 @@
             } else {
               micBtn.classList.remove("listening");
               micBtn.setAttribute("aria-pressed", "false");
-              micLabel.textContent = "押して話す";
-              setStatus("待機中です", false);
+              micLabel.textContent = T("押して話す", "Tap to speak");
+              setStatus(T("待機中です", "Ready"), false);
+              stopMeterMonitor();
             }
           };
           recognition.onerror = function (event) {
@@ -846,12 +1872,13 @@
               wantListening = false;
               micBtn.classList.remove("listening");
               micBtn.setAttribute("aria-pressed", "false");
-              micLabel.textContent = "押して話す";
-              setStatus("マイクの許可が必要です。ブラウザの設定で許可してください", false);
-              showToast("マイクが許可されていません");
+              micLabel.textContent = T("押して話す", "Tap to speak");
+              setStatus(T("マイクの許可が必要です。ブラウザの設定で許可してください", "Microphone permission is needed — please allow it in the browser settings"), false);
+              showToast(T("マイクが許可されていません", "Microphone is not allowed"));
+              stopMeterMonitor();
             } else if (event.error === "not-supported") {
               wantListening = false;
-              setStatus("この言語の認識には対応していません", false);
+              setStatus(T("この言語の認識には対応していません", "Recognition is not supported for this language"), false);
             }
             // no-speech / aborted は無視（onend で再開される）
           };
@@ -865,16 +1892,18 @@
             if (recognition) { try { recognition.stop(); } catch (e) {} }
             micBtn.classList.remove("listening");
             micBtn.setAttribute("aria-pressed", "false");
-            micLabel.textContent = "押して話す";
-            setStatus("止めました", false);
+            micLabel.textContent = T("押して話す", "Tap to speak");
+            setStatus(T("止めました", "Stopped"), false);
+            stopMeterMonitor();
           } else {
             // 読み上げ中なら止めてから聞く（自分の声を拾わないため）
             if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setSpeakUI(false); setTransSpeakUI(false); }
             wantListening = true;
             micBtn.classList.add("listening");
             micBtn.setAttribute("aria-pressed", "true");
-            micLabel.textContent = "聞いてます…";
-            setStatus("聞き取り中… 話してください", true);
+            micLabel.textContent = T("聞いてます…", "Listening…");
+            setStatus(T("聞き取り中… 話してください", "Listening… please speak"), true);
+            startMeterMonitor();
             if (recognition) {
               recognition.continuous = continuous;
               recognition.lang = $("langSelect").value;
@@ -896,22 +1925,22 @@
         bindToggle($("continuousToggle"), true, function (v) {
           continuous = v;
           if (recognition) recognition.continuous = v;
-          showToast("連続入力 " + (v ? "ON：止めるまで聞き続けます" : "OFF：一文ごとに止まります"));
+          showToast(T("連続入力 ", "Continuous ") + (v ? T("ON：止めるまで聞き続けます", "ON: keeps listening until stopped") : T("OFF：一文ごとに止まります", "OFF: stops after each sentence")));
         });
         bindToggle($("echoToggle"), false, function (v) {
           echo = v;
-          showToast("オウム返し " + (v ? "ON：聞き取った文を読み上げます" : "OFF"));
+          showToast(T("オウム返し ", "Echo Back ") + (v ? T("ON：聞き取った文を読み上げます", "ON: reads recognized sentences aloud") : "OFF"));
         });
         $("langSelect").addEventListener("change", function () {
           if (recognition) recognition.lang = this.value;
-          if (wantListening) showToast("言語を変えました（次に話す分から反映）");
+          if (wantListening) showToast(T("言語を変えました（次に話す分から反映）", "Language changed (applies from the next utterance)"));
         });
 
         /* ============ テキスト操作 ============ */
         $("copyBtn").addEventListener("click", function () {
           var t = textArea.value;
-          if (!t) { showToast("コピーする文字がありません"); return; }
-          function done() { showToast("コピーしました"); }
+          if (!t) { showToast(T("コピーする文字がありません", "There is no text to copy")); return; }
+          function done() { showToast(T("コピーしました", "Copied")); }
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(t).then(done, function () {
               textArea.select();
@@ -927,7 +1956,7 @@
 
         $("downloadBtn").addEventListener("click", function () {
           var t = textArea.value;
-          if (!t) { showToast("保存する文字がありません"); return; }
+          if (!t) { showToast(T("保存する文字がありません", "There is no text to save")); return; }
           var blob = new Blob([t], { type: "text/plain;charset=utf-8" });
           var url = URL.createObjectURL(blob);
           var a = document.createElement("a");
@@ -939,7 +1968,7 @@
           a.click();
           document.body.removeChild(a);
           setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-          showToast("テキストファイルを保存しました");
+          showToast(T("テキストファイルを保存しました", "Text file saved"));
         });
 
         $("clearBtn").addEventListener("click", function () {
@@ -947,8 +1976,1149 @@
           updateCount();
           liveBox.innerHTML = '<span class="placeholder">聞き取り中の言葉がここに出ます</span>';
           textArea.focus();
-          showToast("全部消しました");
+          showToast(T("全部消しました", "All cleared"));
         });
+        /* ===== テキストファイル読み込み → 翻訳 ===== */
+        var textFileIn = $("textFileIn");
+        textFileIn.addEventListener("change", function () {
+          var f = textFileIn.files && textFileIn.files[0];
+          if (!f) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            var text = null;
+            try { text = new TextDecoder("utf-8", { fatal: true }).decode(reader.result); }
+            catch (e) {
+              try { text = new TextDecoder("shift-jis").decode(reader.result); }
+              catch (e2) { text = new TextDecoder("utf-8").decode(reader.result); }
+            }
+            var truncated = false;
+            if (text.length > 30000) { text = text.slice(0, 30000); truncated = true; }
+            textArea.value = text;
+            updateCount();
+            showToast(truncated
+              ? T("長いので先頭から30,000文字まで読み込みました", "Long file — loaded the first 30,000 characters")
+              : T("ファイルを読み込みました：", "File loaded: ") + f.name);
+            $("translateBtn").click();
+            textFileIn.value = "";
+          };
+          reader.onerror = function () { showToast(T("ファイルを読み込めませんでした", "Could not read the file")); };
+          reader.readAsArrayBuffer(f);
+        });
+
+        /* ===== マイク共通基盤（感度・LRメーター・マイク選択・音声処理） ===== */
+        var micCfg = { gain: 1, auto: true, deviceId: "", processing: true };
+        try {
+          var _mc = JSON.parse(localStorage.getItem("kotodama-miccfg") || "null");
+          if (_mc) {
+            micCfg.gain = parseFloat(_mc.gain) || 1;
+            micCfg.auto = _mc.auto !== false;
+            micCfg.deviceId = _mc.deviceId || "";
+            micCfg.processing = _mc.processing !== false;
+          }
+        } catch (e) {}
+        var recKbps = 64;
+        try { var _kb = parseInt(localStorage.getItem("kotodama-kbps"), 10); if ([32, 48, 64, 96, 128].indexOf(_kb) >= 0) recKbps = _kb; } catch (e) {}
+        function saveMicCfg() { try { localStorage.setItem("kotodama-miccfg", JSON.stringify(micCfg)); } catch (e) {} }
+
+        var micCtx = null, micRaw = null, micGainNode = null, micAnL = null, micAnR = null, micDest = null, chainOwner = null;
+        function openMicChain(owner) {
+          if (micCtx && micDest) {
+            chainOwner = owner;
+            if (micCtx.state === "suspended" && micCtx.resume) micCtx.resume();
+            return Promise.resolve({ stream: micDest.stream, raw: micRaw });
+          }
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return Promise.reject(new Error("no mic"));
+          var ac = { echoCancellation: micCfg.processing, noiseSuppression: micCfg.processing, autoGainControl: micCfg.processing };
+          if (micCfg.deviceId) ac.deviceId = { exact: micCfg.deviceId };
+          return navigator.mediaDevices.getUserMedia({ audio: ac }).then(function (raw) {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            micRaw = raw;
+            micCtx = new AC();
+            if (micCtx.state === "suspended" && micCtx.resume) micCtx.resume();
+            var srcNode = micCtx.createMediaStreamSource(raw);
+            micGainNode = micCtx.createGain();
+            micGainNode.gain.value = micCfg.gain;
+            micDest = micCtx.createMediaStreamDestination();
+            srcNode.connect(micGainNode);
+            micGainNode.connect(micDest);
+            try {
+              var split = micCtx.createChannelSplitter(2);
+              micGainNode.connect(split);
+              micAnL = micCtx.createAnalyser(); micAnL.fftSize = 512;
+              micAnR = micCtx.createAnalyser(); micAnR.fftSize = 512;
+              split.connect(micAnL, 0);
+              split.connect(micAnR, srcNode.channelCount > 1 ? 1 : 0);
+            } catch (e) { micAnL = null; micAnR = null; }
+            chainOwner = owner;
+            refreshMicList();
+            return { stream: micDest.stream, raw: raw };
+          });
+        }
+        function closeMicChain() {
+          if (micRaw) { micRaw.getTracks().forEach(function (t) { t.stop(); }); micRaw = null; }
+          if (micCtx) { try { micCtx.close(); } catch (e) {} micCtx = null; }
+          micGainNode = null; micAnL = null; micAnR = null; micDest = null; chainOwner = null;
+          meterPeakL = 0; meterPeakR = 0;
+          drawMeters(0, 0);
+        }
+        function startMeterMonitor() { if (!chainOwner) openMicChain("monitor").catch(function () {}); }
+        function stopMeterMonitor() { if (chainOwner === "monitor") closeMicChain(); }
+
+        /* ---- LRメーター ---- */
+        var METER_SEGS = 24;
+        function buildMeter(el) {
+          if (!el) return null;
+          el.innerHTML = "";
+          var rows = [];
+          ["L", "R"].forEach(function (ch) {
+            var r = document.createElement("div"); r.className = "r";
+            var c = document.createElement("span"); c.className = "ch"; c.textContent = ch; r.appendChild(c);
+            var segs = document.createElement("span"); segs.className = "segs";
+            var arr = [];
+            for (var i = 0; i < METER_SEGS; i++) {
+              var s = document.createElement("i");
+              s.className = i < 16 ? "g" : (i < 20 ? "y" : (i < 22 ? "o" : "rd"));
+              segs.appendChild(s); arr.push(s);
+            }
+            r.appendChild(segs); el.appendChild(r); rows.push(arr);
+          });
+          var sc = document.createElement("div"); sc.className = "scale";
+          sc.innerHTML = "<span>-45</span><span>-30</span><span>-20</span><span>-10</span><span>-3</span><span>0</span><span>+3</span>";
+          el.appendChild(sc);
+          return rows;
+        }
+        var meterRecRows = buildMeter($("meterRec"));
+        var meterSttRows = buildMeter($("meterStt"));
+        function paintMeter(rows, l, r) {
+          if (!rows) return;
+          var vals = [l, r];
+          rows.forEach(function (arr, ri) {
+            var n = Math.round(vals[ri] * METER_SEGS);
+            arr.forEach(function (s, i) { s.classList.toggle("on", i < n); });
+          });
+        }
+        function drawMeters(l, r) { paintMeter(meterRecRows, l, r); paintMeter(meterSttRows, l, r); }
+        var meterBuf = null, meterPeakL = 0, meterPeakR = 0;
+        function chanLevel(an) {
+          if (!an || !an.getFloatTimeDomainData) return 0;
+          if (!meterBuf || meterBuf.length !== an.fftSize) meterBuf = new Float32Array(an.fftSize);
+          an.getFloatTimeDomainData(meterBuf);
+          var sum = 0;
+          for (var i = 0; i < meterBuf.length; i++) sum += meterBuf[i] * meterBuf[i];
+          var rms = Math.sqrt(sum / meterBuf.length);
+          var db = 20 * Math.log(rms + 1e-7) / Math.log(10);
+          return Math.max(0, Math.min(1, (db + 45) / 48));
+        }
+        setInterval(function () {
+          if (micAnL && micCtx) {
+            var l = chanLevel(micAnL), r = chanLevel(micAnR);
+            meterPeakL = Math.max(l, meterPeakL * 0.85);
+            meterPeakR = Math.max(r, meterPeakR * 0.85);
+            drawMeters(meterPeakL, meterPeakR);
+            if (micCfg.auto && micGainNode && (chainOwner === "rec" || chainOwner === "min")) autoGainStep(l);
+          }
+        }, 90);
+        function autoGainStep(level01) {
+          var target = 0.65, cur = micCfg.gain, next = cur;
+          if (level01 > 0.02) {
+            if (level01 < target - 0.08) next = Math.min(3, cur * 1.06);
+            else if (level01 > target + 0.1) next = Math.max(0.2, cur * 0.92);
+          }
+          if (Math.abs(next - cur) > 0.001) {
+            micCfg.gain = Math.round(next * 100) / 100;
+            if (micGainNode) micGainNode.gain.value = micCfg.gain;
+            syncSensUI();
+          }
+        }
+
+        /* ---- 感度UI（録音タブと文字起こしタブで共通・連動） ---- */
+        var sensRange = $("sensRange"), sensRangeStt = $("sensRangeStt");
+        function syncSensUI() {
+          var pct = Math.round(micCfg.gain * 100);
+          var disp = Math.max(0, Math.min(300, pct));
+          if (sensRange) sensRange.value = disp;
+          if (sensRangeStt) sensRangeStt.value = disp;
+          var v1 = $("sensVal"); if (v1) v1.textContent = pct + "%";
+          var v2 = $("sensValStt"); if (v2) v2.textContent = pct + "%";
+          var ab = $("sensAutoBtn"); if (ab) ab.classList.toggle("on", micCfg.auto);
+        }
+        function onSensInput(range) {
+          micCfg.gain = (parseFloat(range.value) || 100) / 100;
+          micCfg.auto = false;
+          if (micGainNode) micGainNode.gain.value = micCfg.gain;
+          saveMicCfg(); syncSensUI();
+        }
+        if (sensRange) sensRange.addEventListener("input", function () { onSensInput(sensRange); });
+        if (sensRangeStt) sensRangeStt.addEventListener("input", function () { onSensInput(sensRangeStt); });
+        var sensAutoBtn = $("sensAutoBtn");
+        if (sensAutoBtn) sensAutoBtn.addEventListener("click", function () {
+          micCfg.auto = !micCfg.auto;
+          saveMicCfg(); syncSensUI();
+          showToast(T("マイク感度の自動調整 ", "Auto sensitivity ") + (micCfg.auto ? "ON" : "OFF"));
+        });
+
+        /* ---- マイク選択 ---- */
+        var micSel = $("micSel");
+        function refreshMicList() {
+          if (!micSel || !navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+          navigator.mediaDevices.enumerateDevices().then(function (devs) {
+            var cur = micCfg.deviceId;
+            micSel.innerHTML = "";
+            var o0 = document.createElement("option");
+            o0.value = ""; o0.textContent = T("自動（内蔵マイクなど）", "Auto (built-in mic, etc.)");
+            micSel.appendChild(o0);
+            var n = 0;
+            devs.forEach(function (d) {
+              if (d.kind !== "audioinput") return;
+              n++;
+              var o = document.createElement("option");
+              o.value = d.deviceId;
+              o.textContent = d.label || (T("マイク ", "Microphone ") + n);
+              micSel.appendChild(o);
+            });
+            micSel.value = cur;
+            if (micSel.selectedIndex < 0) micSel.value = "";
+          }).catch(function () {});
+        }
+        if (micSel) micSel.addEventListener("change", function () {
+          micCfg.deviceId = micSel.value;
+          saveMicCfg();
+          showToast(T("使うマイクを変えました（次の録音から反映）", "Microphone changed (applies from the next recording)"));
+        });
+        if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+          navigator.mediaDevices.addEventListener("devicechange", refreshMicList);
+        }
+        refreshMicList();
+
+        /* ---- 音声処理ON/OFF ---- */
+        var procToggle = $("procToggle");
+        bindToggle(procToggle, micCfg.processing, function (v) {
+          micCfg.processing = v; saveMicCfg();
+          showToast(T("音声処理 ", "Audio processing ") + (v ? "ON" : T("OFF：原音で録ります", "OFF: raw audio")));
+        });
+        procToggle.setAttribute("aria-pressed", micCfg.processing ? "true" : "false");
+        procToggle.querySelector(".state").textContent = micCfg.processing ? "ON" : "OFF";
+
+        /* ---- 録音設定（形式・ビットレート） ---- */
+        var kbpsSel = $("kbpsSel");
+        if (kbpsSel) {
+          kbpsSel.value = String(recKbps);
+          kbpsSel.addEventListener("change", function () {
+            recKbps = parseInt(kbpsSel.value, 10) || 64;
+            try { localStorage.setItem("kotodama-kbps", String(recKbps)); } catch (e) {}
+            showToast(T("ビットレートを ", "Bitrate set to ") + recKbps + " kbps" + T(" にしました", ""));
+          });
+        }
+        var recFmtSel = $("recFmtSel");
+        try { var _rf = localStorage.getItem("kotodama-recfmt"); if (_rf) recFmtSel.value = _rf; } catch (e) {}
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+          Array.prototype.forEach.call(recFmtSel.options, function (o) {
+            if (o.value !== "auto" && !MediaRecorder.isTypeSupported(o.value)) {
+              o.disabled = true;
+              o.textContent += T("（この端末では使えません）", " (not available on this device)");
+            }
+          });
+          if (recFmtSel.selectedIndex >= 0 && recFmtSel.options[recFmtSel.selectedIndex].disabled) recFmtSel.value = "auto";
+        }
+        recFmtSel.addEventListener("change", function () {
+          try { localStorage.setItem("kotodama-recfmt", recFmtSel.value); } catch (e) {}
+        });
+        function pickRecMime() {
+          var auto = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus", "audio/ogg;codecs=vorbis", "audio/ogg"];
+          var want = recFmtSel.value;
+          var list = want === "auto" ? auto : [want].concat(auto);
+          if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+            for (var i = 0; i < list.length; i++) {
+              if (MediaRecorder.isTypeSupported(list[i])) {
+                if (want !== "auto" && list[i] !== want) showToast(T("選んだ形式はこの端末で使えないので、別の形式で録音します", "That format is not available on this device, so another format will be used"));
+                return list[i];
+              }
+            }
+          }
+          return "";
+        }
+
+        /* ===== 録音タブ（ボイスレコーダー） ===== */
+        var recBtn = $("recBtn"), recStopBtn = $("recStopBtn"), recStatus = $("recStatus"),
+            recAudio = $("recAudio"), recSaveBtn = $("recSaveBtn"), recMp3Btn = $("recMp3Btn"), recWavBtn = $("recWavBtn"),
+            expChSel = $("expChSel"), wavRateSel = $("wavRateSel"), recList = $("recList");
+        var recOn = false, recRecorder = null, recChunks = [], recBlob = null,
+            recStartAt = 0, recTimerId = null, recItems = [], recCurUrl = null;
+        if (!navigator.mediaDevices || !window.MediaRecorder) {
+          recBtn.disabled = true;
+          recStatus.textContent = T("このブラウザでは録音できません", "Recording is not available in this browser");
+        }
+        recBtn.addEventListener("click", function () {
+          if (recOn) return;
+          if (!navigator.mediaDevices || !window.MediaRecorder) {
+            showToast(T("このブラウザでは録音できません", "Recording is not available in this browser"));
+            return;
+          }
+          if (minWant) { showToast(T("議事録の録音中です。そちらを止めてから録音してください", "Minutes recording is in progress — stop it first")); return; }
+          if (convOn) stopConv();
+          if (wantListening) {
+            wantListening = false;
+            if (recognition) { try { recognition.stop(); } catch (e) {} }
+            micBtn.classList.remove("listening");
+            micBtn.setAttribute("aria-pressed", "false");
+            micLabel.textContent = T("押して話す", "Tap to speak");
+            setStatus(T("待機中です", "Ready"), false);
+          }
+          if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setSpeakUI(false); setTransSpeakUI(false); }
+          openMicChain("rec").then(function (chain) {
+            recChunks = [];
+            var mime = pickRecMime();
+            var opts = mime ? { mimeType: mime } : {};
+            opts.audioBitsPerSecond = recKbps * 1000;
+            try { recRecorder = new MediaRecorder(chain.stream, opts); }
+            catch (e) { try { recRecorder = mime ? new MediaRecorder(chain.stream, { mimeType: mime }) : new MediaRecorder(chain.stream); } catch (e2) { recRecorder = null; } }
+            if (!recRecorder) { showToast(T("録音を開始できませんでした", "Could not start recording")); closeMicChain(); return; }
+            recRecorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) recChunks.push(ev.data); };
+            recRecorder.start(1000);
+            recOn = true; recStartAt = Date.now();
+            recBtn.disabled = true; recStopBtn.disabled = false; minRecBtn.disabled = true;
+            recStatus.textContent = T("録音中… ", "Recording… ") + "0:00";
+            recTimerId = setInterval(function () {
+              recStatus.textContent = T("録音中… ", "Recording… ") + fmtTime((Date.now() - recStartAt) / 1000);
+            }, 500);
+            showToast(T("録音をはじめました", "Recording started"));
+          }).catch(function () {
+            showToast(T("マイクが許可されていません", "Microphone is not allowed"));
+            recStatus.textContent = T("マイクの許可が必要です。ブラウザの設定で許可してください", "Microphone permission is needed — please allow it in the browser settings");
+          });
+        });
+        recStopBtn.addEventListener("click", function () {
+          if (!recOn) return;
+          recOn = false;
+          if (recTimerId) { clearInterval(recTimerId); recTimerId = null; }
+          var dur = (Date.now() - recStartAt) / 1000;
+          function done() {
+            closeMicChain();
+            recBtn.disabled = false; recStopBtn.disabled = true; minRecBtn.disabled = false;
+            recStatus.textContent = T("止めました（録音時間 ", "Stopped (length ") + fmtTime(dur) + ")";
+            if (recBlob) {
+              setRecCurrent(recBlob);
+              recItems.unshift({ blob: recBlob, dur: dur, at: new Date() });
+              renderRecList();
+            }
+          }
+          if (recRecorder && recRecorder.state !== "inactive") {
+            recRecorder.onstop = function () {
+              recBlob = new Blob(recChunks, { type: recRecorder.mimeType || "audio/webm" });
+              done();
+            };
+            try { recRecorder.stop(); } catch (e) { done(); }
+          } else done();
+        });
+        function setRecCurrent(blob) {
+          recBlob = blob;
+          if (recCurUrl) URL.revokeObjectURL(recCurUrl);
+          recCurUrl = URL.createObjectURL(blob);
+          recAudio.src = recCurUrl;
+          recSaveBtn.disabled = false; recMp3Btn.disabled = false; recWavBtn.disabled = false;
+        }
+        function renderRecList() {
+          recList.innerHTML = "";
+          if (!recItems.length) {
+            var p = document.createElement("p");
+            p.className = "sub"; p.textContent = T("まだ録音がありません。", "No recordings yet.");
+            recList.appendChild(p);
+            return;
+          }
+          recItems.forEach(function (it) {
+            var row = document.createElement("div");
+            row.className = "recrow";
+            var b = document.createElement("button");
+            b.className = "btn small"; b.type = "button";
+            b.textContent = "▶ " + fmtTime(it.dur) + "（" + pad2(it.at.getHours()) + ":" + pad2(it.at.getMinutes()) + "）";
+            b.addEventListener("click", function () {
+              setRecCurrent(it.blob);
+              recStatus.textContent = T("リストから選びました（録音時間 ", "Selected from the list (length ") + fmtTime(it.dur) + ")";
+            });
+            row.appendChild(b);
+            recList.appendChild(row);
+          });
+        }
+        recSaveBtn.addEventListener("click", function () {
+          if (!recBlob) return;
+          var bt = recBlob.type || "";
+          var ext = bt.indexOf("mp4") >= 0 ? "m4a" : bt.indexOf("mpeg") >= 0 ? "mp3" : bt.indexOf("ogg") >= 0 ? "ogg" : bt.indexOf("wav") >= 0 ? "wav" : "webm";
+          downloadBlob("rokuon_" + makeStamp() + "." + ext, recBlob);
+          showToast(T("音声ファイルを保存しました", "Audio file saved"));
+        });
+        recMp3Btn.addEventListener("click", function () {
+          if (!recBlob) return;
+          recMp3Btn.disabled = true;
+          showToast(T("MP3に変換中…", "Converting to MP3…"));
+          convertToMp3(recBlob, recKbps, expChSel.value === "stereo").then(function (mp3) {
+            downloadBlob("rokuon_" + makeStamp() + ".mp3", mp3);
+            showToast(T("MP3で保存しました", "Saved as MP3"));
+            recMp3Btn.disabled = false;
+          }).catch(function () {
+            showToast(T("MP3に変換できませんでした", "Could not convert to MP3"));
+            recMp3Btn.disabled = false;
+          });
+        });
+        recWavBtn.addEventListener("click", function () {
+          if (!recBlob) return;
+          recWavBtn.disabled = true;
+          showToast(T("WAVに変換中…", "Converting to WAV…"));
+          decodeBlob(recBlob).then(function (buf) {
+            var wav = audioBufferToWav(buf, parseInt(wavRateSel.value, 10) || 48000, expChSel.value === "stereo");
+            downloadBlob("rokuon_" + makeStamp() + ".wav", wav);
+            showToast(T("WAVで保存しました", "Saved as WAV"));
+            recWavBtn.disabled = false;
+          }).catch(function () {
+            showToast(T("WAVに変換できませんでした", "Could not convert to WAV"));
+            recWavBtn.disabled = false;
+          });
+        });
+        function decodeBlob(blob) {
+          return blob.arrayBuffer().then(function (ab) {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            var ctx = new AC();
+            return ctx.decodeAudioData(ab).then(function (buf) { if (ctx.close) ctx.close(); return buf; });
+          });
+        }
+        function audioBufferToWav(buf, rate, stereo) {
+          var ch = stereo && buf.numberOfChannels > 1 ? 2 : 1;
+          var inRate = buf.sampleRate, inLen = buf.length;
+          var outLen = Math.floor(inLen * rate / inRate);
+          var chData = [];
+          var c, i;
+          if (ch === 2) {
+            chData = [buf.getChannelData(0), buf.getChannelData(1)];
+          } else if (buf.numberOfChannels > 1) {
+            var d0 = buf.getChannelData(0), d1 = buf.getChannelData(1);
+            var mixed = new Float32Array(inLen);
+            for (i = 0; i < inLen; i++) mixed[i] = (d0[i] + d1[i]) / 2;
+            chData = [mixed];
+          } else {
+            chData = [buf.getChannelData(0)];
+          }
+          var blockAlign = ch * 2, dataSize = outLen * blockAlign;
+          var abuf = new ArrayBuffer(44 + dataSize);
+          var v = new DataView(abuf);
+          function wstr(off, s) { for (var k = 0; k < s.length; k++) v.setUint8(off + k, s.charCodeAt(k)); }
+          wstr(0, "RIFF"); v.setUint32(4, 36 + dataSize, true); wstr(8, "WAVE"); wstr(12, "fmt ");
+          v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, ch, true);
+          v.setUint32(24, rate, true); v.setUint32(28, rate * blockAlign, true);
+          v.setUint16(32, blockAlign, true); v.setUint16(34, 16, true); wstr(36, "data");
+          v.setUint32(40, dataSize, true);
+          var off = 44;
+          for (var f = 0; f < outLen; f++) {
+            var pos = f * inRate / rate;
+            var i0 = Math.floor(pos), i1 = Math.min(i0 + 1, inLen - 1), frac = pos - i0;
+            for (c = 0; c < ch; c++) {
+              var d = chData[c];
+              var s = d[i0] * (1 - frac) + d[i1] * frac;
+              s = Math.max(-1, Math.min(1, s));
+              v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+              off += 2;
+            }
+          }
+          return new Blob([abuf], { type: "audio/wav" });
+        }
+        syncSensUI();
+
+        /* ===== 議事録（録音＋自動文字起こし＋再生） ===== */
+        var minRecBtn = $("minRecBtn"), minStopBtn = $("minStopBtn"), minStatus = $("minStatus"),
+            minLive = $("minLive"), minText = $("minText"), minTitle = $("minTitle"),
+            minPlayBtn = $("minPlayBtn"), minPauseBtn = $("minPauseBtn"), minTime = $("minTime"),
+            minRateSel = $("minRateSel"), minSaveTextBtn = $("minSaveTextBtn"), minSaveAudioBtn = $("minSaveAudioBtn"),
+            minFmtSel = $("minFmtSel"), minFileIn = $("minFileIn"), minListenBtn = $("minListenBtn"), minToTransBtn = $("minToTransBtn"),
+            minMp3Btn = $("minMp3Btn");
+        var minRec = null, minWant = false, minRecorder = null, minStream = null, minChunks = [],
+            minAudio = null, minAudioUrl = null, minBlob = null, minTimerId = null,
+            minStartAt = 0, minStartDate = null, minStamp = "", minDurationSec = 0, minListen = false;
+        if (!SR) minRecBtn.disabled = true;
+        if (!navigator.mediaDevices || !window.MediaRecorder) {
+          minRecBtn.disabled = true;
+          minStatus.textContent = T("このブラウザでは録音できません", "Recording is not available in this browser");
+        }
+        try { var _mf = localStorage.getItem("kotodama-minfmt"); if (_mf) minFmtSel.value = _mf; } catch (e) {}
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+          Array.prototype.forEach.call(minFmtSel.options, function (o) {
+            if (o.value !== "auto" && !MediaRecorder.isTypeSupported(o.value)) {
+              o.disabled = true;
+              o.textContent += T("（この端末では使えません）", " (not available on this device)");
+            }
+          });
+          if (minFmtSel.selectedIndex >= 0 && minFmtSel.options[minFmtSel.selectedIndex].disabled) minFmtSel.value = "auto";
+        }
+        minFmtSel.addEventListener("change", function () {
+          try { localStorage.setItem("kotodama-minfmt", minFmtSel.value); } catch (e) {}
+        });
+        function pickMinMime() {
+          var auto = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus", "audio/ogg;codecs=vorbis", "audio/ogg"];
+          var want = minFmtSel.value;
+          var list = want === "auto" ? auto : [want].concat(auto);
+          if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+            for (var i = 0; i < list.length; i++) {
+              if (MediaRecorder.isTypeSupported(list[i])) {
+                if (want !== "auto" && list[i] !== want) showToast(T("選んだ形式はこの端末で使えないので、別の形式で録音します", "That format is not available on this device, so another format will be used"));
+                return list[i];
+              }
+            }
+          }
+          return "";
+        }
+        function pad2(n) { return (n < 10 ? "0" : "") + n; }
+        function makeStamp() {
+          var d = new Date();
+          return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + "-" + pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
+        }
+        function fmtTime(sec) {
+          sec = Math.max(0, Math.floor(sec || 0));
+          return Math.floor(sec / 60) + ":" + pad2(sec % 60);
+        }
+        function downloadBlob(name, blob) {
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url; a.download = name;
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+        }
+        function buildMinutesFile() {
+          var d = minStartDate || new Date();
+          var head = T("議事録", "Minutes") + (minTitle.value.trim() ? "：" + minTitle.value.trim() : "") + "\n" +
+            T("日時：", "Date: ") + d.getFullYear() + "/" + pad2(d.getMonth() + 1) + "/" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + "\n" +
+            T("録音時間：", "Length: ") + fmtTime(minDurationSec) + "\n\n";
+          return head + minText.value.trim() + "\n";
+        }
+        function startMinRecognition() {
+          if (!SR) return;
+          if (minRec) { try { minRec.start(); } catch (e) {} return; }
+          minRec = new SR();
+          minRec.interimResults = true;
+          minRec.continuous = true;
+          minRec.lang = $("langSelect").value;
+          minRec.onresult = function (event) {
+            var interim = "";
+            for (var i = event.resultIndex; i < event.results.length; i++) {
+              var res = event.results[i];
+              if (res.isFinal) {
+                var t = res[0].transcript.trim();
+                if (t) {
+                  var cur = minText.value;
+                  if (cur && !/[\s\n]$/.test(cur)) cur += " ";
+                  minText.value = cur + t;
+                  minText.scrollTop = minText.scrollHeight;
+                }
+              } else interim += res[0].transcript;
+            }
+            minLive.innerHTML = "";
+            var span = document.createElement("span");
+            if (interim) { span.id = "interim"; span.textContent = interim; }
+            else { span.className = "placeholder"; span.textContent = T("聞き取り中の言葉がここに出ます", "Words being heard appear here"); }
+            minLive.appendChild(span);
+          };
+          minRec.onend = function () { if (minWant || minListen) { try { minRec.start(); } catch (e) {} } };
+          minRec.onerror = function (event) {
+            if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+              showToast(T("マイクが許可されていません", "Microphone is not allowed"));
+            }
+          };
+          try { minRec.start(); } catch (e) {}
+        }
+        minRecBtn.addEventListener("click", function () {
+          if (minWant) return;
+          if (!navigator.mediaDevices || !window.MediaRecorder) {
+            showToast(T("このブラウザでは録音できません", "Recording is not available in this browser"));
+            return;
+          }
+          if (wantListening) {
+            wantListening = false;
+            if (recognition) { try { recognition.stop(); } catch (e) {} }
+            micBtn.classList.remove("listening");
+            micBtn.setAttribute("aria-pressed", "false");
+            micLabel.textContent = T("押して話す", "Tap to speak");
+            setStatus(T("待機中です", "Ready"), false);
+          }
+          if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setSpeakUI(false); setTransSpeakUI(false); }
+          if (convOn) stopConv();
+          openMicChain("min").then(function (chain) {
+            minStream = chain.raw;
+            minChunks = [];
+            var mime = pickMinMime();
+            var mopts = mime ? { mimeType: mime } : {};
+            mopts.audioBitsPerSecond = recKbps * 1000;
+            try { minRecorder = new MediaRecorder(chain.stream, mopts); }
+            catch (e) { try { minRecorder = mime ? new MediaRecorder(chain.stream, { mimeType: mime }) : new MediaRecorder(chain.stream); } catch (e2) { minRecorder = null; } }
+            if (minRecorder) {
+              minRecorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) minChunks.push(ev.data); };
+              minRecorder.start(1000);
+            }
+            minWant = true;
+            minStartAt = Date.now();
+            minStartDate = new Date();
+            minStamp = makeStamp();
+            minRecBtn.disabled = true;
+            minStopBtn.disabled = false;
+            minListenBtn.disabled = true;
+            micBtn.disabled = true;
+            minStatus.textContent = T("録音中… ", "Recording… ") + "0:00";
+            minTimerId = setInterval(function () {
+              minStatus.textContent = T("録音中… ", "Recording… ") + fmtTime((Date.now() - minStartAt) / 1000);
+            }, 500);
+            startMinRecognition();
+            showToast(T("録音をはじめました", "Recording started"));
+          }).catch(function () {
+            showToast(T("マイクが許可されていません", "Microphone is not allowed"));
+            minStatus.textContent = T("マイクの許可が必要です。ブラウザの設定で許可してください", "Microphone permission is needed — please allow it in the browser settings");
+          });
+        });
+        minStopBtn.addEventListener("click", function () {
+          if (!minWant) return;
+          minWant = false;
+          if (minRec) { try { minRec.stop(); } catch (e) {} }
+          if (minTimerId) { clearInterval(minTimerId); minTimerId = null; }
+          minDurationSec = (Date.now() - minStartAt) / 1000;
+          function finish() {
+            if (minStream) { minStream.getTracks().forEach(function (t) { t.stop(); }); minStream = null; }
+            closeMicChain();
+            minRecBtn.disabled = false;
+            minStopBtn.disabled = true;
+            micBtn.disabled = false;
+            minStatus.textContent = T("止めました（録音時間 ", "Stopped (length ") + fmtTime(minDurationSec) + ")";
+            if (minBlob) {
+              if (minAudioUrl) URL.revokeObjectURL(minAudioUrl);
+              minAudioUrl = URL.createObjectURL(minBlob);
+              if (!minAudio) {
+                minAudio = new Audio();
+                minAudio.addEventListener("timeupdate", syncMinTime);
+                minAudio.addEventListener("ended", onMinAudioEnded);
+                minAudio.addEventListener("loadedmetadata", syncMinTime);
+              }
+              minAudio.src = minAudioUrl;
+              minAudio.playbackRate = parseFloat(minRateSel.value) || 1;
+              minPlayBtn.disabled = false;
+              minPauseBtn.disabled = false;
+              minSaveAudioBtn.disabled = false; minMp3Btn.disabled = false;
+              minListenBtn.disabled = false;
+              syncMinTime();
+            }
+            setTimeout(function () {
+              if (minText.value.trim()) {
+                downloadBlob("gijiroku_" + minStamp + ".txt", new Blob([buildMinutesFile()], { type: "text/plain;charset=utf-8" }));
+                showToast(T("議事録を自動保存しました", "Minutes auto-saved"));
+              } else {
+                showToast(T("止めました", "Stopped"));
+              }
+            }, 700);
+          }
+          if (minRecorder && minRecorder.state !== "inactive") {
+            minRecorder.onstop = function () {
+              minBlob = new Blob(minChunks, { type: minRecorder.mimeType || "audio/webm" });
+              finish();
+            };
+            try { minRecorder.stop(); } catch (e) { finish(); }
+          } else finish();
+        });
+        function syncMinTime() {
+          if (minAudio) minTime.textContent = fmtTime(minAudio.currentTime) + " / " + fmtTime(minAudio.duration);
+        }
+        minPlayBtn.addEventListener("click", function () {
+          if (minAudio) { minAudio.playbackRate = parseFloat(minRateSel.value) || 1; minAudio.play(); }
+        });
+        minPauseBtn.addEventListener("click", function () { if (minAudio) minAudio.pause(); });
+        minRateSel.addEventListener("change", function () {
+          if (minAudio) minAudio.playbackRate = parseFloat(minRateSel.value) || 1;
+        });
+        minSaveTextBtn.addEventListener("click", function () {
+          if (!minText.value.trim()) { showToast(T("保存する文字がありません", "There is no text to save")); return; }
+          downloadBlob("gijiroku_" + (minStamp || makeStamp()) + ".txt", new Blob([buildMinutesFile()], { type: "text/plain;charset=utf-8" }));
+          showToast(T("議事録を保存しました", "Minutes saved"));
+        });
+        minSaveAudioBtn.addEventListener("click", function () {
+          if (!minBlob) return;
+          var bt = minBlob.type || "";
+          var ext = bt.indexOf("mp4") >= 0 || bt.indexOf("m4a") >= 0 ? "m4a" : bt.indexOf("mpeg") >= 0 ? "mp3" : bt.indexOf("ogg") >= 0 ? "ogg" : "webm";
+          downloadBlob("gijiroku_" + (minStamp || makeStamp()) + "." + ext, minBlob);
+          showToast(T("音声ファイルを保存しました", "Audio file saved"));
+        });
+        var lamePromise = null;
+        function loadLame() {
+          if (lamePromise) return lamePromise;
+          lamePromise = new Promise(function (resolve, reject) {
+            var sc = document.createElement("script");
+            sc.src = "https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js";
+            sc.onload = function () { window.lamejs ? resolve() : reject(new Error("no lamejs")); };
+            sc.onerror = function () { reject(new Error("lame load failed")); };
+            document.head.appendChild(sc);
+          });
+          return lamePromise;
+        }
+        function convertToMp3(blob, kbps, wantStereo) {
+          return loadLame().then(function () { return blob.arrayBuffer(); }).then(function (ab) {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            var ctx = new AC();
+            return ctx.decodeAudioData(ab).then(function (audioBuf) { if (ctx.close) ctx.close(); return audioBuf; });
+          }).then(function (audioBuf) {
+            var len = audioBuf.length;
+            var ch0 = audioBuf.getChannelData(0);
+            var ch1 = audioBuf.numberOfChannels > 1 ? audioBuf.getChannelData(1) : null;
+            var stereo = !!wantStereo && !!ch1;
+            var enc = new lamejs.Mp3Encoder(stereo ? 2 : 1, audioBuf.sampleRate, kbps || 64);
+            var out = [], block = 1152, i, j;
+            function toI16(v) { v = Math.max(-1, Math.min(1, v)); return v < 0 ? v * 0x8000 : v * 0x7FFF; }
+            for (i = 0; i < len; i += block) {
+              var n = Math.min(block, len - i);
+              var d;
+              if (stereo) {
+                var sl = new Int16Array(n), sr = new Int16Array(n);
+                for (j = 0; j < n; j++) { sl[j] = toI16(ch0[i + j]); sr[j] = toI16(ch1[i + j]); }
+                d = enc.encodeBuffer(sl, sr);
+              } else {
+                var samples = new Int16Array(n);
+                for (j = 0; j < n; j++) {
+                  var vv = ch1 ? (ch0[i + j] + ch1[i + j]) / 2 : ch0[i + j];
+                  samples[j] = toI16(vv);
+                }
+                d = enc.encodeBuffer(samples);
+              }
+              if (d.length) out.push(new Int8Array(d));
+            }
+            var end = enc.flush();
+            if (end.length) out.push(new Int8Array(end));
+            return new Blob(out, { type: "audio/mpeg" });
+          });
+        }
+        minMp3Btn.addEventListener("click", function () {
+          if (!minBlob) return;
+          minMp3Btn.disabled = true;
+          showToast(T("MP3に変換中…", "Converting to MP3…"));
+          convertToMp3(minBlob, recKbps).then(function (mp3) {
+            downloadBlob("gijiroku_" + (minStamp || makeStamp()) + ".mp3", mp3);
+            showToast(T("MP3で保存しました", "Saved as MP3"));
+            minMp3Btn.disabled = false;
+          }).catch(function () {
+            showToast(T("MP3に変換できませんでした", "Could not convert to MP3"));
+            minMp3Btn.disabled = false;
+          });
+        });
+        function onMinAudioEnded() {
+          syncMinTime();
+          if (minListen) {
+            minListen = false;
+            if (minRec) { try { minRec.stop(); } catch (e) {} }
+            minRecBtn.disabled = false;
+            minListenBtn.disabled = false;
+            showToast(T("文字起こしが終わりました", "Transcription finished"));
+          }
+        }
+        minFileIn.addEventListener("change", function () {
+          var f = minFileIn.files && minFileIn.files[0];
+          if (!f) return;
+          minBlob = f;
+          if (minAudioUrl) URL.revokeObjectURL(minAudioUrl);
+          minAudioUrl = URL.createObjectURL(f);
+          if (!minAudio) {
+            minAudio = new Audio();
+            minAudio.addEventListener("timeupdate", syncMinTime);
+            minAudio.addEventListener("ended", onMinAudioEnded);
+            minAudio.addEventListener("loadedmetadata", syncMinTime);
+          }
+          minAudio.src = minAudioUrl;
+          minAudio.playbackRate = parseFloat(minRateSel.value) || 1;
+          minPlayBtn.disabled = false;
+          minPauseBtn.disabled = false;
+          minSaveAudioBtn.disabled = false; minMp3Btn.disabled = false;
+          minListenBtn.disabled = false;
+          minStamp = makeStamp();
+          minStatus.textContent = T("ファイルを読み込みました：", "File loaded: ") + f.name;
+          syncMinTime();
+        });
+        minListenBtn.addEventListener("click", function () {
+          if (!minAudio || minWant || minListen) return;
+          if (!SR) { showToast(T("このブラウザでは音声入力は使えません", "Voice input is not available in this browser")); return; }
+          if (wantListening) {
+            wantListening = false;
+            if (recognition) { try { recognition.stop(); } catch (e) {} }
+            micBtn.classList.remove("listening");
+            micBtn.setAttribute("aria-pressed", "false");
+            micLabel.textContent = T("押して話す", "Tap to speak");
+            setStatus(T("待機中です", "Ready"), false);
+          }
+          if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setSpeakUI(false); setTransSpeakUI(false); }
+          minListen = true;
+          minRecBtn.disabled = true;
+          minListenBtn.disabled = true;
+          minAudio.currentTime = 0;
+          minAudio.playbackRate = parseFloat(minRateSel.value) || 1;
+          startMinRecognition();
+          minAudio.play();
+          showToast(T("再生しながら文字起こし中…", "Playing & transcribing…"));
+        });
+        minToTransBtn.addEventListener("click", function () {
+          if (!minText.value.trim()) { showToast(T("送る文字起こしがありません", "There is no transcript to send")); return; }
+          textArea.value = minText.value.trim();
+          updateCount();
+          showToast(T("翻訳欄に送りました", "Sent to the translation section"));
+          switchTab("trans");
+          var th = $("h-trans");
+          if (th) th.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        /* ===== 議事録：ピン・聞きやすく・ノイズ除去・ABリピート ===== */
+        var minPins = [];
+        var minPinBtn = $("minPinBtn"), minPinList = $("minPinList");
+        function renderPins() {
+          minPinList.innerHTML = "";
+          minPins.forEach(function (p, idx) {
+            var row = document.createElement("div");
+            row.className = "pinrow";
+            var tm = document.createElement("button");
+            tm.className = "tm"; tm.type = "button"; tm.textContent = "📌 " + fmtTime(p.t);
+            tm.addEventListener("click", function () {
+              if (minAudio && minAudio.duration) {
+                minAudio.currentTime = p.t;
+                minAudio.playbackRate = parseFloat(minRateSel.value) || 1;
+                minAudio.play();
+              } else {
+                showToast(T("再生できる録音がありません", "There is no recording to play"));
+              }
+            });
+            var inp = document.createElement("input");
+            inp.type = "text"; inp.value = p.label || "";
+            inp.placeholder = T("メモ（例：日程の決定）", "Memo (e.g. schedule decided)");
+            inp.addEventListener("input", function () { p.label = inp.value; });
+            var del = document.createElement("button");
+            del.className = "del"; del.type = "button"; del.textContent = "✕";
+            del.addEventListener("click", function () { minPins.splice(idx, 1); renderPins(); });
+            row.appendChild(tm); row.appendChild(inp); row.appendChild(del);
+            minPinList.appendChild(row);
+          });
+        }
+        if (minPinBtn) minPinBtn.addEventListener("click", function () {
+          var t = null;
+          if (minWant) t = (Date.now() - minStartAt) / 1000;
+          else if (minAudio && minAudio.duration) t = minAudio.currentTime;
+          if (t === null) { showToast(T("ピンは録音中か再生中に打てます", "Pins can be dropped while recording or playing")); return; }
+          minPins.push({ t: t, label: "" });
+          minPins.sort(function (a, b) { return a.t - b.t; });
+          renderPins();
+          showToast(T("ピンを打ちました：", "Pin dropped: ") + fmtTime(t));
+        });
+        minRecBtn.addEventListener("click", function () { minPins = []; renderPins(); });
+        minFileIn.addEventListener("change", function () {
+          minPins = []; renderPins();
+          minAbA = null; minAbB = null; minAbOn = false; syncAbUI();
+        });
+
+        var minAbA = null, minAbB = null, minAbOn = false;
+        function syncAbUI() {
+          var a = $("minAbAVal"), b = $("minAbBVal"), tb = $("minAbToggleBtn");
+          if (a) a.textContent = minAbA === null ? T("未設定", "Not set") : fmtTime(minAbA);
+          if (b) b.textContent = minAbB === null ? T("未設定", "Not set") : fmtTime(minAbB);
+          if (tb) tb.textContent = T("ABリピート ", "AB Repeat ") + (minAbOn ? "ON" : "OFF");
+        }
+        $("minAbABtn").addEventListener("click", function () {
+          if (!minAudio || !minAudio.duration) { showToast(T("再生できる録音がありません", "There is no recording to play")); return; }
+          minAbA = minAudio.currentTime; syncAbUI(); showToast("A = " + fmtTime(minAbA));
+        });
+        $("minAbBBtn").addEventListener("click", function () {
+          if (!minAudio || !minAudio.duration) { showToast(T("再生できる録音がありません", "There is no recording to play")); return; }
+          minAbB = minAudio.currentTime; syncAbUI(); showToast("B = " + fmtTime(minAbB));
+        });
+        $("minAbToggleBtn").addEventListener("click", function () {
+          if (minAbA === null || minAbB === null) { showToast(T("先にAとBを設定してください", "Set A and B first")); return; }
+          if (minAbB <= minAbA) { showToast(T("BはAより後にしてください", "B must be after A")); return; }
+          minAbOn = !minAbOn;
+          if (minAbOn && minAudio) { minAudio.currentTime = minAbA; minAudio.play(); }
+          syncAbUI();
+        });
+        $("minAbClearBtn").addEventListener("click", function () {
+          minAbA = null; minAbB = null; minAbOn = false; syncAbUI();
+        });
+        setInterval(function () {
+          if (minAbOn && minAudio && !minAudio.paused && minAbB !== null && minAudio.currentTime >= minAbB) {
+            minAudio.currentTime = minAbA;
+          }
+        }, 200);
+        syncAbUI();
+
+        var fxCtx = null, fxHp = null, fxLp = null, fxPeak = null, fxMud = null, fxComp = null;
+        var fxClarity = 0, fxNoise = 0;
+        function ensureFx() {
+          if (fxCtx || !minAudio) return;
+          try {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            fxCtx = new AC();
+            var srcNode = fxCtx.createMediaElementSource(minAudio);
+            fxHp = fxCtx.createBiquadFilter(); fxHp.type = "highpass"; fxHp.frequency.value = 10;
+            fxMud = fxCtx.createBiquadFilter(); fxMud.type = "peaking"; fxMud.frequency.value = 300; fxMud.Q.value = 1;
+            fxPeak = fxCtx.createBiquadFilter(); fxPeak.type = "peaking"; fxPeak.frequency.value = 3000; fxPeak.Q.value = 1;
+            fxLp = fxCtx.createBiquadFilter(); fxLp.type = "lowpass"; fxLp.frequency.value = 20000;
+            fxComp = fxCtx.createDynamicsCompressor();
+            srcNode.connect(fxHp); fxHp.connect(fxMud); fxMud.connect(fxPeak); fxPeak.connect(fxLp); fxLp.connect(fxComp); fxComp.connect(fxCtx.destination);
+            applyFx();
+          } catch (e) { fxCtx = null; }
+        }
+        function applyFx() {
+          if (!fxCtx) return;
+          fxHp.frequency.value = [10, 80, 140, 220][fxNoise];
+          fxLp.frequency.value = [20000, 9000, 6500, 4800][fxNoise];
+          fxComp.threshold.value = [0, -24, -30, -36][fxNoise];
+          fxComp.ratio.value = [1, 3, 6, 10][fxNoise];
+          fxPeak.gain.value = [0, 4, 8, 12][fxClarity];
+          fxMud.gain.value = [0, -2, -4, -6][fxClarity];
+        }
+        function bindFxChips(id, set) {
+          var box = $(id);
+          if (!box) return;
+          box.querySelectorAll(".chip").forEach(function (chip) {
+            chip.addEventListener("click", function () {
+              box.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("on"); });
+              chip.classList.add("on");
+              set(parseInt(chip.getAttribute("data-v"), 10) || 0);
+              ensureFx();
+              if (fxCtx && fxCtx.resume) fxCtx.resume();
+              applyFx();
+            });
+          });
+        }
+        bindFxChips("fxClarityChips", function (v) { fxClarity = v; });
+        bindFxChips("fxNoiseChips", function (v) { fxNoise = v; });
+        minPlayBtn.addEventListener("click", function () { ensureFx(); if (fxCtx && fxCtx.resume) fxCtx.resume(); });
+        $("minBackBtn").addEventListener("click", function () { if (minAudio) minAudio.currentTime = Math.max(0, minAudio.currentTime - 10); });
+        $("minFwdBtn").addEventListener("click", function () { if (minAudio && minAudio.duration) minAudio.currentTime = Math.min(minAudio.duration, minAudio.currentTime + 10); });
+
+        /* ===== 同時翻訳（会話モード） ===== */
+        var convMyLang = $("convMyLang"), convYourLang = $("convYourLang"),
+            convStartBtn = $("convStartBtn"), convStopBtn = $("convStopBtn"), convSwapBtn = $("convSwapBtn"),
+            convStatus = $("convStatus"), convChat = $("convChat");
+        var convOn = false, convTurn = "me", convAutoSpeak = true, convRec = null, convState = "idle";
+        function toTransCode(locale) {
+          if (!locale) return "en";
+          var l = locale.toLowerCase();
+          if (l.indexOf("cmn") === 0 || l.indexOf("zh-cn") === 0) return "zh-CN";
+          if (l.indexOf("zh-tw") === 0) return "zh-TW";
+          if (l.indexOf("zh-hk") === 0 || l.indexOf("yue") === 0) return "zh-HK";
+          var base = l.split("-")[0];
+          if (base === "iw") return "he";
+          if (base === "jw") return "jv";
+          return base;
+        }
+        function buildConvLangs() {
+          [[convMyLang, "ja-JP"], [convYourLang, "en-US"]].forEach(function (pair) {
+            var sel = pair[0];
+            if (!sel) return;
+            var cur = sel.value || pair[1];
+            var rank = function (c) { return c === "ja-JP" ? 0 : (c === "en-US" ? 1 : 2); };
+            var ordered = REC_LANGS.slice().sort(function (a, b) { return a[0] < b[0] ? -1 : 1; });
+            ordered.sort(function (a, b) { return rank(a[0]) - rank(b[0]); });
+            sel.innerHTML = "";
+            ordered.forEach(function (p) {
+              var o = document.createElement("option");
+              o.value = p[0];
+              o.textContent = LANG === "en" ? intlLangName(p[0], p[1]) : p[1];
+              sel.appendChild(o);
+            });
+            sel.value = cur;
+            if (sel.selectedIndex < 0) sel.value = pair[1];
+          });
+        }
+        buildConvLangs();
+        function convLangName(locale) {
+          for (var i = 0; i < REC_LANGS.length; i++) {
+            if (REC_LANGS[i][0] === locale) return LANG === "en" ? intlLangName(locale, REC_LANGS[i][1]) : REC_LANGS[i][1];
+          }
+          return locale;
+        }
+        function convSetStep(name) {
+          [["convStepListen", "listen"], ["convStepTrans", "trans"], ["convStepSpeak", "speak"]].forEach(function (p) {
+            var el = $(p[0]);
+            if (el) el.classList.toggle("on", p[1] === name);
+          });
+        }
+        function convSetStatus(msg) { convStatus.textContent = msg; }
+        function convTurnLocale() { return convTurn === "me" ? convMyLang.value : convYourLang.value; }
+        function convOtherLocale() { return convTurn === "me" ? convYourLang.value : convMyLang.value; }
+        function convAddBubble(turn, original, translated) {
+          var lab = document.createElement("div");
+          lab.className = "turn-label" + (turn === "me" ? " me" : "");
+          lab.textContent = turn === "me"
+            ? T("あなた（", "You (") + convLangName(convMyLang.value) + T("）", ")")
+            : T("相手（", "Partner (") + convLangName(convYourLang.value) + T("）", ")");
+          var b = document.createElement("div");
+          b.className = "bub " + (turn === "me" ? "me" : "you");
+          b.textContent = original;
+          var tr = document.createElement("span");
+          tr.className = "tr"; tr.textContent = translated;
+          b.appendChild(tr);
+          convChat.appendChild(lab);
+          convChat.appendChild(b);
+          if (b.scrollIntoView) b.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+        function convSpeak(text, locale, done) {
+          if (!("speechSynthesis" in window)) { done(); return; }
+          window.speechSynthesis.cancel();
+          var utt = new SpeechSynthesisUtterance(text);
+          var v = pickVoiceFor(toTransCode(locale), false);
+          if (v) { utt.voice = v; utt.lang = v.lang; } else { utt.lang = locale; }
+          utt.rate = parseFloat(rateRange.value);
+          utt.pitch = parseFloat(pitchRange.value);
+          var called = false;
+          function fin() { if (!called) { called = true; done(); } }
+          utt.onend = fin;
+          utt.onerror = fin;
+          window.speechSynthesis.speak(utt);
+          setTimeout(fin, 4000 + text.length * 700);
+        }
+        function convListen() {
+          if (!convOn) return;
+          if (!SR) { stopConv(); showToast(T("このブラウザでは音声入力は使えません", "Voice input is not available in this browser")); return; }
+          convState = "listen";
+          convSetStep("listen");
+          var loc = convTurnLocale();
+          convSetStatus((convTurn === "me" ? T("あなたの番：", "Your turn: ") : T("相手の番：", "Partner turn: ")) + convLangName(loc) + T("で聞き取り中…", " — listening…"));
+          if (convRec) { try { convRec.stop(); } catch (e) {} convRec = null; }
+          convRec = new SR();
+          convRec.interimResults = true;
+          convRec.continuous = false;
+          convRec.lang = loc;
+          convRec.onresult = function (event) {
+            var interim = "", finalText = "";
+            for (var i = event.resultIndex; i < event.results.length; i++) {
+              var res = event.results[i];
+              if (res.isFinal) finalText += res[0].transcript;
+              else interim += res[0].transcript;
+            }
+            if (interim) convSetStatus((convTurn === "me" ? T("あなたの番：", "Your turn: ") : T("相手の番：", "Partner turn: ")) + interim);
+            if (finalText.trim()) {
+              convState = "busy";
+              try { convRec.stop(); } catch (e) {}
+              convHandle(finalText.trim());
+            }
+          };
+          convRec.onend = function () {
+            if (convOn && convState === "listen") {
+              setTimeout(function () { if (convOn && convState === "listen") convListen(); }, 250);
+            }
+          };
+          convRec.onerror = function (event) {
+            if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+              stopConv();
+              showToast(T("マイクが許可されていません", "Microphone is not allowed"));
+            }
+          };
+          try { convRec.start(); } catch (e) {}
+        }
+        function convHandle(text) {
+          convSetStep("trans");
+          convSetStatus(T("翻訳中…", "Translating…"));
+          var src = toTransCode(convTurnLocale());
+          var tgt = toTransCode(convOtherLocale());
+          var turn = convTurn;
+          if (src === tgt) { convAddBubble(turn, text, text); convNext(text, turn); return; }
+          var chunks = chunkText(text, 400), out = [], chain = Promise.resolve();
+          chunks.forEach(function (c) {
+            chain = chain.then(function () { return translateChunk(c, src, tgt).then(function (r) { out.push(r); }); });
+          });
+          chain.then(function () {
+            var translated = out.join("");
+            convAddBubble(turn, text, translated);
+            convNext(translated, turn);
+          }).catch(function () {
+            convAddBubble(turn, text, T("（翻訳できませんでした）", "(Translation failed)"));
+            convNext(null, turn);
+          });
+        }
+        function convNext(translated, turn) {
+          if (!convOn) return;
+          convTurn = turn === "me" ? "you" : "me";
+          if (translated && convAutoSpeak) {
+            convState = "speak";
+            convSetStep("speak");
+            convSetStatus(T("読み上げ中…", "Reading aloud…"));
+            var targetLoc = turn === "me" ? convYourLang.value : convMyLang.value;
+            convSpeak(translated, targetLoc, function () { if (convOn) convListen(); });
+          } else {
+            convListen();
+          }
+        }
+        function stopConv() {
+          convOn = false; convState = "idle";
+          if (convRec) { try { convRec.stop(); } catch (e) {} }
+          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+          convSetStep("");
+          convSetStatus(T("待機中です", "Ready"));
+          convStartBtn.disabled = false; convStopBtn.disabled = true; convSwapBtn.disabled = true;
+          convMyLang.disabled = false; convYourLang.disabled = false;
+        }
+        convStartBtn.addEventListener("click", function () {
+          if (convOn) return;
+          if (!SR) { showToast(T("このブラウザでは音声入力は使えません", "Voice input is not available in this browser")); return; }
+          if (minWant) { showToast(T("議事録の録音中です。そちらを止めてから始めてください", "Minutes recording is in progress — stop it first")); return; }
+          if (recOn) { showToast(T("録音中です。そちらを止めてから始めてください", "Recording is in progress — stop it first")); return; }
+          if (wantListening) {
+            wantListening = false;
+            if (recognition) { try { recognition.stop(); } catch (e) {} }
+            micBtn.classList.remove("listening");
+            micBtn.setAttribute("aria-pressed", "false");
+            micLabel.textContent = T("押して話す", "Tap to speak");
+            setStatus(T("待機中です", "Ready"), false);
+            stopMeterMonitor();
+          }
+          if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setSpeakUI(false); setTransSpeakUI(false); }
+          convOn = true; convTurn = "me";
+          convStartBtn.disabled = true; convStopBtn.disabled = false; convSwapBtn.disabled = false;
+          convMyLang.disabled = true; convYourLang.disabled = true;
+          showToast(T("会話モードを開始しました", "Conversation mode started"));
+          convListen();
+        });
+        convStopBtn.addEventListener("click", function () { stopConv(); showToast(T("会話モードを止めました", "Conversation mode stopped")); });
+        convSwapBtn.addEventListener("click", function () {
+          if (!convOn) return;
+          convTurn = convTurn === "me" ? "you" : "me";
+          convState = "listen";
+          if (convRec) { try { convRec.stop(); } catch (e) {} }
+          setTimeout(function () { if (convOn) convListen(); }, 200);
+        });
+        bindToggle($("convAutoToggle"), true, function (v) {
+          convAutoSpeak = v;
+          showToast(T("自動読み上げ ", "Auto read-aloud ") + (v ? "ON" : "OFF"));
+        });
+
+        /* ===== 文字起こし：録音ファイルを再生して聞き取り ===== */
+        var sttFileIn = $("sttFileIn"), sttFileAudio = $("sttFileAudio"), sttFileBtn = $("sttFileBtn");
+        var sttFileActive = false;
+        sttFileIn.addEventListener("change", function () {
+          var f = sttFileIn.files && sttFileIn.files[0];
+          if (!f) return;
+          sttFileAudio.src = URL.createObjectURL(f);
+          sttFileBtn.disabled = false;
+          showToast(T("ファイルを読み込みました：", "File loaded: ") + f.name);
+        });
+        function sttFileResetBtn() { sttFileBtn.textContent = T("▶ 再生して文字起こし", "▶ Play & Transcribe"); }
+        sttFileBtn.addEventListener("click", function () {
+          if (!sttFileAudio.getAttribute("src")) return;
+          if (sttFileActive) {
+            sttFileActive = false;
+            sttFileAudio.pause();
+            if (wantListening) micBtn.click();
+            sttFileResetBtn();
+            return;
+          }
+          if (!SR) { showToast(T("このブラウザでは音声入力は使えません", "Voice input is not available in this browser")); return; }
+          sttFileActive = true;
+          sttFileBtn.textContent = T("■ 止める", "■ Stop");
+          if (!wantListening) micBtn.click();
+          sttFileAudio.currentTime = 0;
+          sttFileAudio.play();
+        });
+        sttFileAudio.addEventListener("ended", function () {
+          if (sttFileActive) {
+            sttFileActive = false;
+            if (wantListening) micBtn.click();
+            sttFileResetBtn();
+            showToast(T("文字起こしが終わりました", "Transcription finished"));
+          }
+        });
+
+        applyI18n();
+        if (LANG === "en") refreshLangTexts();
       })();
     </script>
   </body>
