@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snow Moon Audio Player Ver.20261126.1.52</title>
+<title>Snow Moon Audio Player Ver.20261126.1.55</title>
 <style>
   * { box-sizing: border-box; }
   :root {
@@ -148,11 +148,6 @@
   .band .f { font-size: 10px; color: var(--btn-ink); }
   .band .db { font-size: 10px; color: var(--accent); font-variant-numeric: tabular-nums; }
   .presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; justify-content: center; }
-  #btn-exc {
-    background: var(--exc-bg); color: var(--exc-ink); border: 1px solid var(--exc-border);
-    border-radius: 999px; padding: 9px 18px; font-size: 14px; cursor: pointer;
-  }
-  #btn-exc.on { background: #6d3fa0; border-color: #c9a2ff; color: #fff; }
   .srcrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
   .srcrow .st { font-size: 12px; color: var(--muted); }
   #url-in { flex: 1; min-width: 170px; background: var(--panel); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 13px; }
@@ -179,7 +174,7 @@
   .hint { font-size: 12px; color: var(--muted); line-height: 1.7; margin-top: 10px; }
   #filepick { display: none; }
   #petals { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
-  /* ===== スマホ用レイアウト（タブ切替＋Normal/Pro）Ver.1.52 =====
+  /* ===== スマホ用レイアウト（タブ切替＋Normal/Pro）Ver.1.55 =====
      この @media の中身はスマホ幅（640px以下）でだけ効く。
      （ツマミの誤操作ガードの見た目だけは、後ろに全画面共通で置いてある） */
   @media (max-width: 640px) {
@@ -212,7 +207,6 @@
     .volrow { flex-wrap: wrap; justify-content: center; row-gap: 10px; }
     .knob { width: 88px; height: 88px; }
     .knob.small { width: 76px; height: 76px; }
-    body[data-pmode="normal"] #ph-knobhint { display: none; }
     /* ツマミは3列固定（実機スクショで決まった形） */
     .volrow { column-gap: 0; }
     .volrow .knob-unit { flex: 0 0 33.3333%; }
@@ -224,6 +218,15 @@
   .volrow .knob-unit.k-locked .knob { opacity: .45; touch-action: pan-y; }
   .volrow .knob-unit.k-active .knob { filter: drop-shadow(0 0 7px var(--accent)); }
   #ph-knobhint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
+  /* EQバンド／空間の強さの誤操作ガード＋微調整ボタン（全画面共通） */
+  .band.k-locked input[type="range"] { opacity: .45; }
+  .band.k-active { background: rgba(255,179,92,.10); border-radius: 8px; }
+  .band.k-active input[type="range"] { filter: drop-shadow(0 0 5px var(--accent)); }
+  .band-btn { display: block; margin: 2px auto; width: 38px; min-height: 28px; font-size: 15px; line-height: 1; background: var(--btn); color: var(--btn-ink); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: inherit; }
+  .band-btn:active { background: var(--on-bg); color: var(--on-ink); }
+  #space-gain-row.k-locked #space-gain { opacity: .45; }
+  #space-gain-row.k-active #space-gain { filter: drop-shadow(0 0 5px var(--accent)); }
+  #btn-space-reset { font-size: 11px; padding: 6px 10px; border-radius: 8px; background: var(--btn); color: var(--btn-ink); border: 1px solid var(--border); cursor: pointer; font-family: inherit; min-height: 32px; }
 </style>
 </head>
 <body>
@@ -231,7 +234,7 @@
 <div id="wrap">
   <header class="top">
     <h1>🎵 Snow Moon Audio Player</h1>
-    <span class="ver">Ver.20261126.1.52 / Snow Moon</span>
+    <span class="ver">Ver.20261126.1.55 / Snow Moon</span>
     <button id="btn-lang" type="button">🌐 English</button>
     <button id="btn-update" type="button">🔄 更新</button>
   </header>
@@ -332,6 +335,10 @@
     </div>
     <div class="subrow">
       <div class="knob-unit">
+        <button id="btn-exc" type="button" class="loud-btn" title="MP3でカットされた高音を、倍音を作って補います（低ビットレート音源向け）">EXCITER</button>
+        <div class="knob-lab" id="exc-lab">高音補完：オフ</div>
+      </div>
+      <div class="knob-unit">
         <button id="btn-loud" type="button" class="loud-btn" title="小さい音量でも低音・高音が痩せないように補正します">LOUDNESS</button>
         <div class="knob-lab">ラウドネス</div>
       </div>
@@ -359,11 +366,13 @@
       <button type="button" data-space="spatial">🎧 空間オーディオ</button>
     </div>
     <div id="space-desc" style="font-size:12px;color:#8fa3b8;margin-top:6px;">残響なし（素の音）</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:#8fa3b8;">
+    <div id="space-gain-row" style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:#8fa3b8;">
       <span style="flex:none;">空間の強さ</span>
       <input type="range" id="space-gain" min="30" max="200" value="100" style="flex:1;">
       <span id="space-gain-val" style="flex:none;">100%</span>
+      <button id="btn-space-reset" type="button" style="flex:none;">リセット</button>
     </div>
+    <div style="font-size:11px;color:#8fa3b8;margin-top:2px;">強さスライダーは一度タップしてから動かせます（誤操作防止）</div>
     <div class="modes" style="justify-content:flex-end;">
       <button id="btn-kara" type="button">🎤 カラオケ：オフ</button>
       <button id="mode-bypass" type="button">🔊 音が出ない時</button>
@@ -379,11 +388,8 @@
   <div class="deck eq">
     <h2>🎚️ グラフィックイコライザー（31バンド 1/3オクターブ／単位：Hz・kHz）</h2>
     <div style="font-size:11px;color:#a68d64;">◀ バンドは左右にスライドできます ▶</div>
+    <div style="font-size:11px;color:#a68d64;">スライダーは一度タップしてから動かせます（誤操作防止）。＋／−ボタンで1dBずつ微調整できます</div>
     <canvas id="spec" width="480" height="56"></canvas>
-    <div style="margin-top:10px; text-align:center;">
-      <button type="button" id="btn-exc">✨ 高音補完：オフ</button>
-      <div style="font-size:11px;color:#a68d64;margin-top:4px;">MP3でカットされた高音を、倍音を作って補います（低ビットレート音源向け）</div>
-    </div>
     <div class="bands" id="bands"></div>
     <div class="presets">
       <button type="button" data-preset="flat">フラット</button>
@@ -584,7 +590,10 @@ var I18N = {
 "📈 スペクトルアナライザー":"📈 Spectrum Analyzer",
 "🎚️ グラフィックイコライザー（31バンド 1/3オクターブ／単位：Hz・kHz）":"🎚️ Graphic Equalizer (31-band, 1/3 octave / Hz·kHz)",
 "◀ バンドは左右にスライドできます ▶":"◀ Slide the bands left / right ▶",
-"✨ 高音補完：オフ":"✨ Exciter: Off",
+"スライダーは一度タップしてから動かせます（誤操作防止）。＋／−ボタンで1dBずつ微調整できます":"Tap a slider once before moving it (prevents accidental changes). Use the +/− buttons for fine 1dB steps",
+"強さスライダーは一度タップしてから動かせます（誤操作防止）":"Tap the strength slider once before moving it (prevents accidental changes)",
+"リセット":"Reset",
+"高音補完：オフ":"Exciter: Off",
 "MP3でカットされた高音を、倍音を作って補います（低ビットレート音源向け）":"Restores treble lost in MP3s by generating harmonics (for low-bitrate sources)",
 "フラット":"Flat",
 "低音ブースト":"Bass Boost",
@@ -662,7 +671,7 @@ function refreshLangTexts(){
   renderXf();
   var names = LANG === "en" ? ["Off", "Weak", "Strong"] : ["オフ", "弱", "強"];
   $("btn-kara").textContent = "🎤 " + T("カラオケ：", "Karaoke: ") + names[karaLevel];
-  $("btn-exc").textContent = "✨ " + T("高音補完：", "Exciter: ") + names[excLevel];
+  $("exc-lab").textContent = T("高音補完：", "Exciter: ") + names[excLevel];
   $("btn-base").textContent = baseMode === "server" ? T("🌐 音源：サーバー", "🌐 Source: Server") : T("💾 音源：ローカル", "💾 Source: Local");
   elStatus.textContent = baseMode === "server" ? T("音源： ゲームサーバーから再生します（ネット接続時）", "Source: plays from the game server (online)") : T("音源： このHTMLと同じ場所の bgm/ フォルダ", "Source: the bgm/ folder next to this HTML file");
   applyHpCorrection(hpData);
@@ -947,7 +956,7 @@ function initAudioGraph(){
     anL = AC.createAnalyser(); anL.fftSize = 4096;
     anR = AC.createAnalyser(); anR.fftSize = 4096;
     split.connect(anL, 0); split.connect(anR, 1);
-    $("fmtinfo").textContent = "OUTPUT: " + AC.sampleRate.toLocaleString() + "Hz / 32bit float / グライコ31バンド";
+    $("fmtinfo").textContent = "OUTPUT: " + AC.sampleRate.toLocaleString() + "Hz / 32bit float / グライコ31バンド / VU校正 0VU=-14dBFS";
     updateLoudness();
     applySpace();
     applyNorm();
@@ -1715,7 +1724,9 @@ var bandsEl = $("bands");
 var sliders = EQ_FREQS.map(function(f, i){
   var d = document.createElement("div");
   d.className = "band";
-  d.innerHTML = '<input type="range" min="-12" max="12" step="1" value="0" data-band="' + i + '">' +
+  d.innerHTML = '<button type="button" class="band-btn" data-step="1" title="+1dB">＋</button>' +
+    '<input type="range" min="-12" max="12" step="1" value="0" data-band="' + i + '">' +
+    '<button type="button" class="band-btn" data-step="-1" title="-1dB">−</button>' +
     '<div class="db">0dB</div><div class="f">' + (f >= 1000 ? (f / 1000) + "k" : "" + f) + "</div>";
   bandsEl.appendChild(d);
   var inp = d.querySelector("input");
@@ -1749,7 +1760,7 @@ var PRESETS = {
 $("btn-exc").addEventListener("click", function(){
   excLevel = (excLevel + 1) % 3;
   var names = LANG === "en" ? ["Off", "Weak", "Strong"] : ["オフ", "弱", "強"];
-  $("btn-exc").textContent = "✨ " + T("高音補完：", "Exciter: ") + names[excLevel];
+  $("exc-lab").textContent = T("高音補完：", "Exciter: ") + names[excLevel];
   $("btn-exc").classList.toggle("on", excLevel > 0);
   if(excWet && AC) excWet.gain.setTargetAtTime([0, 0.15, 0.35][excLevel], AC.currentTime, 0.05);
 });
@@ -1859,6 +1870,8 @@ function rmsOf(an){
   return Math.sqrt(s / buf.length);
 }
 function toDb(r){ return r <= 0.0001 ? -40 : Math.max(-40, 20 * Math.log(r) / Math.LN10); }
+var VU_CAL = 14; /* VU校正：0VU = -14dBFS（K-14、ポップス向けモニター校正）。メーター表示だけの補正で、音は一切変えない */
+function vuDb(rms){ var db = toDb(rms); return db <= -39.5 ? -40 : Math.min(3, db + VU_CAL); }
 var peakDbL = -40, peakDbR = -40, peakTL = 0, peakTR = 0;
 function vuAngle(db){
   var p = Math.pow(10, db / 20); /* VUは電圧％スケール */
@@ -1931,16 +1944,16 @@ function drawMeters(){
     elSeek.value = Math.round(rp / revDur * 1000);
   }
   vuCtx.clearRect(0, 0, 480, 120);
-  var tL = playing ? toDb(rmsOf(anL)) : -40;
-  var tR = playing ? toDb(rmsOf(anR)) : -40;
+  var tL = playing ? vuDb(rmsOf(anL)) : -40;
+  var tR = playing ? vuDb(rmsOf(anR)) : -40;
   if(tR <= -39.5 && tL > -39.5) tR = tL; /* Mono音源は右信号が無いので左右同じ針にする */
   needleL += (tL - needleL) * (tL > needleL ? 0.45 : 0.07);
   needleR += (tR - needleR) * (tR > needleR ? 0.45 : 0.07);
   var nowMs = performance.now();
-  if(needleL > peakDbL){ peakDbL = needleL; peakTL = nowMs; }
-  if(needleR > peakDbR){ peakDbR = needleR; peakTR = nowMs; }
-  drawMeter(8, needleL, "LEFT", peakDbL, peakDbL >= 0 && nowMs - peakTL < 1200);
-  drawMeter(248, needleR, "RIGHT", peakDbR, peakDbR >= 0 && nowMs - peakTR < 1200);
+  if(needleL >= 0) peakTL = nowMs; /* 0VU以上でピークランプ点灯（1.2秒保持、超えるたびに点き直す） */
+  if(needleR >= 0) peakTR = nowMs;
+  drawMeter(8, needleL, "LEFT", needleL, nowMs - peakTL < 1200);
+  drawMeter(248, needleR, "RIGHT", needleR, nowMs - peakTR < 1200);
   /* スペクトラム */
   specCtx.clearRect(0, 0, 480, 56);
   if(anFFT && playing){
@@ -2148,7 +2161,7 @@ applyI18n();
 if(LANG === "en") refreshLangTexts();
 </script>
 <script>
-/* ===== スマホ用レイアウト制御（タブ切替＋Normal/Pro）Ver.1.52 =====
+/* ===== スマホ用レイアウト制御（タブ切替＋Normal/Pro）Ver.1.55 =====
    スマホ幅（640px以下）の時だけ、既存デッキをタブのシートに振り分け、
    一部の部品（ヘッドホン補正／テーマ／使い方）を担当シートのデッキへ
    移動する。広い画面では元の配置のまま一切触らない。 */
@@ -2168,13 +2181,13 @@ if(LANG === "en") refreshLangTexts();
   decks[0].querySelectorAll(".volrow .knob-unit").forEach(function(u, i){
     if(i < 5) u.classList.add("ph-pro"); /* SUB/BASS/MID/TREBLE/BALANCE。VOLUMEは常時表示 */
   });
-  /* ===== 音色ツマミの誤操作ガード（VOLUME以外は一度タップして押し込んでから調整） =====
+  /* ===== ツマミの誤操作ガード（全ツマミ＝一度タップして押し込んでから調整） =====
      全画面共通（スマホ／タブレット／PC）。ロック中のツマミはドラッグ・
      ホイール・ダブルクリックを受け付けない。タップ（小さな動き）で
      押し込み状態になり、そのツマミだけ調整できる。5秒操作がなければ
      自動でロックに戻る。タブ・モード切替でもロックする。 */
   var toneUnits = [];
-  ["knob-sub","knob-bass","knob-mid","knob-treble","knob-bal"].forEach(function(id){
+  ["knob","knob-sub","knob-bass","knob-mid","knob-treble","knob-bal"].forEach(function(id){
     var k = $(id);
     if(k && k.parentNode) toneUnits.push(k.parentNode);
   });
@@ -2234,6 +2247,122 @@ if(LANG === "en") refreshLangTexts();
     var u = toneUnitOf(e.target);
     if(u && u.classList.contains("k-locked")){ e.stopPropagation(); e.preventDefault(); }
   }, true);
+  /* ===== EQバンド／空間の強さの誤操作ガード（タップで押し込み、＋／−で微調整） =====
+     全画面共通。ロック中のバンドはスライダーが動かず、＋／−も効かない。
+     タップでそのバンドだけ有効になり、5秒で自動ロックに戻る。 */
+  var bandsBox = document.getElementById("bands");
+  var bandEls = bandsBox ? Array.prototype.slice.call(bandsBox.querySelectorAll(".band")) : [];
+  var activeBand = null, bandTimer = null, bandTap = null;
+  function lockBands(){
+    activeBand = null;
+    if(bandTimer){ clearTimeout(bandTimer); bandTimer = null; }
+    bandEls.forEach(function(b){ b.classList.add("k-locked"); b.classList.remove("k-active"); });
+  }
+  function armBandTimer(){ if(bandTimer) clearTimeout(bandTimer); bandTimer = setTimeout(lockBands, 5000); }
+  function activateBand(b){
+    lockBands();
+    activeBand = b;
+    b.classList.remove("k-locked"); b.classList.add("k-active");
+    armBandTimer();
+  }
+  function bandOf(el){
+    while(el && el !== bandsBox){
+      if(el.classList && el.classList.contains("band")) return el;
+      el = el.parentNode;
+    }
+    return null;
+  }
+  if(bandsBox){
+    bandsBox.addEventListener("pointerdown", function(e){
+      var b = bandOf(e.target);
+      if(!b) return;
+      if(b.classList.contains("k-locked")){
+        e.preventDefault(); e.stopPropagation();
+        bandTap = { b: b, x: e.clientX, y: e.clientY, t: Date.now() };
+      } else if(b === activeBand){ armBandTimer(); }
+    }, true);
+    bandsBox.addEventListener("pointerup", function(e){
+      if(!bandTap) return;
+      var b = bandOf(e.target);
+      var ok = b === bandTap.b && (Date.now() - bandTap.t) < 600 &&
+        Math.abs(e.clientX - bandTap.x) < 8 && Math.abs(e.clientY - bandTap.y) < 8;
+      bandTap = null;
+      if(b && b.classList.contains("k-locked")){
+        e.preventDefault(); e.stopPropagation();
+        if(ok) activateBand(b);
+      }
+    }, true);
+    bandsBox.addEventListener("pointercancel", function(){ bandTap = null; }, true);
+    bandsBox.addEventListener("click", function(e){
+      var b = bandOf(e.target);
+      if(b && b.classList.contains("k-locked")){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    bandsBox.addEventListener("wheel", function(e){
+      var b = bandOf(e.target);
+      if(b && b.classList.contains("k-locked")){ e.preventDefault(); e.stopPropagation(); }
+      else if(b && b === activeBand){ armBandTimer(); }
+    }, { capture: true, passive: false });
+    /* ＋／−ボタン：有効中のバンドだけ、1dBずつ */
+    bandsBox.querySelectorAll(".band-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var b = bandOf(btn);
+        if(!b || b !== activeBand) return;
+        var inp = b.querySelector("input[type=range]");
+        if(!inp) return;
+        var v = Math.max(-12, Math.min(12, Number(inp.value) + Number(btn.getAttribute("data-step"))));
+        inp.value = v;
+        inp.dispatchEvent(new Event("input", { bubbles: true }));
+        armBandTimer();
+      });
+    });
+  }
+  /* 空間の強さ：タップで押し込み＋リセットボタン（100%に戻す） */
+  var spaceRow = document.getElementById("space-gain-row");
+  var spaceGainInp = document.getElementById("space-gain");
+  var spaceActive = false, spaceTimer = null, spaceTap = null;
+  function lockSpace(){
+    spaceActive = false;
+    if(spaceTimer){ clearTimeout(spaceTimer); spaceTimer = null; }
+    if(spaceRow){ spaceRow.classList.add("k-locked"); spaceRow.classList.remove("k-active"); }
+  }
+  function armSpaceTimer(){ if(spaceTimer) clearTimeout(spaceTimer); spaceTimer = setTimeout(lockSpace, 5000); }
+  if(spaceRow && spaceGainInp){
+    spaceRow.addEventListener("pointerdown", function(e){
+      if(e.target && e.target.id === "btn-space-reset") return;
+      if(spaceRow.classList.contains("k-locked")){
+        e.preventDefault(); e.stopPropagation();
+        spaceTap = { x: e.clientX, y: e.clientY, t: Date.now() };
+      } else if(spaceActive){ armSpaceTimer(); }
+    }, true);
+    spaceRow.addEventListener("pointerup", function(e){
+      if(!spaceTap) return;
+      var ok = (Date.now() - spaceTap.t) < 600 &&
+        Math.abs(e.clientX - spaceTap.x) < 8 && Math.abs(e.clientY - spaceTap.y) < 8;
+      spaceTap = null;
+      if(spaceRow.classList.contains("k-locked")){
+        e.preventDefault(); e.stopPropagation();
+        if(ok){
+          spaceActive = true;
+          spaceRow.classList.remove("k-locked"); spaceRow.classList.add("k-active");
+          armSpaceTimer();
+        }
+      }
+    }, true);
+    spaceRow.addEventListener("pointercancel", function(){ spaceTap = null; }, true);
+    spaceRow.addEventListener("wheel", function(e){
+      if(spaceRow.classList.contains("k-locked")){ e.preventDefault(); e.stopPropagation(); }
+      else if(spaceActive){ armSpaceTimer(); }
+    }, { capture: true, passive: false });
+  }
+  var spaceResetBtn = document.getElementById("btn-space-reset");
+  if(spaceResetBtn && spaceGainInp){
+    spaceResetBtn.addEventListener("click", function(){
+      spaceGainInp.value = 100;
+      spaceGainInp.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+  lockBands();
+  lockSpace();
   /* 設定シート用の受け皿デッキ（スマホ幅の時だけ #wrap に差し込む） */
   var setDeck = document.createElement("div");
   setDeck.className = "deck";
@@ -2288,8 +2417,10 @@ if(LANG === "en") refreshLangTexts();
       if(lk) lk.style.display = locked ? "" : "none";
     });
     toneLockAll();
+    lockBands();
+    lockSpace();
     var kh = $("ph-knobhint");
-    if(kh) kh.textContent = T("音色ツマミ（VOLUME以外）は、一度タップして押し込んでから調整します（誤操作防止）", "Tone knobs (except VOLUME): tap once to push in, then adjust (prevents accidental changes)");
+    if(kh) kh.textContent = T("ツマミは、一度タップして押し込んでから調整します（誤操作防止）", "Knobs: tap once to push in, then adjust (prevents accidental changes)");
     $("ph-note").textContent = noteMsg || (phMode === "pro"
       ? T("Proモード：全タブ開放（設定はNormalに戻しても保持されます）", "Pro mode: all tabs open (settings are kept when you switch back to Normal)")
       : T("Normalモード：調整系のタブは閉じています", "Normal mode: adjustment tabs are locked"));
