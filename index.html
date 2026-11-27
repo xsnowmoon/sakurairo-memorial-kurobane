@@ -28,7 +28,7 @@
 </script>
 <script>
 /* 2.63 自動バージョンチェック：開く時にサーバーの version.txt と比べ、新しければ ?r= で読み直す */
-(function(){var MY="202611270273";try{
+(function(){var MY="202611270274";try{
  if(location.protocol==="file:")return;
  fetch("version.txt",{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
   var sv=(t||"").trim();
@@ -63,7 +63,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611270273">
+<link rel="stylesheet" href="style.css?b=202611270274">
 
 </head>
 <body>
@@ -84,7 +84,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 強制キャッシュクリア</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261127.2.73</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261127.2.74</p>
   </div>
 </main>
 
@@ -129,8 +129,8 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261127.2.73</div>
-    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn" id="btn-qr" style="min-height:44px">📱 お友達紹介QR</button><button type="button" class="btn" id="btn-cm" style="min-height:44px">🎬 おまけCM</button></div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261127.2.74</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn" id="btn-qr" style="min-height:44px">📱 お友達紹介QR</button><button type="button" class="btn" id="btn-cm" style="min-height:44px">🎬 おまけ動画</button></div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
     <h2 class="section-title">❓ あそびかた</h2>
@@ -597,8 +597,8 @@
 
 <div class="modal-bg hidden" id="modal-cm" style="z-index:65">
   <div class="modal" style="max-width:420px">
-    <h3 style="margin:0 0 6px">🎬 おまけCM</h3>
-    <p style="font-size:13px;color:var(--muted);margin:4px 0 10px;line-height:1.6">SNS用のショートCMです。タップで再生します（動画は videos フォルダから読みます）。</p>
+    <h3 style="margin:0 0 6px">🎬 おまけ動画</h3>
+    <p style="font-size:13px;color:var(--muted);margin:4px 0 10px;line-height:1.6">SNS用のショートCMと、さくらのソロ動画です。タップで再生します（動画は videos フォルダから読みます）。</p>
     <div id="cm-list"></div>
     <button type="button" class="btn primary" id="cm-close" style="width:100%;min-height:48px;margin-top:12px">閉じる</button>
   </div>
@@ -724,9 +724,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611270273"></script>
-<script src="story.js?b=202611270273"></script>
-<script src="engine.js?b=202611270273"></script>
+<script src="data.js?b=202611270274"></script>
+<script src="story.js?b=202611270274"></script>
+<script src="engine.js?b=202611270274"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){

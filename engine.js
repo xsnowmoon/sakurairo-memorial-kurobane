@@ -25,7 +25,7 @@ let bgmHeardSet=new Set();
 function persistBgmHeard(){lsSet(LS_KEYS.bgmHeard,Array.from(bgmHeardSet))}
 let videoSeenSet=new Set();
 function persistVideoSeen(){lsSet(LS_KEYS.videoSeen,Array.from(videoSeenSet))}
-function markVideoSeen(f){if(f&&f.indexOf("sns-")!==0&&!videoSeenSet.has(f)){videoSeenSet.add(f);persistVideoSeen();if($("album-video-list"))renderVideoList()}}
+function markVideoSeen(f){if(f&&f.indexOf("sns-")!==0&&f.indexOf("solo-sakura-")!==0&&!videoSeenSet.has(f)){videoSeenSet.add(f);persistVideoSeen();if($("album-video-list"))renderVideoList()}}
 function markBgmHeard(k){if(k&&BGM_TRACKS&&BGM_TRACKS[k]&&!bgmHeardSet.has(k)){bgmHeardSet.add(k);persistBgmHeard()}}
 function lsGet(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
@@ -2593,11 +2593,24 @@ if($("btn-video-bgm"))$("btn-video-bgm").onclick=function(){setVideoBgm(!videoBg
 if($("btn-video-menu"))$("btn-video-menu").onclick=function(){closeSpecial();goTitle()};
 
 /* 2.68 おまけCM：SNS用ショート動画の専用枠（お宝動画コレクションとは独立。ファイルは videos/sns-*.mp4、増やす時はこのリストに1行足すだけ） */
+/* 2.74 枠の名前を「おまけ動画」に変更し、ソロさくら動画12本（videos/solo-sakura-*.mp4）を追加。おまけ枠の動画はお宝動画の解放数に数えない */
 const CM_VIDEOS=[
  ["sns-groundgolf.mp4","① グラウンドゴルフ","あかりが打って、3人が拍手"],
  ["sns-tanzaku.mp4","② 短冊に俳句","芭蕉の句碑のそばで筆を動かしてる"],
  ["sns-newyear.mp4","③ お正月の挨拶","晴れ着で手を合わせてお辞儀"],
- ["sns-cycling.mp4","④ 那珂川サイクリング","先頭のあかりがチェレステのビアンキ、那珂川沿いを並走"]
+ ["sns-cycling.mp4","④ 那珂川サイクリング","先頭のあかりがチェレステのビアンキ、那珂川沿いを並走"],
+ ["solo-sakura-1-hand.mp4","さくらソロ 1 手","手のクローズアップ"],
+ ["solo-sakura-2-turn.mp4","さくらソロ 2 振り向き","ふっと振り向くさくら"],
+ ["solo-sakura-3-pullback.mp4","さくらソロ 3 引きの画","カメラが引いて全身へ"],
+ ["solo-sakura-4-orbit.mp4","さくらソロ 4 回り込み","周りをぐるっと回るカメラ"],
+ ["solo-sakura-5-arms.mp4","さくらソロ 5 腕広げ","両腕を広げるさくら"],
+ ["solo-sakura-6-walk.mp4","さくらソロ 6 歩く","歩いて近づいてくるさくら"],
+ ["solo-sakura-7-wave.mp4","さくらソロ 7 手振り","笑顔で手を振るさくら"],
+ ["solo-sakura-8-zoomin.mp4","さくらソロ 8 ズームイン","顔へゆっくりズームイン"],
+ ["solo-sakura-9-shystart.mp4","さくらソロ 9 照れ歌い出し","照れながら歌い始めるさくら"],
+ ["solo-sakura-10-shysing.mp4","さくらソロ 10 照れ歌い","照れ笑いで歌うさくら"],
+ ["solo-sakura-11-gradsing.mp4","さくらソロ 11 卒業ソング","卒業の日に歌うさくら"],
+ ["solo-sakura-12-gradlookup.mp4","さくらソロ 12 卒業見上げ","卒業の日、空を見上げるさくら"]
 ];
 function openCm(){
  const box=$("cm-list");if(!box)return;
@@ -2606,7 +2619,7 @@ function openCm(){
  $("modal-cm").classList.remove("hidden");
 }
 function playCmAt(i){
- videoDisplay=CM_VIDEOS.map(function(v){return [v[0],"おまけCM　"+v[1]]});
+ videoDisplay=CM_VIDEOS.map(function(v){return [v[0],"おまけ動画　"+v[1]]});
  $("modal-cm").classList.add("hidden");
  playSpecialAt(i);
 }
