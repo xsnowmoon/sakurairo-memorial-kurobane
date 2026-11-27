@@ -28,7 +28,7 @@
 </script>
 <script>
 /* 2.63 自動バージョンチェック：開く時にサーバーの version.txt と比べ、新しければ ?r= で読み直す */
-(function(){var MY="202611270271";try{
+(function(){var MY="202611270272";try{
  if(location.protocol==="file:")return;
  fetch("version.txt",{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
   var sv=(t||"").trim();
@@ -63,7 +63,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611270271">
+<link rel="stylesheet" href="style.css?b=202611270272">
 
 </head>
 <body>
@@ -84,7 +84,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 強制キャッシュクリア</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261127.2.71</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261127.2.72</p>
   </div>
 </main>
 
@@ -130,7 +130,7 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261127.2.71</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261127.2.72</div>
     <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn" id="btn-qr" style="min-height:44px">📱 お友達紹介QR</button><button type="button" class="btn" id="btn-cm" style="min-height:44px">🎬 おまけCM</button></div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
@@ -632,6 +632,7 @@
       <tbody><tr><th>タイトル</th><td>桜色メモリアル 〜ときめき学園物語〜</td></tr>
       <tr><th>ジャンル</th><td>1人用・育成シミュレーション／恋愛アドベンチャー</td></tr>
       <tr><th>制作・著作</th><td>Snow Moon Games</td></tr>
+      <tr><th>ホームページ</th><td><a href="https://xsnowmoon.github.io/" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">🏠 Snow Moon工房（ホームページ）</a></td></tr>
       <tr><th>イラスト</th><td>ヒロイン<span data-cnt="heroines">4</span>人×<span data-cnt="heroImgEach">15</span>枚＝<span data-cnt="heroImgTotal">60</span>枚＋新規<span data-cnt="newMem">79</span>枚（OP／保健室の先生／句碑／地域イベント／バッドエンド／特典。すべて assets フォルダのWebP画像）</td></tr>
       <tr><th>BGM</th><td>Web Audioによる場面別<span data-cnt="bgm">40</span>曲の合成演奏（管理機能でMP3差し替え可）</td></tr>
       <tr><th>セーブ</th><td>3スロット（ブラウザに自動保存）＋ファイル保存対応</td></tr>
@@ -736,9 +737,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611270271"></script>
-<script src="story.js?b=202611270271"></script>
-<script src="engine.js?b=202611270271"></script>
+<script src="data.js?b=202611270272"></script>
+<script src="story.js?b=202611270272"></script>
+<script src="engine.js?b=202611270272"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){
