@@ -28,7 +28,7 @@
 </script>
 <script>
 /* 2.63 自動バージョンチェック：開く時にサーバーの version.txt と比べ、新しければ ?r= で読み直す */
-(function(){var MY="202611230270";try{
+(function(){var MY="202611270271";try{
  if(location.protocol==="file:")return;
  fetch("version.txt",{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
   var sv=(t||"").trim();
@@ -63,7 +63,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611230270">
+<link rel="stylesheet" href="style.css?b=202611270271">
 
 </head>
 <body>
@@ -84,7 +84,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 強制キャッシュクリア</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261123.2.70</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261127.2.71</p>
   </div>
 </main>
 
@@ -130,7 +130,7 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261123.2.70</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261127.2.71</div>
     <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn" id="btn-qr" style="min-height:44px">📱 お友達紹介QR</button><button type="button" class="btn" id="btn-cm" style="min-height:44px">🎬 おまけCM</button></div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
@@ -519,7 +519,7 @@
     <h3 class="mincho" id="detail-title" style="margin:4px 0 8px;font-size:20px"></h3>
     <img id="detail-img" src="assets/sakura.webp" alt="" style="width:min(260px,70%);aspect-ratio:3/4;object-fit:cover;object-position:top;border-radius:12px">
     <p id="detail-text" style="line-height:2;font-weight:500;white-space:pre-line"></p>
-    <button class="btn small hidden" id="detail-map">🗺 実在の場所を地図で見る</button> <button class="btn small" id="detail-close">閉じる</button>
+    <button class="btn small hidden" id="detail-video">▶ 動画を見る</button> <button class="btn small hidden" id="detail-map">🗺 実在の場所を地図で見る</button> <button class="btn small" id="detail-close">閉じる</button>
   </div>
   <div style="margin-top:14px;text-align:left"><button class="btn" id="btn-album-to-title">タイトルへ戻る</button></div>
 </main>
@@ -720,6 +720,10 @@
     <button class="btn small" id="adm-dbg-goto">その週へ移動</button>
     <div class="field" style="margin-top:10px"><label>🏥 先生ルート状態（v2デバッグ）</label><div id="adm-nurse-state" style="font-weight:700">―</div></div>
 
+    <h4 class="adm-sec">🎬 動画管理</h4>
+    <p class="adm-note">回想アルバムと連動した動画（ls-op01シリーズ）の一覧です。動画ファイルはサーバーの videos フォルダに置きます。アルバムで思い出を開くと「▶ 動画を見る」から、その静止画が動き出す動画を再生できます（自動再生はしません。お宝動画の解放数には数えません）。</p>
+    <div id="adm-video-list" style="margin-top:10px"></div>
+
     <h4 class="adm-sec">💾 管理データのセーブ／読み込み</h4>
     <p class="adm-note">BGM設定・上書き・カスタムストーリーをまとめて1ファイルに保存／読み込みします（ゲームのセーブとは別ファイルです）。</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -732,9 +736,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611230270"></script>
-<script src="story.js?b=202611230270"></script>
-<script src="engine.js?b=202611230270"></script>
+<script src="data.js?b=202611270271"></script>
+<script src="story.js?b=202611270271"></script>
+<script src="engine.js?b=202611270271"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){

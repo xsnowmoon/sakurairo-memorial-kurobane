@@ -1959,6 +1959,9 @@ function adminRenderLists(){
  const cu=$("adm-cu-list");
  if(cu){cu.innerHTML=ADMIN.custom.length?ADMIN.custom.map((c,i)=>'<div class="kv"><span>No.'+esc(c.no||("CU-"+(i+1)))+' '+esc(c.title||"")+'</span><span><button class="btn small" data-cu-del="'+i+'">削除</button></span></div>').join(""):'<div class="kv"><span>カスタムなし</span><span>―</span></div>';
  cu.querySelectorAll("[data-cu-del]").forEach(b=>{b.onclick=()=>{ADMIN.custom.splice(+b.dataset.cuDel,1);persistAdmin();adminRenderLists();toast("カスタムストーリーを削除しました")}})}
+ /* 2.71: 回想連動の動画（ls-op01シリーズ）一覧。data.js の video 付き思い出から自動生成 */
+ const vd=$("adm-video-list");
+ if(vd){const vs=(typeof ALL_MEMORIES!=="undefined"?ALL_MEMORIES:[]).filter(m=>m.video);vd.innerHTML=vs.length?vs.map(m=>'<div class="kv"><span>'+esc(m.id.replace("mem_",""))+" "+esc(m.title)+'</span><span>'+esc(m.video)+'</span></div>').join(""):'<div class="kv"><span>動画なし</span><span>―</span></div>'}
 }
 function openAdmin(){
  const list=$("adm-bgm-list");list.innerHTML="";
@@ -2188,6 +2191,7 @@ function renderAlbumGrid(){
    $("album-detail").classList.remove("hidden");
    $("detail-tag").textContent=m.tag+"｜"+m.date;$("detail-title").textContent=m.title;
    $("detail-img").src=mImg;const __pq2=placeOf(mImg);const __dm=$("detail-map");if(__dm){__dm.classList.toggle("hidden",!__pq2);__dm.setAttribute("data-q",__pq2||"")}$("detail-text").textContent=m.text+(m.cond?"\n\n【解放条件】"+m.cond:"");
+   const __dv=$("detail-video");if(__dv){if(m.video){__dv.classList.remove("hidden");__dv.onclick=()=>{const f=String(m.video).split("/").pop();videoDisplay=[[f,"回想動画　"+m.title]];playSpecialAt(0)}}else{__dv.classList.add("hidden");__dv.onclick=null}}
    $("album-detail").scrollIntoView({behavior:"smooth",block:"nearest"});beep(700,.08)};
   $("album-grid").appendChild(b);
  });
@@ -2572,7 +2576,7 @@ function renderVideoList(){
 let specialIdx=-1, videoDisplay=[], videoBgmOn=false;
 function playSpecialCore(file,title,idx){
  stopSpeak();
- markVideoSeen(file);
+ if(file.indexOf("ls-")!==0)markVideoSeen(file); /* 2.71: 回想連動の ls 動画はお宝動画の解放数に数えない（おまけCMと同じ扱い） */
  const m=$("modal-video"),v=$("special-video");if(!m||!v)return;
  if(typeof idx==="number")specialIdx=idx;
  $("video-title").textContent="🎁 "+title;$("video-msg").textContent="";
