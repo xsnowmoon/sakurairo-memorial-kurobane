@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snow Moon Audio Player Ver.20261126.1.55</title>
+<title>Snow Moon Audio Player Ver.20261127.1.65</title>
 <style>
   * { box-sizing: border-box; }
   :root {
@@ -174,37 +174,22 @@
   .hint { font-size: 12px; color: var(--muted); line-height: 1.7; margin-top: 10px; }
   #filepick { display: none; }
   #petals { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
-  /* ===== スマホ用レイアウト（タブ切替＋Normal/Pro）Ver.1.55 =====
-     この @media の中身はスマホ幅（640px以下）でだけ効く。
-     （ツマミの誤操作ガードの見た目だけは、後ろに全画面共通で置いてある） */
+  /* ===== スマホ用レイアウト Ver.1.65 =====
+     スマホ幅（640px以下）でも全デッキを縦に並べる一画面式
+     （タブ切替・モード切替は廃止）。ここにあるのは幅に
+     合わせた微調整だけ。（ツマミの誤操作ガードの見た目は、
+     後ろに全画面共通で置いてある） */
   @media (max-width: 640px) {
     body { padding: 6px; }
     header.top h1 { font-size: 17px; }
-    /* Normal／Pro 切替（タブの上） */
-    #ph-ui { display: block !important; }
-    #ph-mode { display: flex; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 6px; }
-    #ph-mode button { flex: 1; padding: 10px 6px; font-size: 15px; background: none; border: 0; color: var(--muted); font-family: inherit; cursor: pointer; min-height: 48px; }
-    #ph-mode button small { display: block; font-size: 10px; font-weight: normal; margin-top: 2px; opacity: .85; }
-    #ph-mode button.on { background: var(--on-bg); color: var(--on-ink); font-weight: bold; }
-    #ph-note { font-size: 12px; color: var(--info); text-align: center; min-height: 16px; margin: 2px 0 6px; }
-    /* タブバー（再生／選曲／EQ／空間・効果／設定） */
-    #ph-tabs { position: sticky; top: 0; z-index: 50; display: flex; background: var(--deck2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-    .ph-tab { flex: 1; text-align: center; padding: 8px 1px 7px; font-size: 12px; color: var(--muted); border: 0; background: none; border-bottom: 3px solid transparent; cursor: pointer; font-family: inherit; position: relative; min-height: 52px; }
-    .ph-tab .ic { display: block; font-size: 18px; margin-bottom: 2px; }
-    .ph-tab.on { color: var(--head); font-weight: bold; border-bottom-color: var(--accent); background: var(--deck1); }
-    .ph-tab.locked { opacity: .42; }
-    .ph-tab .lk { position: absolute; top: 3px; right: 4px; font-size: 10px; }
-    /* シート切替：選択中のタブのデッキだけ出す */
-    #wrap > .deck[data-psheet] { display: none; }
-    body[data-ptab="play"] #wrap > .deck[data-psheet="play"],
-    body[data-ptab="list"] #wrap > .deck[data-psheet="list"],
-    body[data-ptab="eq"] #wrap > .deck[data-psheet="eq"],
-    body[data-ptab="fx"] #wrap > .deck[data-psheet="fx"],
-    body[data-ptab="set"] #wrap > .deck[data-psheet="set"] { display: block; }
-    /* Normalモードでは Pro専用パーツ（メーター・アナライザー・音色ツマミ）を隠す */
-    body[data-pmode="normal"] .ph-pro { display: none !important; }
-    /* 再生シートの微調整（ツマミはVOLUMEを中心に） */
+    /* ツマミの並び（3列固定） */
     .volrow { flex-wrap: wrap; justify-content: center; row-gap: 10px; }
+    /* ジャンプ用タブバー（押すとその区分までスクロールするだけ） */
+    #jump-tabs { position: sticky; top: 0; z-index: 50; display: flex !important; background: var(--deck2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+    .jump-tab { flex: 1; text-align: center; padding: 8px 1px 7px; font-size: 12px; color: var(--muted); border: 0; background: none; border-bottom: 3px solid transparent; cursor: pointer; font-family: inherit; min-height: 52px; }
+    .jump-tab .ic { display: block; font-size: 18px; margin-bottom: 2px; }
+    .jump-tab.on { color: var(--head); font-weight: bold; border-bottom-color: var(--accent); background: var(--deck1); }
+    #wrap > .deck { scroll-margin-top: 74px; }
     .knob { width: 88px; height: 88px; }
     .knob.small { width: 76px; height: 76px; }
     /* ツマミは3列固定（実機スクショで決まった形） */
@@ -219,12 +204,14 @@
   .volrow .knob-unit.k-active .knob { filter: drop-shadow(0 0 7px var(--accent)); }
   #ph-knobhint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 6px; }
   /* EQバンド／空間の強さの誤操作ガード＋微調整ボタン（全画面共通） */
-  .band.k-locked input[type="range"] { opacity: .45; }
+  .band.k-locked { touch-action: pan-y; }
+  .band.k-locked input[type="range"] { opacity: .45; pointer-events: none; }
   .band.k-active { background: rgba(255,179,92,.10); border-radius: 8px; }
   .band.k-active input[type="range"] { filter: drop-shadow(0 0 5px var(--accent)); }
   .band-btn { display: block; margin: 2px auto; width: 38px; min-height: 28px; font-size: 15px; line-height: 1; background: var(--btn); color: var(--btn-ink); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: inherit; }
   .band-btn:active { background: var(--on-bg); color: var(--on-ink); }
-  #space-gain-row.k-locked #space-gain { opacity: .45; }
+  #space-gain-row.k-locked { touch-action: pan-y; }
+  #space-gain-row.k-locked #space-gain { opacity: .45; pointer-events: none; }
   #space-gain-row.k-active #space-gain { filter: drop-shadow(0 0 5px var(--accent)); }
   #btn-space-reset { font-size: 11px; padding: 6px 10px; border-radius: 8px; background: var(--btn); color: var(--btn-ink); border: 1px solid var(--border); cursor: pointer; font-family: inherit; min-height: 32px; }
 </style>
@@ -234,26 +221,19 @@
 <div id="wrap">
   <header class="top">
     <h1>🎵 Snow Moon Audio Player</h1>
-    <span class="ver">Ver.20261126.1.55 / Snow Moon</span>
+    <span class="ver">Ver.20261127.1.65 / Snow Moon</span>
     <button id="btn-lang" type="button">🌐 English</button>
     <button id="btn-update" type="button">🔄 更新</button>
   </header>
 
-  <!-- スマホ用UI（タブ切替＋Normal/Pro）：スマホ幅の時だけCSSで表示される -->
-  <div id="ph-ui" style="display:none">
-    <div id="ph-mode">
-      <button id="ph-m-normal" type="button" class="on">Normal<small>選曲と再生だけ</small></button>
-      <button id="ph-m-pro" type="button">Pro<small>全機能（マニア向け）</small></button>
-    </div>
-    <div id="ph-note">Normalモード：調整系のタブは閉じています</div>
-    <nav id="ph-tabs">
-      <button type="button" class="ph-tab on" data-ptab="play"><span class="ic">▶️</span>再生</button>
-      <button type="button" class="ph-tab" data-ptab="list"><span class="ic">🎼</span>選曲</button>
-      <button type="button" class="ph-tab locked" data-ptab="eq"><span class="lk">🔒</span><span class="ic">🎚</span>EQ</button>
-      <button type="button" class="ph-tab locked" data-ptab="fx"><span class="lk">🔒</span><span class="ic">🌌</span>空間・効果</button>
-      <button type="button" class="ph-tab locked" data-ptab="set"><span class="lk">🔒</span><span class="ic">⚙️</span>設定</button>
-    </nav>
-  </div>
+  <!-- ジャンプ用タブバー：スマホ幅だけ表示。中身は隠さず、押すとその区分までスクロールする -->
+  <nav id="jump-tabs" style="display:none">
+    <button type="button" class="jump-tab on" data-jump="0"><span class="ic">▶️</span>再生</button>
+    <button type="button" class="jump-tab" data-jump="1"><span class="ic">🎼</span>選曲</button>
+    <button type="button" class="jump-tab" data-jump="3"><span class="ic">🎚</span>EQ</button>
+    <button type="button" class="jump-tab" data-jump="4"><span class="ic">🌌</span>空間・効果</button>
+    <button type="button" class="jump-tab" data-jump="set"><span class="ic">⚙️</span>設定</button>
+  </nav>
 
   <div class="deck">
     <div class="now">
@@ -346,10 +326,60 @@
         <button id="btn-treset" type="button" class="loud-btn" title="音量以外のつまみ（SUB／BASS／MID／TREBLE／BALANCE）を初期値に戻します">RESET</button>
         <div class="knob-lab">つまみリセット</div>
       </div>
+      <div class="knob-unit">
+        <button id="mode-bypass" type="button" class="loud-btn" title="全ての音響処理を通さず、ファイルをそのまま再生します（音が出ない時の切り替えにもなります）">Pure Direct</button>
+        <div class="knob-lab">直結再生</div>
+      </div>
     </div>
 
   </div>
-
+  <div class="deck listbox">
+    <h2>📜 曲リスト</h2>
+    <div class="tabs" id="tabs">
+      <button type="button" data-filter="all" class="on">全曲</button>
+      <button type="button" data-filter="song">楽曲（41曲）</button>
+      <button type="button" data-filter="cafe">カフェBGM（34曲）</button>
+      <button type="button" data-filter="local">ローカル</button>
+      <button type="button" data-filter="url">URL</button>
+    </div>
+    <div id="list"></div>
+    <div class="srcrow">
+      <button id="btn-base" type="button">🌐 音源：サーバー</button>
+      <button id="btn-folder" type="button">📁 フォルダを選ぶ</button>
+      <span class="st" id="src-status">音源： ゲームサーバーから再生します（ネット接続時）</span>
+      <input type="file" id="filepick" webkitdirectory multiple accept="audio/*,.flac,.wav,.ogg,.m4a,.mp3">
+    </div>
+    <div class="srcrow">
+      <input type="url" id="url-in" placeholder="https://…/音声ファイルのURL">
+      <button id="btn-urladd" type="button">🔗 URLを追加</button>
+    </div>
+    <div class="st">URLで追加した曲は曲リストの「URL」タブに入ります。対応形式：MP3／FLAC／WAV／OGG／Opus／M4A／AAC（ブラウザが再生できる形式のみ）。サイトによっては音が出ない場合があります（その時は「Pure Direct」を押してください）。</div>
+  </div>
+  <div class="deck">
+    <h2 style="font-size:14px;color:#ffd98a;margin:0 0 6px;">📈 スペクトルアナライザー</h2>
+    <canvas id="ana" width="480" height="190" style="width:100%;height:auto;display:block;background:#0a0e14;border-radius:8px;"></canvas>
+    <div id="fmtinfo" style="font-size:11px;color:#8fa3b8;margin-top:4px;font-variant-numeric:tabular-nums;">OUTPUT: --</div>
+  </div>
+  <div class="deck eq">
+    <h2>🎚️ グラフィックイコライザー（31バンド 1/3オクターブ／単位：Hz・kHz）</h2>
+    <div style="font-size:11px;color:#a68d64;">◀ バンドは左右にスライドできます ▶</div>
+    <div style="font-size:11px;color:#a68d64;">スライダーは一度タップしてから動かせます（誤操作防止）。＋／−ボタンで1dBずつ微調整できます</div>
+    <canvas id="spec" width="480" height="56"></canvas>
+    <div class="bands" id="bands"></div>
+    <div class="presets">
+      <button type="button" data-preset="flat">フラット</button>
+      <button type="button" data-preset="bass">低音ブースト</button>
+      <button type="button" data-preset="clear">高音きらきら</button>
+      <button type="button" data-preset="mellow">まったり</button>
+      <button type="button" data-preset="don">ドンシャリ</button>
+    </div>
+    <div class="srcrow">
+      <button id="btn-hp" type="button">🎧 ヘッドホン補正を読む</button>
+      <button id="btn-hp-clear" type="button">補正クリア</button>
+      <span class="st" id="hp-status">🎧 補正：なし（ヘッドホンの音の癖を消す設定ファイルを読むとONになります）</span>
+      <input type="file" id="hpfile" accept=".txt" style="display:none;">
+    </div>
+  </div>
   <div class="deck">
     <div class="modes">
       <span class="lab">🌌 空間</span>
@@ -375,58 +405,7 @@
     <div style="font-size:11px;color:#8fa3b8;margin-top:2px;">強さスライダーは一度タップしてから動かせます（誤操作防止）</div>
     <div class="modes" style="justify-content:flex-end;">
       <button id="btn-kara" type="button">🎤 カラオケ：オフ</button>
-      <button id="mode-bypass" type="button">🔊 音が出ない時</button>
     </div>
-  </div>
-
-  <div class="deck">
-    <h2 style="font-size:14px;color:#ffd98a;margin:0 0 6px;">📈 スペクトルアナライザー</h2>
-    <canvas id="ana" width="480" height="190" style="width:100%;height:auto;display:block;background:#0a0e14;border-radius:8px;"></canvas>
-    <div id="fmtinfo" style="font-size:11px;color:#8fa3b8;margin-top:4px;font-variant-numeric:tabular-nums;">OUTPUT: --</div>
-  </div>
-
-  <div class="deck eq">
-    <h2>🎚️ グラフィックイコライザー（31バンド 1/3オクターブ／単位：Hz・kHz）</h2>
-    <div style="font-size:11px;color:#a68d64;">◀ バンドは左右にスライドできます ▶</div>
-    <div style="font-size:11px;color:#a68d64;">スライダーは一度タップしてから動かせます（誤操作防止）。＋／−ボタンで1dBずつ微調整できます</div>
-    <canvas id="spec" width="480" height="56"></canvas>
-    <div class="bands" id="bands"></div>
-    <div class="presets">
-      <button type="button" data-preset="flat">フラット</button>
-      <button type="button" data-preset="bass">低音ブースト</button>
-      <button type="button" data-preset="clear">高音きらきら</button>
-      <button type="button" data-preset="mellow">まったり</button>
-      <button type="button" data-preset="don">ドンシャリ</button>
-    </div>
-    <div class="srcrow">
-      <button id="btn-hp" type="button">🎧 ヘッドホン補正を読む</button>
-      <button id="btn-hp-clear" type="button">補正クリア</button>
-      <span class="st" id="hp-status">🎧 補正：なし（ヘッドホンの音の癖を消す設定ファイルを読むとONになります）</span>
-      <input type="file" id="hpfile" accept=".txt" style="display:none;">
-    </div>
-  </div>
-
-  <div class="deck listbox">
-    <h2>📜 曲リスト</h2>
-    <div class="tabs" id="tabs">
-      <button type="button" data-filter="all" class="on">全曲</button>
-      <button type="button" data-filter="song">楽曲（41曲）</button>
-      <button type="button" data-filter="cafe">カフェBGM（34曲）</button>
-      <button type="button" data-filter="local">ローカル</button>
-      <button type="button" data-filter="url">URL</button>
-    </div>
-    <div id="list"></div>
-    <div class="srcrow">
-      <button id="btn-base" type="button">🌐 音源：サーバー</button>
-      <button id="btn-folder" type="button">📁 ローカル</button>
-      <span class="st" id="src-status">音源： ゲームサーバーから再生します（ネット接続時）</span>
-      <input type="file" id="filepick" webkitdirectory multiple accept="audio/*,.flac,.wav,.ogg,.m4a,.mp3">
-    </div>
-    <div class="srcrow">
-      <input type="url" id="url-in" placeholder="https://…/音声ファイルのURL">
-      <button id="btn-urladd" type="button">🔗 URLを追加</button>
-    </div>
-    <div class="st">URLで追加した曲は曲リストの「URL」タブに入ります。対応形式：MP3／FLAC／WAV／OGG／Opus／M4A／AAC（ブラウザが再生できる形式のみ）。サイトによっては音が出ない場合があります（その時は「🔊 音が出ない時」を押してください）。</div>
     <div class="modes" style="justify-content:flex-start;margin-top:10px;">
       <span class="lab">🎨 デザイン</span>
       <button type="button" data-theme-btn="auto">📱 端末連動</button>
@@ -440,9 +419,9 @@
 
   <div class="hint">
     使い方：曲をタップすると再生。「連続再生」ONで曲が終わると次の曲へ、「ランダム」ONでシャッフル再生します。<br>
-    標準では音源をゲームサーバーから読みます（ネット接続時）。「📁 ローカル」でフォルダを選ぶと、その中の音声ファイル（MP3／FLAC／WAV等）が曲リストの「ローカル」タブに入ります。<br>
+    標準では音源をゲームサーバーから読みます（ネット接続時）。「📁 フォルダを選ぶ」から読み込むと、その中の音声ファイル（MP3／FLAC／WAV等）が曲リストの「ローカル」タブに入ります。<br>
     VUメーターとイコライザーは再生中だけ動きます。音源がMono（64kbpsMono）の曲は、左右の針が同じ動きになります。<br>
-    再生しても音が出ない時は「🔊 音が出ない時」ボタンを押してください（イコライザーとメーターを経由しない単純再生に切り替わります）。<br>
+    再生しても音が出ない時は「Pure Direct」ボタンを押してください（全ての音響処理を経由しない直結再生に切り替わります）。<br>
     『桜色メモリアル 〜ときめき学園物語〜』（Snow Moon Games）の推奨BGM専用プレイヤーです。曲データはゲームサーバーから読み込みます。
   </div>
 </div>
@@ -586,7 +565,6 @@ var I18N = {
 "残響なし（素の音）":"No reverb (dry sound)",
 "空間の強さ":"Space Strength",
 "🎤 カラオケ：オフ":"🎤 Karaoke: Off",
-"🔊 音が出ない時":"🔊 No Sound?",
 "📈 スペクトルアナライザー":"📈 Spectrum Analyzer",
 "🎚️ グラフィックイコライザー（31バンド 1/3オクターブ／単位：Hz・kHz）":"🎚️ Graphic Equalizer (31-band, 1/3 octave / Hz·kHz)",
 "◀ バンドは左右にスライドできます ▶":"◀ Slide the bands left / right ▶",
@@ -594,6 +572,7 @@ var I18N = {
 "強さスライダーは一度タップしてから動かせます（誤操作防止）":"Tap the strength slider once before moving it (prevents accidental changes)",
 "リセット":"Reset",
 "高音補完：オフ":"Exciter: Off",
+"直結再生":"Direct",
 "MP3でカットされた高音を、倍音を作って補います（低ビットレート音源向け）":"Restores treble lost in MP3s by generating harmonics (for low-bitrate sources)",
 "フラット":"Flat",
 "低音ブースト":"Bass Boost",
@@ -609,11 +588,11 @@ var I18N = {
 "カフェBGM（34曲）":"Cafe BGM (34)",
 "ローカル":"Local",
 "🌐 音源：サーバー":"🌐 Source: Server",
-"📁 ローカル":"📁 Local Folder",
+"📁 フォルダを選ぶ":"📁 Choose Folder",
 "音源： ゲームサーバーから再生します（ネット接続時）":"Source: plays from the game server (online)",
 "https://…/音声ファイルのURL":"https://…/audio file URL",
 "🔗 URLを追加":"🔗 Add URL",
-"URLで追加した曲は曲リストの「URL」タブに入ります。対応形式：MP3／FLAC／WAV／OGG／Opus／M4A／AAC（ブラウザが再生できる形式のみ）。サイトによっては音が出ない場合があります（その時は「🔊 音が出ない時」を押してください）。":"Tracks added by URL appear in the URL tab. Formats: MP3 / FLAC / WAV / OGG / Opus / M4A / AAC (only formats your browser can play). Some sites block sound — if so, press “🔊 No Sound?”.",
+"URLで追加した曲は曲リストの「URL」タブに入ります。対応形式：MP3／FLAC／WAV／OGG／Opus／M4A／AAC（ブラウザが再生できる形式のみ）。サイトによっては音が出ない場合があります（その時は「Pure Direct」を押してください）。":"Tracks added by URL appear in the URL tab. Formats: MP3 / FLAC / WAV / OGG / Opus / M4A / AAC (only formats your browser can play). Some sites block sound — if so, press “Pure Direct”.",
 "🎨 デザイン":"🎨 Theme",
 "📱 端末連動":"📱 Auto (Device)",
 "☀ ライト":"☀ Light",
@@ -622,9 +601,9 @@ var I18N = {
 "🌸 桜色":"🌸 Sakura",
 "🪶 ブラック":"🪶 Black",
 "使い方：曲をタップすると再生。「連続再生」ONで曲が終わると次の曲へ、「ランダム」ONでシャッフル再生します。":"How to use: tap a track to play. With Continuous ON it moves to the next track; with Shuffle ON it plays in random order.",
-"標準では音源をゲームサーバーから読みます（ネット接続時）。「📁 ローカル」でフォルダを選ぶと、その中の音声ファイル（MP3／FLAC／WAV等）が曲リストの「ローカル」タブに入ります。":"By default, tracks stream from the game server (online). Choose a folder with “📁 Local Folder” and its audio files (MP3 / FLAC / WAV…) appear in the Local tab.",
+"標準では音源をゲームサーバーから読みます（ネット接続時）。「📁 フォルダを選ぶ」から読み込むと、その中の音声ファイル（MP3／FLAC／WAV等）が曲リストの「ローカル」タブに入ります。":"By default, tracks stream from the game server (online). Load a folder with “📁 Choose Folder” and its audio files (MP3 / FLAC / WAV…) appear in the Local tab.",
 "VUメーターとイコライザーは再生中だけ動きます。音源がMono（64kbpsMono）の曲は、左右の針が同じ動きになります。":"The VU meters and equalizer move only during playback. Mono tracks (64kbps mono) move both needles together.",
-"再生しても音が出ない時は「🔊 音が出ない時」ボタンを押してください（イコライザーとメーターを経由しない単純再生に切り替わります）。":"If you hear no sound, press “🔊 No Sound?” (switches to plain playback without the equalizer and meters).",
+"再生しても音が出ない時は「Pure Direct」ボタンを押してください（全ての音響処理を経由しない直結再生に切り替わります）。":"If you hear no sound, press “Pure Direct” (switches to direct playback that bypasses all audio processing).",
 "『桜色メモリアル 〜ときめき学園物語〜』（Snow Moon Games）の推奨BGM専用プレイヤーです。曲データはゲームサーバーから読み込みます。":"The dedicated player for the recommended BGM of “Sakurairo Memorial” (Snow Moon Games). Track data loads from the game server.",
 "再生":"Play",
 "選曲":"Select",
@@ -2161,31 +2140,18 @@ applyI18n();
 if(LANG === "en") refreshLangTexts();
 </script>
 <script>
-/* ===== スマホ用レイアウト制御（タブ切替＋Normal/Pro）Ver.1.55 =====
-   スマホ幅（640px以下）の時だけ、既存デッキをタブのシートに振り分け、
-   一部の部品（ヘッドホン補正／テーマ／使い方）を担当シートのデッキへ
-   移動する。広い画面では元の配置のまま一切触らない。 */
+/* ===== 誤操作ガード制御 Ver.1.65 =====
+   画面は全幅共通の一本式（タブ切替・モード切替は廃止し、
+   最初から全機能を表示する）。このスクリプトはツマミ／
+   EQバンド／空間の強さの押し込みガードだけを担当する。 */
 (function(){
   var decks = document.querySelectorAll("#wrap > .deck");
   if(decks.length < 5) return;
-  function setSheet(el, name){ if(el) el.setAttribute("data-psheet", name); }
-  setSheet(decks[0], "play");  /* 再生：再生中・シーク・トランスポート・ツマミ */
-  setSheet(decks[1], "fx");    /* 空間・効果：空間プリセット等 */
-  setSheet(decks[2], "play");  /* 再生（Pro）：スペクトルアナライザー＋出力情報 */
-  setSheet(decks[3], "eq");    /* EQ：31バンド */
-  setSheet(decks[4], "list");  /* 選曲：曲リスト・音源・URL */
-  /* Pro専用パーツ（Normalのスマホ画面では隠す） */
-  decks[2].classList.add("ph-pro");
-  $("vu").classList.add("ph-pro");
-  $("wave").classList.add("ph-pro");
-  decks[0].querySelectorAll(".volrow .knob-unit").forEach(function(u, i){
-    if(i < 5) u.classList.add("ph-pro"); /* SUB/BASS/MID/TREBLE/BALANCE。VOLUMEは常時表示 */
-  });
   /* ===== ツマミの誤操作ガード（全ツマミ＝一度タップして押し込んでから調整） =====
      全画面共通（スマホ／タブレット／PC）。ロック中のツマミはドラッグ・
      ホイール・ダブルクリックを受け付けない。タップ（小さな動き）で
      押し込み状態になり、そのツマミだけ調整できる。5秒操作がなければ
-     自動でロックに戻る。タブ・モード切替でもロックする。 */
+     自動でロックに戻る。 */
   var toneUnits = [];
   ["knob","knob-sub","knob-bass","knob-mid","knob-treble","knob-bal"].forEach(function(id){
     var k = $(id);
@@ -2218,6 +2184,11 @@ if(LANG === "en") refreshLangTexts();
   knobHint.id = "ph-knobhint";
   var vrTop = decks[0].querySelector(".volrow");
   if(vrTop && vrTop.parentNode) vrTop.parentNode.insertBefore(knobHint, vrTop.nextSibling);
+  function setKnobHint(){
+    knobHint.textContent = T("ツマミは、一度タップして押し込んでから調整します（誤操作防止）", "Knobs: tap once to push in, then adjust (prevents accidental changes)");
+  }
+  setKnobHint();
+  $("btn-lang").addEventListener("click", setKnobHint);
   decks[0].addEventListener("pointerdown", function(e){
     var u = toneUnitOf(e.target);
     if(!u) return;
@@ -2363,112 +2334,47 @@ if(LANG === "en") refreshLangTexts();
   }
   lockBands();
   lockSpace();
-  /* 設定シート用の受け皿デッキ（スマホ幅の時だけ #wrap に差し込む） */
-  var setDeck = document.createElement("div");
-  setDeck.className = "deck";
-  setDeck.setAttribute("data-psheet", "set");
-  var moveRec = null;
-  function phMoveIn(){
-    if(moveRec) return;
-    moveRec = [];
-    function mv(el, dest){
-      if(!el || !dest) return;
-      moveRec.push({ el: el, parent: el.parentNode, next: el.nextSibling });
-      dest.appendChild(el);
+  toneLockAll();
+})();
+</script>
+<script>
+/* ===== ジャンプ用タブバー制御 Ver.1.65 =====
+   タブは「移動のためだけ」：中身は一切隠さず、押すとその
+   区分までスクロールする。手でスクロールした時も、
+   見えている区分のタブが光って追いかける。 */
+(function(){
+  var bar = document.getElementById("jump-tabs");
+  if(!bar) return;
+  var decks = document.querySelectorAll("#wrap > .deck");
+  var tabs = bar.querySelectorAll(".jump-tab");
+  function targetOf(t){
+    var k = t.getAttribute("data-jump");
+    if(k === "set"){
+      var b = document.querySelector("[data-theme-btn]");
+      var row = b ? b.closest(".modes") : null;
+      if(row) row.style.scrollMarginTop = "74px";
+      return row;
     }
-    $("wrap").appendChild(setDeck);
-    /* LOUDNESS／RESET／高音補完は元の場所のまま（実機要望で移動を取りやめ） */
-    mv(decks[3].querySelector(".srcrow"), decks[1]);            /* ヘッドホン補正 → 空間・効果 */
-    mv(decks[4].querySelector(".modes"), setDeck);              /* テーマ → 設定 */
-    mv(document.querySelector("#wrap > .hint"), setDeck);       /* 使い方 → 設定 */
-    toneLockAll();
+    return decks[Number(k)] || null;
   }
-  function phMoveOut(){
-    if(!moveRec) return;
-    toneLockAll();
-    for(var i = moveRec.length - 1; i >= 0; i--){
-      var r = moveRec[i];
-      if(r.parent) r.parent.insertBefore(r.el, r.next);
-    }
-    moveRec = null;
-    if(setDeck.parentNode) setDeck.parentNode.removeChild(setDeck);
+  function setOn(t){
+    tabs.forEach(function(x){ x.classList.toggle("on", x === t); });
   }
-  /* ===== Normal／Pro と タブの状態 ===== */
-  var PRO_TABS = { eq: 1, fx: 1, set: 1 };
-  var phMode = "normal", phTab = "play";
-  try {
-    var m0 = localStorage.getItem("sakuraBgmUiMode");
-    if(m0 === "pro" || m0 === "normal") phMode = m0;
-    var t0 = localStorage.getItem("sakuraBgmUiTab");
-    if(t0 && ["play", "list", "eq", "fx", "set"].indexOf(t0) >= 0) phTab = t0;
-  } catch(e){}
-  if(phMode === "normal" && PRO_TABS[phTab]) phTab = "play";
-  function phApply(noteMsg){
-    document.body.setAttribute("data-pmode", phMode);
-    document.body.setAttribute("data-ptab", phTab);
-    $("ph-m-normal").classList.toggle("on", phMode === "normal");
-    $("ph-m-pro").classList.toggle("on", phMode === "pro");
-    document.querySelectorAll(".ph-tab").forEach(function(t){
-      var k = t.getAttribute("data-ptab");
-      t.classList.toggle("on", k === phTab);
-      var locked = phMode === "normal" && !!PRO_TABS[k];
-      t.classList.toggle("locked", locked);
-      var lk = t.querySelector(".lk");
-      if(lk) lk.style.display = locked ? "" : "none";
+  tabs.forEach(function(t){
+    t.addEventListener("click", function(){
+      var el = targetOf(t);
+      setOn(t);
+      if(el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
-    toneLockAll();
-    lockBands();
-    lockSpace();
-    var kh = $("ph-knobhint");
-    if(kh) kh.textContent = T("ツマミは、一度タップして押し込んでから調整します（誤操作防止）", "Knobs: tap once to push in, then adjust (prevents accidental changes)");
-    $("ph-note").textContent = noteMsg || (phMode === "pro"
-      ? T("Proモード：全タブ開放（設定はNormalに戻しても保持されます）", "Pro mode: all tabs open (settings are kept when you switch back to Normal)")
-      : T("Normalモード：調整系のタブは閉じています", "Normal mode: adjustment tabs are locked"));
-  }
-  function phSetMode(m){
-    phMode = m;
-    try { localStorage.setItem("sakuraBgmUiMode", m); } catch(e){}
-    if(m === "normal" && PRO_TABS[phTab]) phTab = "play";
-    phApply();
-  }
-  function phSetTab(k){
-    if(PRO_TABS[k] && phMode === "normal"){
-      phApply(T("🔒 そのタブはProモードで使えます（上のProを押してください）", "🔒 That tab is available in Pro mode (tap Pro above)"));
-      return;
-    }
-    phTab = k;
-    try { localStorage.setItem("sakuraBgmUiTab", k); } catch(e){}
-    phApply();
-  }
-  $("ph-m-normal").addEventListener("click", function(){ phSetMode("normal"); });
-  $("ph-m-pro").addEventListener("click", function(){ phSetMode("pro"); });
-  document.querySelectorAll(".ph-tab").forEach(function(t){
-    t.addEventListener("click", function(){ phSetTab(t.getAttribute("data-ptab")); });
   });
-  /* 言語切替の後に案内文も新しい言語で出し直す */
-  $("btn-lang").addEventListener("click", function(){ phApply(); });
-  /* ===== 幅の切替に追随（スマホ幅でだけ部品を移動） ===== */
-  var phMq = null;
-  try { phMq = window.matchMedia("(max-width: 640px)"); } catch(e){}
-  var phIn = false;
-  function phLayout(){
-    if(!phMq) return;
-    if(phMq.matches && !phIn){ phMoveIn(); phIn = true; }
-    else if(!phMq.matches && phIn){ phMoveOut(); phIn = false; }
+  if("IntersectionObserver" in window){
+    var map = new Map();
+    tabs.forEach(function(t){ var el = targetOf(t); if(el) map.set(el, t); });
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) setOn(map.get(e.target)); });
+    }, { rootMargin: "-76px 0px -55% 0px", threshold: 0 });
+    map.forEach(function(t, el){ io.observe(el); });
   }
-  if(phMq){
-    if(phMq.addEventListener) phMq.addEventListener("change", phLayout);
-    else if(phMq.addListener) phMq.addListener(phLayout);
-  }
-  phLayout();
-  phApply();
-  /* テスト用 */
-  window.__phoneUi = {
-    get mode(){ return phMode; },
-    get tab(){ return phTab; },
-    get inPhone(){ return phIn; },
-    setMode: phSetMode, setTab: phSetTab
-  };
 })();
 </script>
 </body>
