@@ -1959,9 +1959,12 @@ function adminRenderLists(){
  const cu=$("adm-cu-list");
  if(cu){cu.innerHTML=ADMIN.custom.length?ADMIN.custom.map((c,i)=>'<div class="kv"><span>No.'+esc(c.no||("CU-"+(i+1)))+' '+esc(c.title||"")+'</span><span><button class="btn small" data-cu-del="'+i+'">削除</button></span></div>').join(""):'<div class="kv"><span>カスタムなし</span><span>―</span></div>';
  cu.querySelectorAll("[data-cu-del]").forEach(b=>{b.onclick=()=>{ADMIN.custom.splice(+b.dataset.cuDel,1);persistAdmin();adminRenderLists();toast("カスタムストーリーを削除しました")}})}
- /* 2.71: 回想連動の動画（ls-op01シリーズ）一覧。data.js の video 付き思い出から自動生成 */
+ /* 2.73: 回想連動の動画（ls-op01シリーズ）一覧。data.js の video 付き思い出から自動生成。管理用なので解放状態に関係なく全本再生できる */
  const vd=$("adm-video-list");
- if(vd){const vs=(typeof ALL_MEMORIES!=="undefined"?ALL_MEMORIES:[]).filter(m=>m.video);vd.innerHTML=vs.length?vs.map(m=>'<div class="kv"><span>'+esc(m.id.replace("mem_",""))+" "+esc(m.title)+'</span><span>'+esc(m.video)+'</span></div>').join(""):'<div class="kv"><span>動画なし</span><span>―</span></div>'}
+ if(vd){const vs=(typeof ALL_MEMORIES!=="undefined"?ALL_MEMORIES:[]).filter(m=>m.video);
+  vd.innerHTML=vs.length?vs.map((m,i)=>{const img=(window.albumImgOf?window.albumImgOf(m):(m.img||""));return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #f3b8cc;border-radius:10px;padding:8px;margin:6px 0"><img src="'+img+'" loading="lazy" onerror="this.style.visibility=\'hidden\'" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none"><div style="flex:1"><div style="font-weight:700">'+esc(m.title)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(m.video)+'</div></div><button class="btn small" data-adm-video="'+i+'">▶ 再生</button></div>'}).join(""):'<div class="kv"><span>動画なし</span><span>―</span></div>';
+  vd.querySelectorAll("[data-adm-video]").forEach(b=>{b.onclick=()=>{const m=vs[+b.dataset.admVideo];if(!m)return;const f=String(m.video).split("/").pop();adminCollectBgm();$("modal-admin").classList.add("hidden");videoDisplay=[[f,"回想動画　"+m.title]];playSpecialAt(0)}});
+ }
 }
 function openAdmin(){
  const list=$("adm-bgm-list");list.innerHTML="";
@@ -2343,54 +2346,7 @@ function bootLoading(){
 }
 if(!window.__SAKURA_BOOT){window.__SAKURA_BOOT=true;bootLoading()}
 $("btn-album-title").onclick=()=>{albumReturn="title";openAlbum()};
-/* 2.37 ミニゲームコーナー（minigamesフォルダの独立HTMLをそのまま再生） */
-const MINIGAMES=[
- {file:"quiz.html",name:"期末テストクイズ",desc:"4択クイズ・黒羽のご当地問題つき"},
- {file:"memory.html",name:"図書室の神経衰弱",desc:"本のペア合わせ・ゆきと対戦もできる"},
- {file:"takoyaki.html",name:"文化祭たこ焼き屋",desc:"注文をさばく出店ゲーム（60秒）"},
- {file:"recipe.html",name:"調理実習・手順おぼえ",desc:"光る順番を覚える記憶ゲーム"},
- {file:"karuta.html",name:"かるた読上ゲーム",desc:"百人一首・上の句を聞いて札を取る"},
- {file:"dot-battle.html",name:"ドットモンスターバトル",desc:"ターン制のモンスターバトル"},
- {file:"pachislot.html",name:"ドットパチスロ",desc:"メダルで運試し"},
- {file:"block.html",name:"ドットブロック崩し",desc:"定番のブロック崩し"},
- {file:"invader.html",name:"ドットインベーダー",desc:"迫るインベーダーを撃ち落とす"},
- {file:"barrel.html",name:"ドットバレルクライム",desc:"樽をよけて頂上の猫を助ける"},
- {file:"platformer.html",name:"ミニプラットフォーマー",desc:"3ステージの横スクロール"},
- {file:"fighter.html",name:"ミニ格闘",desc:"CPUと対戦する格闘ゲーム"},
- {file:"yusha.html",name:"ドットゆうしゃの冒険",desc:"村・野原・洞窟の小さなRPG"},
- {file:"kiri-no-yakata.html",name:"霧の館",desc:"ドット絵サウンドノベル"},
- {file:"boys/index.html",name:"いつも隣にいた君",desc:"ボーイズラブ長編ノベル（48ターン・5エンディング）"}
-];
-const MINITOOLS=[
- {file:"voice-to-text.html",name:"音声文字変換",desc:"話した言葉をそのまま文字にする"},
- {file:"ground-golf.html",name:"グラウンドゴルフ記録",desc:"スコア記録・集計"}
-];
-function openMinigames(){
- const list=$("minigame-list");list.innerHTML="";
- const addItem=(g,icon)=>{
-  const b=document.createElement("button");b.className="btn";b.style.width="100%";b.style.margin="0 0 8px";b.style.textAlign="left";
-  b.innerHTML=icon+" "+g.name+"<span style='display:block;font-size:12px;color:var(--muted);font-weight:700'>"+g.desc+"</span>";
-  b.onclick=()=>{beep(700,.08);openMiniGame(g)};
-  list.appendChild(b);
- };
- MINIGAMES.forEach(g=>addItem(g,"🎮"));
- const hd=document.createElement("h4");hd.className="mincho";hd.style.margin="14px 0 8px";hd.textContent="🧰 お道具";list.appendChild(hd);
- MINITOOLS.forEach(g=>addItem(g,"🧰"));
- $("modal-minigames").classList.remove("hidden");
-}
-function openMiniGame(g){
- $("modal-minigames").classList.add("hidden");
- $("mg-title").textContent="🎮 "+g.name;
- $("mg-frame").src="minigames/"+g.file;
- $("mg-overlay").classList.remove("hidden");
-}
-function closeMiniGame(){
- $("mg-frame").src="about:blank";
- $("mg-overlay").classList.add("hidden");
-}
-$("btn-minigames").onclick=()=>{beep(660,.08);openMinigames()};
-$("btn-minigames-close").onclick=()=>$("modal-minigames").classList.add("hidden");
-$("btn-mg-close").onclick=()=>{beep(520,.07);closeMiniGame()};
+
 $("btn-album-game").onclick=()=>{albumReturn="game";openAlbum()};
 $("btn-album-back").onclick=()=>{
  if(albumReturn==="game"&&S&&!S.ended)show("screen-game");
@@ -2569,6 +2525,24 @@ function renderVideoList(){
    else html+='<button class="btn small" disabled style="display:block;width:100%;text-align:left;margin:4px 0;opacity:.55">'+h+"-"+String(i+1).padStart(2,"0")+"　🔒 ゲームの中で見ると解放されます</button>";
   });
  });
+ /* 2.73: 回想連動ムービー（data.js の video 付き思い出）の一覧をお宝動画の下に追加 */
+ const mems=(typeof ALL_MEMORIES!=="undefined"?ALL_MEMORIES:[]).filter(function(m){return m.video});
+ if(mems.length){
+  html+='<h3 class="mincho" style="margin:18px 0 4px">🎬 回想ムービー</h3>';
+  html+='<p style="font-weight:500;color:var(--muted);line-height:1.7;margin:0 0 8px;font-size:13px">思い出の静止画が動き出す動画です。解放済みの思い出だけ見られます（お宝動画の解放数には数えません）。</p>';
+  mems.forEach(function(m){
+   const f=String(m.video).split("/").pop();
+   const label="回想動画　"+m.title;
+   const img=(window.albumImgOf?window.albumImgOf(m):(m.img||""));
+   const thumb='<img src="'+img+'" loading="lazy" onerror="this.style.visibility=\'hidden\'" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none">';
+   if(albumUnlocked.has(m.id)){
+    const vidx=videoDisplay.length;videoDisplay.push([f,label]);
+    html+='<button class="btn small" data-video="'+f+'" data-vidx="'+vidx+'" data-vtitle="'+label+'" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:4px 0">'+thumb+'<span>▶ '+m.title+'</span></button>';
+   }else{
+    html+='<button class="btn small" disabled style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:4px 0;opacity:.55"><img src="'+img+'" loading="lazy" onerror="this.style.visibility=\'hidden\'" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none;filter:grayscale(1)"><span>🔒 '+m.title+'</span></button>';
+   }
+  });
+ }
  box.innerHTML=html||'<p style="color:var(--muted)">動画リストがありません。</p>';
  const vc=$("album-video-count");if(vc)vc.textContent="（解放 "+videoSeenSet.size+" / "+(window.SAKURA_SPECIAL_VIDEOS||[]).length+"）";
  box.querySelectorAll("[data-video]").forEach(function(b){b.onclick=function(){playSpecialAt(parseInt(b.getAttribute("data-vidx"),10))}});
@@ -2756,16 +2730,17 @@ function renderPilgrim(){
 }
 let albumTab="none";
 function setAlbumTab(t){albumTab=(t===albumTab)?"none":t;const tg=function(id,on){const el=$(id);if(el)el.classList.toggle("hidden",!on)};
- tg("album-videos",albumTab==="video");tg("album-bgm",albumTab==="bgm");tg("album-grid",albumTab==="pic");
+ tg("album-videos",albumTab==="video");tg("album-bgm",albumTab==="synth");tg("album-song",albumTab==="song");tg("album-grid",albumTab==="pic");
  if(albumTab==="pic")renderAlbumGrid();
  if(albumTab!=="pic")tg("album-detail",false);
  tg("album-ach",albumTab==="none");const sm=$("album-summary");if(sm)sm.classList.toggle("hidden",!(albumTab==="none"&&S&&S.ended));
- const bp=$("tab-pic"),bb=$("tab-bgm"),bv=$("tab-video");
- if(bp)bp.classList.toggle("primary",albumTab==="pic");if(bb)bb.classList.toggle("primary",albumTab==="bgm");if(bv)bv.classList.toggle("primary",albumTab==="video");
+ const bp=$("tab-pic"),bb=$("tab-bgm"),bv=$("tab-video"),bs=$("tab-song");
+ if(bp)bp.classList.toggle("primary",albumTab==="pic");if(bb)bb.classList.toggle("primary",albumTab==="synth");if(bv)bv.classList.toggle("primary",albumTab==="video");if(bs)bs.classList.toggle("primary",albumTab==="song");
  window.scrollTo({top:0});}
 if($("tab-pic"))$("tab-pic").onclick=function(){setAlbumTab("pic")};
-if($("tab-bgm"))$("tab-bgm").onclick=function(){setAlbumTab("bgm")};
+if($("tab-bgm"))$("tab-bgm").onclick=function(){setAlbumTab("synth")};
 if($("tab-video"))$("tab-video").onclick=function(){setAlbumTab("video")};
+if($("tab-song"))$("tab-song").onclick=function(){setAlbumTab("song")};
 if($("btn-pilgrim"))$("btn-pilgrim").onclick=openPilgrim;
 if($("btn-pilgrim-title"))$("btn-pilgrim-title").onclick=openPilgrim;
 if($("btn-pilgrim-back"))$("btn-pilgrim-back").onclick=function(){goTitle()};

@@ -28,7 +28,7 @@
 </script>
 <script>
 /* 2.63 自動バージョンチェック：開く時にサーバーの version.txt と比べ、新しければ ?r= で読み直す */
-(function(){var MY="202611270272";try{
+(function(){var MY="202611270273";try{
  if(location.protocol==="file:")return;
  fetch("version.txt",{cache:"no-store"}).then(function(r){return r.text()}).then(function(t){
   var sv=(t||"").trim();
@@ -63,7 +63,7 @@
 <title>桜色メモリアル 〜ときめき学園物語〜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?b=202611270272">
+<link rel="stylesheet" href="style.css?b=202611270273">
 
 </head>
 <body>
@@ -84,7 +84,7 @@
       <button class="btn" id="btn-to-title2">トップページへ進む</button>
       <button class="btn" id="btn-refresh-loading">🔄 強制キャッシュクリア</button>
     </div>
-    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261127.2.72</p>
+    <p class="sub" style="margin-top:16px">Snow Moon Games Ver.20261127.2.73</p>
   </div>
 </main>
 
@@ -117,7 +117,6 @@
       <button class="btn" id="btn-continue">💾 セーブデーターロード</button>
       <button class="btn" id="btn-pilgrim-title">⛩ 聖地巡礼（観光案内）</button>
       <button class="btn" id="btn-album-title">📖 回想アルバム</button>
-      <button class="btn" id="btn-minigames">🎮 ミニゲーム</button>
       <button class="btn" id="btn-howto">❓ あそびかた</button>
       <button class="btn" id="btn-intro-open" style="text-align:center">🌸 ゲーム紹介</button>
       <button class="btn" id="btn-opening-title">🎬 オープニングを見る</button>
@@ -130,7 +129,7 @@
       <span id="vol-label" style="min-width:46px;text-align:right;font-size:14px">50%</span>
     </div>
     <div style="text-align:center;margin-top:10px;font-size:14px">🎵 主題歌は <a href="https://youtu.be/_cBvtVPp7q0" target="_blank" rel="noopener" style="color:var(--pink-d);font-weight:900">YouTube</a> でも公開中</div>
-    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261127.2.72</div>
+    <div class="credit"><span id="credit-admin" class="credit-link" title="作品情報を見る">Snow Moon Games</span> Ver.20261127.2.73</div>
     <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn" id="btn-qr" style="min-height:44px">📱 お友達紹介QR</button><button type="button" class="btn" id="btn-cm" style="min-height:44px">🎬 おまけCM</button></div>
   </div>
   <div class="card hidden" id="howto-card" style="margin-top:14px">
@@ -494,8 +493,9 @@
   <p style="font-weight:500;color:var(--muted);line-height:1.8;margin:0 0 12px">集めた思い出をタップすると、その場面をもう一度読めます。エンディング後に開くと、卒業アルバムとして3年間の記録がまとまります。</p>
   <div class="row" id="album-tabs" style="gap:8px;margin-bottom:12px;flex-wrap:wrap">
     <button class="btn primary" id="tab-pic">🖼 画像</button>
-    <button class="btn" id="tab-bgm">🎵 BGM</button>
     <button class="btn" id="tab-video">🎬 ムービー</button>
+    <button class="btn" id="tab-bgm">🎹 シンセBGM</button>
+    <button class="btn" id="tab-song">🎤 楽曲ライブラリ</button>
   </div>
   <div class="card hidden" id="album-summary" style="margin-bottom:12px"></div>
   <div class="card hidden" id="album-ach" style="margin-bottom:12px"></div>
@@ -505,11 +505,13 @@
     <div id="album-video-list"></div>
   </div>
   <div class="card" id="album-bgm" style="margin-bottom:12px">
-    <h3 class="mincho" style="margin:0 0 4px">🎵 BGMコレクション（全<span data-cnt="bgm">40</span>曲） <span id="album-bgm-count" style="font-size:14px"></span></h3>
+    <h3 class="mincho" style="margin:0 0 4px">🎹 シンセBGMコレクション（全<span data-cnt="bgm">40</span>曲） <span id="album-bgm-count" style="font-size:14px"></span></h3>
     <p style="font-weight:500;color:var(--muted);line-height:1.7;margin:0 0 8px">思い出と同じで、ゲームの中で一度流れた曲だけ聴けます。▶で再生（管理機能でMP3に差し替えた曲は、そのMP3が流れます）。</p>
     <div id="album-bgm-list"></div>
-    <h3 class="mincho" style="margin:16px 0 4px;font-size:16px">🎤 Snow Moon 楽曲ライブラリ（全41曲）</h3>
-    <p style="font-weight:500;color:var(--muted);line-height:1.7;font-size:13px;margin:0 0 4px">作者Snow Moonの歌のコレクションです。SNSで公開済みの曲なので、最初から全部聞けます。</p>
+  </div>
+  <div class="card" id="album-song" style="margin-bottom:12px">
+    <h3 class="mincho" style="margin:0 0 4px">🎤 Snow Moon 楽曲ライブラリ（全41曲）</h3>
+    <p style="font-weight:500;color:var(--muted);line-height:1.7;margin:0 0 8px">作者Snow Moonの歌のコレクションです。SNSで公開済みの曲なので、最初から全部聞けます。</p>
     <div id="album-song-list"></div>
     <div style="margin-top:10px"><button class="btn small" id="btn-album-bgm-stop">⏹ BGM停止</button></div>
   </div>
@@ -583,21 +585,6 @@
   </div>
 </div>
 
-<div class="modal-bg hidden" id="modal-minigames">
-  <div class="modal" role="dialog" aria-label="ミニゲーム">
-    <h3 class="mincho" style="margin:0 0 6px;font-size:21px">🎮 ミニゲーム</h3>
-    <p style="font-size:13px;color:var(--muted);font-weight:700;line-height:1.7;margin:0 0 12px">Snow Moon Games のゲームが遊べます。選ぶとそのまま始まります。</p>
-    <div id="minigame-list"></div>
-    <button class="btn ghost" id="btn-minigames-close" style="width:100%;margin-top:10px">閉じる</button>
-  </div>
-</div>
-<div id="mg-overlay" class="hidden" style="position:fixed;inset:0;background:#14101c;z-index:80;display:flex;flex-direction:column">
-  <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#241a30;color:#ffe9ef">
-    <span id="mg-title" style="font-weight:900;font-size:15px;flex:1">🎮 ミニゲーム</span>
-    <button class="btn" id="btn-mg-close" style="padding:8px 16px">✕ 閉じる</button>
-  </div>
-  <iframe id="mg-frame" title="ミニゲーム" style="flex:1;width:100%;border:0;background:#fff" allow="autoplay; microphone"></iframe>
-</div>
 <div class="modal-bg hidden" id="modal-profile">
   <div class="modal" role="dialog" aria-label="ヒロインプロフィール">
     <div id="profile-body"></div>
@@ -737,9 +724,9 @@
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="data.js?b=202611270272"></script>
-<script src="story.js?b=202611270272"></script>
-<script src="engine.js?b=202611270272"></script>
+<script src="data.js?b=202611270273"></script>
+<script src="story.js?b=202611270273"></script>
+<script src="engine.js?b=202611270273"></script>
 <script>
 /* 2.47: 紹介文の数字はデータから自動表示（追加・変更しても書き換え不要にする） */
 (function(){
