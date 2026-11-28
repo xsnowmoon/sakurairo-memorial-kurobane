@@ -1005,7 +1005,7 @@ playNovel([{who:"　",text:"ハロウィン。生徒会主催の仮装パーテ�
 ()=>{S.lastMeet.rin=S.turn;S.met.rin=true;addLog("ハロウィンパーティー（りん 好感度アップ）");show("screen-game");render();done()},"🎃 ハロウィン")}
 function evSnowDay(done){unlockMem("mem_snow");unlockMem("mem_op09");
 playNovel([{who:"　",img:"assets/op09.webp",text:"朝から雪が降り積もった日。学校は静まり返り、図書室は一年で一番静かだった。"},
-{hero:"yuki",who:"月島 ゆき",variant:"date",text:"…来てくれたんだっぺね。雪の日は、みんな早く帰るから…。図書室は、私と、あなただけです"},
+{hero:"yuki",who:"月島 ゆき",variant:"date",text:"…来てくれたんですね。雪の日は、みんな早く帰るから…。図書室は、私と、あなただけです"},
 {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"…ねえ、今日は特別に、私の小説の続き、読みますか？…雪の日の、あなたにだけ"},
 {who:"　",text:"窓の外では雪が静かに降り積もり、物語の声だけが、暖かい図書室に響いていた。"}],
 ()=>{stopMp3File();S.aff.yuki=clamp(S.aff.yuki+9);S.lastMeet.yuki=S.turn;S.met.yuki=true;S.stats.stress=clamp(S.stats.stress-8);addLog("雪の日の図書室（ゆき 好感度+9）");show("screen-game");render();done()},"❄️ 雪の日の図書室");playMp3File("bgm/song11.mp3","snow")}
@@ -1051,7 +1051,7 @@ playNovel([{who:"　",text:"今日は"+h.name+"の誕生日（"+h.profile.birthd
 ()=>{S.lastMeet[h.id]=S.turn;S.met[h.id]=true;addHurt(h.id,-20);checkProfileUnlocks();addLog(h.short+"の誕生日を祝った");show("screen-game");render();done()},"🎂 誕生日")}
 function evBirthdaySakura(done){birthdayEvent(hero("sakura"),"桜の小物、探してくれたんだ…！ありがとう、大事にするね！",done)}
 function evBirthdayAkari(done){birthdayEvent(hero("akari"),"スポーツドリンク一ケース！？分かってるじゃん、{call}！",done)}
-function evBirthdayYuki(done){birthdayEvent(hero("yuki"),"星空の栞…。私の好きな物、覚えててくれたんだっぺね…",done)}
+function evBirthdayYuki(done){birthdayEvent(hero("yuki"),"星空の栞…。私の好きな物、覚えててくれたんですね…",done)}
 function evBirthdayRin(done){birthdayEvent(hero("rin"),"高級チョコ…。ふふ、よく知ってるのね。…ありがとう",done)}
 function evSki(done){unlockMem("mem_ski");
 const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("akari");
@@ -1090,7 +1090,7 @@ playNovel([{who:"　",text:"体育祭当日。クラス対抗リレーのアン�
 ()=>{S.aff.akari=clamp(S.aff.akari+(win?10:6));S.lastMeet.akari=S.turn;S.met.akari=true;if(win)HEROINES.forEach(h=>{if(h.id!=="akari"&&S.met[h.id])S.aff[h.id]=clamp(S.aff[h.id]+2)});addLog("体育祭（あかり 好感度+"+(win?10:6)+(win?"、活躍が全員の評価に波及":"")+"）");show("screen-game");render();done()},"🏃 体育祭")}
 function evTest(done){unlockMem("mem_test");const good=S.stats.gakuryoku+rnd(-8,8)>=55;const red=!good&&S.stats.gakuryoku<35;
 const scenes=[{who:"　",text:"期末テストの結果が返ってきた。"},{who:"　",text:good?"順位は大きくアップ！努力が実を結んだ。":red?"赤点だった…。放課後、補習が言い渡された。":"順位は伸び悩んだ…。次はもっと頑張ろう。"},
-{hero:"yuki",who:"月島 ゆき",text:good?"すごいだっぺね…。図書室で頑張っていたの、私、知ってますよ。":red?"…補習、私も付き合います。図書室で、特訓しましょう":"…大丈夫だっぺ。勉強は、裏切りませんから。次は一緒に頑張りましょう"}];
+{hero:"yuki",who:"月島 ゆき",text:good?"すごいですね…。図書室で頑張っていたの、私、知ってますよ。":red?"…補習、私も付き合います。図書室で、特訓しましょう":"…大丈夫です。勉強は、裏切りませんから。次は一緒に頑張りましょう"}];
 if(red)scenes.push({hero:"yuki",who:"　",text:"補習の日々。ゆきの教え方は丁寧で、夕日の図書室が少しだけ好きになった。学力も少し取り戻した。"});
 playNovel(scenes,
 ()=>{S.aff.yuki=clamp(S.aff.yuki+(good?9:red?8:5));S.lastMeet.yuki=S.turn;S.met.yuki=true;if(red)S.stats.gakuryoku=clamp(S.stats.gakuryoku+6);addLog(red?"期末テスト赤点→補習（ゆきと特訓、学力+6）":"期末テスト（ゆき 好感度+"+(good?9:5)+"）");show("screen-game");render();done()},"📝 期末テスト")}
@@ -1137,12 +1137,12 @@ playNovel([{who:"　",text:"バレンタインデー。下駄箱を開けると�
 
 function evSpeech(done){unlockMem("mem_speech");const good=S.stats.gakuryoku>=45||S.skills.bungaku>=35;
 playNovel([{who:"　",text:"弁論大会。体育館に全校生徒が集まり、クラス代表の弁論が始まった。"},
-{hero:"yuki",who:"月島 ゆき",variant:"shy",text:"…私の番だっぺ。…震えてますけど、聞いててください。…私の言葉で、私の気持ちを、伝えます"},
+{hero:"yuki",who:"月島 ゆき",variant:"shy",text:"…私の番です。…震えてますけど、聞いててください。…私の言葉で、私の気持ちを、伝えます"},
 {who:"　",text:"ゆきの弁論のテーマは『本と人をつなぐもの』。小さな声で始まった言葉は、やがて体育館中を静かにさせた。"},
 {who:"　",text:good?"自分の弁論も、練習の成果が出た。言葉を磨く日々が、壇上で報われた気がした。":"自分の弁論は緊張で早口になってしまった。それでも、最後まで言い切れたことが小さな自信になった。",choices:[
  {label:"ゆきを真っ先に称える",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+9)}},
  {label:"出場者全員に拍手を送る",effect:()=>{HEROINES.forEach(h=>{if(S.met[h.id])S.aff[h.id]=clamp(S.aff[h.id]+3)})}}]},
-{hero:"yuki",who:"月島 ゆき",variant:"smile",text:"…終わりました…。…あなたの顔が見えたから、最後まで言えたんだっぺ。…ありがとう"}],
+{hero:"yuki",who:"月島 ゆき",variant:"smile",text:"…終わりました…。…あなたの顔が見えたから、最後まで言えたんです。…ありがとう"}],
 ()=>{S.lastMeet.yuki=S.turn;S.met.yuki=true;if(good)S.skills.bungaku=clamp(S.skills.bungaku+4);addLog("弁論大会（ゆきの弁論に感動"+(good?"、自分の弁論も好評":"")+"）");show("screen-game");render();done()},"🎤 弁論大会")}
 function evPlanetarium(done){unlockMem("mem_planetarium");
 const cand=HEROINES.filter(h=>S.met[h.id]).sort((a,b)=>S.aff[b.id]-S.aff[a.id])[0]||hero("sakura");
@@ -1245,7 +1245,7 @@ playNovel([{who:"　",text:"放課後、家庭科室から甘い匂い。さく�
 
 function evRainyLibrary(done){unlockMem("mem_rainylibrary");
 playNovel([{who:"　",text:"梅雨入りした放課後。激しい雨で下校できず、図書室に足止めされた。"},
-{hero:"yuki",who:"月島 ゆき",variant:"club",text:"…雨、止みそうにないだっぺね。…よかったら、その本、読み終わるまで隣にいますよ"},
+{hero:"yuki",who:"月島 ゆき",variant:"club",text:"…雨、止みそうにないですね。…よかったら、その本、読み終わるまで隣にいますよ"},
 {who:"　",text:"雨の音だけが響く図書室。隣の席で静かにページをめくるゆきと、言葉の少ない時間を分け合った。",choices:[
  {label:"「雨の日も悪くないね」",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+9)}},
  {label:"おすすめの本を教えてもらう",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+7);S.skills.bungaku=clamp(S.skills.bungaku+4)}}]},
@@ -1288,7 +1288,7 @@ playNovel([{who:"　",text:"体育の授業。体育祭に向けて、二人三�
 ()=>{S.lastMeet[cand.id]=S.turn;S.met[cand.id]=true;addLog("体育で"+cand.short+"と二人三脚の練習をした");show("screen-game");render();done()},"🏃 二人三脚の練習")}
 function evStudyGroup(done){unlockMem("mem_study");
 playNovel([{who:"　",text:"期末テストが近づき、放課後の図書室で勉強会が開かれた。"},
-{hero:"yuki",who:"月島 ゆき",variant:"club",text:"…ここの公式、こう考えると分かりやすいんだっぺ。…教えるの、少しだけ楽しいかも"},
+{hero:"yuki",who:"月島 ゆき",variant:"club",text:"…ここの公式、こう考えると分かりやすいんです。…教えるの、少しだけ楽しいかも"},
 {hero:"sakura",who:"桜井 さくら",text:"休憩のお菓子、持ってきたよ！…勉強も大事だけど、息抜きも大事だからね"},
 {who:"　",text:"教え合う声、シャーペンの音、窓の外の梅雨空。テスト勉強のはずの時間が、少しだけ特別だった。",choices:[
  {label:"ゆきに分からない所を教わる",effect:()=>{S.aff.yuki=clamp(S.aff.yuki+8);S.stats.gakuryoku=clamp(S.stats.gakuryoku+4)}},
@@ -1530,11 +1530,11 @@ function bonusEvent(cmdId,done){
 function evBlackSwan(done){S.flags.swanDone=true;unlockMem("mem_swan");const h=hero("yuki");
  playNovel([{sys:true,img:"assets/op03.webp",text:"ある月夜のこと――満月の光に誘われるように、羽田沼のほとりまで足を延ばした。隣には、月島ゆき。"},
  {hero:"yuki",who:"　",variant:"smile",text:"静かだね……。水面が、月を映して銀色に揺れてる"},
- {hero:"yuki",who:"月島 ゆき",text:"……見て。あれ、白鳥……でも、黒いっぺ？"},
+ {hero:"yuki",who:"月島 ゆき",text:"……見て。あれ、白鳥……でも、黒い…？"},
  {who:"　",img:"assets/op03.webp",text:"月明かりの中、黒い白鳥が一羽、音もなく水面を滑っていた。白鳥は白いものだと思っていた。でも、確かに――黒い。"},
- {hero:"yuki",who:"月島 ゆき",text:"羽田沼の黒い白鳥は、見た人に幸運を運ぶって言い伝えがあるんだっぺ。……ふふ、内緒だよ。騒ぐと、逃げちゃうから"},
+ {hero:"yuki",who:"月島 ゆき",text:"羽田沼の黒い白鳥は、見た人に幸運を運ぶって言い伝えがあるんです。……ふふ、内緒だよ。騒ぐと、逃げちゃうから"},
  {player:true,text:"……じゃあ、俺たち、運がいいんだな"},
- {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"うん。……今日のことは、二人だけの秘密だっぺ"},
+ {hero:"yuki",who:"月島 ゆき",variant:"shy",text:"うん。……今日のことは、二人だけの秘密です"},
  {who:"　",img:"assets/op03.webp",text:"黒い白鳥は一度だけこちらを見て、月を映す水面の向こうへ消えた。――黒羽の森の奥には、まだ誰も知らない物語がある。"}],
  ()=>{stopMp3File();S.aff.yuki=clamp(S.aff.yuki+5);addRel("yuki",{close:5,trust:3});S.lastMeet.yuki=S.turn;pushHistory("yuki","swan","羽田沼の黒い白鳥");addLog("羽田沼で、ゆきと黒い白鳥を見た");show("screen-game");render();done()},"🦢 黒羽の森");playMp3File("bgm/song14.mp3","night");
 }
